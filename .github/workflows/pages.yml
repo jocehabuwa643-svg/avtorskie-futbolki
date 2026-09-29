@@ -19,10 +19,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
+      - name: Собрать статику
+        run: |
+          mkdir -p _site
+          cp -a index.html styles.css .nojekyll media _site/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
