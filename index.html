@@ -1,43 +1,175 @@
 <!doctype html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Авторские футболки — вышивка и бисер</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Manrope:wght@500&display=swap" rel="stylesheet" />
-<style>
-:root{--ink:#0a0908;--paper:#f4f0ea}
-*{box-sizing:border-box;margin:0}
-html{scroll-snap-type:y proximity;scroll-behavior:smooth}
-body{background:var(--ink);color:var(--paper);font-family:Manrope,system-ui,sans-serif}
-a{color:inherit;text-decoration:none}
-.bar{position:fixed;top:0;right:0;z-index:20;padding:1.25rem 1.5rem;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;opacity:.7}
-.stage{min-height:100svh;scroll-snap-align:start;display:grid;place-items:end start;padding:0 7vw 10vh;position:relative;overflow:hidden}
-.stage:nth-child(odd){background:#0a0908}
-.stage:nth-child(even){background:#111}
-.word{font-size:clamp(3.4rem,13vw,9.5rem);letter-spacing:-.055em;line-height:.86;font-weight:500}
-.script{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic}
-.line{margin-top:1.1rem;opacity:.7;max-width:22rem}
-.ghost{position:absolute;right:6vw;bottom:38vh;font-size:clamp(6rem,22vw,16rem);letter-spacing:-.07em;line-height:.8;opacity:.08;pointer-events:none}
-.mid{min-height:70svh;display:grid;place-items:center;text-align:center;background:var(--paper);color:var(--ink);scroll-snap-align:start;padding:12vh 8vw}
-.mid p{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:clamp(1.6rem,4vw,2.6rem);max-width:16ch}
-.end{min-height:100svh;display:grid;place-items:center;text-align:center;padding:12vh 8vw;scroll-snap-align:start}
-.end h2{font-size:clamp(2.4rem,7vw,5.2rem);letter-spacing:-.04em;line-height:.95}
-.links{margin-top:2rem;display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap}
-.links a{padding:.8rem 1.4rem;border:1px solid rgba(244,240,234,.28);border-radius:999px}
-.links a.main{background:var(--paper);color:var(--ink)}
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ира Кияева — авторские футболки ручной работы</title>
+<meta name="description" content="Авторские футболки Иры Кияевой: ручная вышивка и бисер.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Great+Vibes&family=Manrope:wght@400;500;600&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="bar"><a href="#zakaz">Заказать</a></div>
-<section class="stage"><p class="ghost">нить</p><div><h1 class="word">Авторские<br>футболки</h1><p class="line">Вышивка. Бисер. Надпись, которой нет второй.</p></div></section>
-<section class="stage"><p class="ghost">И</p><div><h2 class="word">История</h2><p class="line">Красный бисер. Готический контур. Серый трикотаж.</p></div></section>
-<section class="stage"><div><h2 class="word">Вензель</h2><p class="line">Алый орнамент по чёрному. Буква собрана стеклярусом.</p></div></section>
-<section class="stage"><div><h2 class="word script">Метели</h2><p class="line">Скоропись нитью. Белая ткань держит букву.</p></div></section>
-<section class="stage"><div><h2 class="word script">Ради денег</h2><p class="line">Розовая строчка. Одна фраза — одна вещь.</p></div></section>
-<section class="stage"><div><h2 class="word">Prosecco<br><span class="script">mood</span></h2><p class="line">Чёрный бисер на алом. Надпись садится по эскизу.</p></div></section>
-<section class="stage"><p class="ghost">бисер</p><div><h2 class="word">Бисер</h2><p class="line">Стеклярус, рубка, бахрома. Грань ловит свет.</p></div></section>
-<section class="stage"><div><h2 class="word">Нить</h2><p class="line">Стежок к стежку. Без станка и без тиража.</p></div></section>
-<section class="mid"><p>Рука Иры Кияевой. Серия кончается вместе с рисунком.</p></section>
-<section class="end" id="zakaz"><div><h2>Вещь,<br>которой нет второй</h2><div class="links"><a class="main" href="https://www.instagram.com/kiyaeva_irina/">Instagram</a><a href="https://vk.ru/i.kiaeva">ВКонтакте</a></div></div></section>
-</body></html>
+<article class="book">
+<svg class="book-beads" id="beads" aria-hidden="true"><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle><circle cx="0" cy="0" r="0"></circle></svg>
+<a class="book-nav" href="#zakaz">Заказать</a>
+<section class="reel" id="film" style="--n:17" aria-label="Коллекция">
+<div class="reel-stage">
+<div class="reel-layer" data-layer style="opacity:1"><img src="media/istoriya.jpg" alt="Серая футболка с красной бисерной надписью" style="object-position:center 30%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/drops/istoriya-call.jpg" alt="Макро красного бисера: История и call me your" style="object-position:center 40%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/drops/monogram.jpg" alt="Чёрная футболка с красным бисерным вензелем" style="object-position:center 28%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/meteli-photo.jpg" alt="Белая футболка с коричневой рукописной строкой про метели" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/money-photo.jpg" alt="Светлая футболка с розовой вышивкой" style="object-position:center 36%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/money-close.jpg" alt="Макро бисерных звёзд" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/vedma.jpg" alt="Чёрная футболка, скоропись Ведьма" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/shepchet.jpg" alt="Ведьма шьёт, лес слушает" style="object-position:center 42%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/verhov.jpg" alt="Верховная ведьма" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/russian.jpg" alt="Russian Girl" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/prosecco.jpg" alt="Prosecco mood" style="object-position:center 28%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/white.jpg" alt="Белая футболка, рукописная вышивка" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/posters/white-close.jpg" alt="Макро вышивки" style="object-position:center 45%" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/letter.jpg" alt="Серебряный стеклярус" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><img src="media/fringe.jpg" alt="Нити бисера" style="object-position:center" draggable="false"></div>
+<div class="reel-layer" data-layer style="opacity:0"><video src="media/reel/hoop-live.mp4" poster="media/posters/hoop-live.jpg" muted playsinline loop preload="metadata" style="object-position:center"></video></div>
+<div class="reel-layer" data-layer style="opacity:0"><video src="media/reel/hands-live.mp4" poster="media/posters/hands-live.jpg" muted playsinline loop preload="metadata" style="object-position:center"></video></div>
+<div class="reel-shade"></div>
+<span class="reel-meter" id="meter"></span>
+<p class="reel-count" id="count">01 / 17</p>
+<div class="reel-copy">
+<p class="book-kicker" id="kicker">вышивка · бисер</p>
+<h1 class="reel-title face-sans is-long" id="title">Авторские футболки</h1>
+<p class="reel-line" id="line">Одна надпись. Одна вещь.</p>
+</div>
+<p class="reel-hint" id="hint">листай</p>
+</div>
+</section>
+<section class="atelier" aria-label="Вешалка">
+<p class="book-kicker">потяни ткань</p>
+<h2 class="face-sans">На вешалке</h2>
+<div class="atelier-line"></div>
+<div class="atelier-row"><div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="История"><img src="media/drops/istoriya-call.jpg" alt="" draggable="false"></button><span class="peg-name">История</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Вензель"><img src="media/drops/monogram.jpg" alt="" draggable="false"></button><span class="peg-name">Вензель</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Метели"><img src="media/posters/meteli-photo.jpg" alt="" draggable="false"></button><span class="peg-name">Метели</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Ради денег"><img src="media/posters/money-photo.jpg" alt="" draggable="false"></button><span class="peg-name">Ради денег</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Ведьма"><img src="media/posters/vedma.jpg" alt="" draggable="false"></button><span class="peg-name">Ведьма</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Шьёт"><img src="media/posters/shepchet.jpg" alt="" draggable="false"></button><span class="peg-name">Шьёт</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Верховная"><img src="media/posters/verhov.jpg" alt="" draggable="false"></button><span class="peg-name">Верховная</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Russian Girl"><img src="media/posters/russian.jpg" alt="" draggable="false"></button><span class="peg-name">Russian Girl</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Prosecco"><img src="media/prosecco.jpg" alt="" draggable="false"></button><span class="peg-name">Prosecco</span></div>
+<div class="peg"><span class="hook" aria-hidden="true"></span><button type="button" class="cloth" data-cloth aria-label="Скоропись"><img src="media/posters/white.jpg" alt="" draggable="false"></button><span class="peg-name">Скоропись</span></div></div>
+</section>
+<footer class="book-end" id="zakaz">
+<h2 class="face-script">Вещь, которой нет второй</h2>
+<div class="book-links">
+<a class="lux is-solid" href="https://www.instagram.com/kiyaeva_irina?stkn=MTVnaXZ6Y3JyMWl1aA==" target="_blank" rel="noreferrer">Instagram</a>
+<a class="lux" href="https://vk.ru/i.kiaeva" target="_blank" rel="noreferrer">ВКонтакте</a>
+</div>
+<p>Ира Кияева · вышивка · бисер · надпись</p>
+</footer>
+</article>
+<script>
+const scenes = [{"id": "open", "title": "Авторские футболки", "kicker": "вышивка · бисер", "line": "Одна надпись. Одна вещь.", "face": "sans", "src": "media/istoriya.jpg", "alt": "Серая футболка с красной бисерной надписью", "bead": "#9a2a32", "pos": "center 30%"}, {"id": "istoriya", "title": "История", "kicker": "call me your", "line": "Красный стеклярус. Готический контур. Ни одной машинной строчки.", "face": "gothic", "src": "media/drops/istoriya-call.jpg", "alt": "Макро красного бисера: История и call me your", "bead": "#b4232e", "pos": "center 40%"}, {"id": "venzel", "title": "Вензель", "kicker": "чёрный трикотаж", "line": "Буква собрана бусина к бусине и сидит как печать.", "face": "gothic", "src": "media/drops/monogram.jpg", "alt": "Чёрная футболка с красным бисерным вензелем", "bead": "#7a1822", "pos": "center 28%"}, {"id": "meteli", "title": "И не такие метели", "kicker": "рука", "line": "На ткани целиком: «И не такие метели в ебало летели».", "face": "cursive", "src": "media/posters/meteli-photo.jpg", "alt": "Белая футболка с коричневой рукописной строкой про метели", "bead": "#a67c52"}, {"id": "money", "title": "Я здесь только ради денег", "kicker": "скоропись", "line": "Розовая нить. Каждая буква написана, не напечатана.", "face": "cursive", "src": "media/posters/money-photo.jpg", "alt": "Светлая футболка с розовой вышивкой", "bead": "#c48aa0", "pos": "center 36%"}, {"id": "stars", "title": "Звёзды", "kicker": "макро", "line": "Бисер ловит свет и рассыпается бликами.", "face": "script", "src": "media/posters/money-close.jpg", "alt": "Макро бисерных звёзд", "bead": "#d4c4a8"}, {"id": "vedma", "title": "Ведьма", "kicker": "чёрное по чёрному", "line": "Тёмный бисер почти тонет в ткани, пока не поймает свет.", "face": "cursive", "src": "media/posters/vedma.jpg", "alt": "Чёрная футболка, скоропись Ведьма", "bead": "#3a3030"}, {"id": "shepchet", "title": "Ведьма шьёт", "kicker": "лес слушает", "line": "Красные нити свисают с букв. Ниже зелёный бисер.", "face": "block", "src": "media/posters/shepchet.jpg", "alt": "Ведьма шьёт, лес слушает", "bead": "#8a1c28", "pos": "center 42%"}, {"id": "verhov", "title": "Верховная ведьма", "kicker": "красное и серебро", "line": "Две нити в одной надписи. Буквы не повторяются.", "face": "block", "src": "media/posters/verhov.jpg", "alt": "Верховная ведьма", "bead": "#8a2430"}, {"id": "russian", "title": "Russian Girl", "kicker": "алый блок", "line": "Латиница. Каждая буква посажена вручную.", "face": "block", "src": "media/posters/russian.jpg", "alt": "Russian Girl", "bead": "#c01828"}, {"id": "prosecco", "title": "Prosecco mood", "kicker": "чёрный по алому", "line": "Блок и скоропись в одной строке. Серия короткая.", "face": "cursive", "src": "media/prosecco.jpg", "alt": "Prosecco mood", "bead": "#1a1a1a", "pos": "center 28%"}, {"id": "white", "title": "Скоропись", "kicker": "белый хлопок", "line": "Коричневая нить. Край буквы не машинный.", "face": "script", "src": "media/posters/white.jpg", "alt": "Белая футболка, рукописная вышивка", "bead": "#b8895a"}, {"id": "macro", "title": "Нить", "kicker": "камера ближе", "line": "Стежок виден. Ткань держит рисунок одна.", "face": "script", "src": "media/posters/white-close.jpg", "alt": "Макро вышивки", "bead": "#c4a07a", "pos": "center 45%"}, {"id": "letter", "title": "Буква", "kicker": "стеклярус", "line": "Сначала карандаш. Потом стекло, стежок к стежку.", "face": "gothic", "src": "media/letter.jpg", "alt": "Серебряный стеклярус", "bead": "#c9cdd2"}, {"id": "fringe", "title": "Бахрома", "kicker": "нить", "line": "Нити висят отдельно. На каждой — капля стекла.", "face": "script", "src": "media/fringe.jpg", "alt": "Нити бисера", "bead": "#9a2030"}, {"id": "hoop", "title": "Пяльцы", "kicker": "процесс", "line": "Ткань натянута. Рука держит ритм, не скорость.", "face": "script", "src": "media/posters/hoop-live.jpg", "alt": "Рука на пяльцах", "bead": "#8a1c28", "video": "media/reel/hoop-live.mp4"}, {"id": "ira", "title": "Ира Кияева", "kicker": "автор", "line": "Нить идёт из руки, не из станка.", "face": "script", "src": "media/posters/hands-live.jpg", "alt": "Руки Иры Кияевой", "bead": "#c4b49a", "video": "media/reel/hands-live.mp4"}];
+const hex = (h) => [parseInt(h.slice(1,3),16), parseInt(h.slice(3,5),16), parseInt(h.slice(5,7),16)];
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const svg = document.getElementById("beads");
+const dots = [...svg.querySelectorAll("circle")];
+const film = document.getElementById("film");
+const layers = [...document.querySelectorAll("[data-layer]")];
+const title = document.getElementById("title");
+const kicker = document.getElementById("kicker");
+const line = document.getElementById("line");
+const count = document.getElementById("count");
+const meter = document.getElementById("meter");
+const hint = document.getElementById("hint");
+let color = hex(scenes[0].bead);
+let target = hex(scenes[0].bead);
+let beads = [];
+const spawn = (w,h) => ({x:w*(0.32+Math.random()*0.36), y:h*(0.28+Math.random()*0.3), z:0.4+Math.random()*1.8, vx:(Math.random()-0.5)*0.7, vy:(Math.random()-0.5)*0.45, vz:-(0.01+Math.random()*0.02), settle:Math.random()>0.62});
+const resize = () => {
+  svg.setAttribute("viewBox", `0 0 ${innerWidth} ${innerHeight}`);
+  if (!beads.length && !reduce) beads = dots.map(() => spawn(innerWidth, innerHeight));
+};
+resize();
+addEventListener("resize", resize);
+const cloths = [...document.querySelectorAll("[data-cloth]")];
+const phys = cloths.map(() => ({rx:0,ry:0,rz:0,vx:0,vy:0,vz:0,grab:false,lx:0,ly:0}));
+cloths.forEach((el,i) => {
+  const st = phys[i];
+  el.addEventListener("pointerdown", (e) => { el.setPointerCapture(e.pointerId); st.grab=true; st.lx=e.clientX; st.ly=e.clientY; });
+  el.addEventListener("pointermove", (e) => {
+    if (!st.grab) return;
+    const dx = e.clientX-st.lx, dy = e.clientY-st.ly;
+    st.ry += dx*0.45; st.rx += dy*0.16; st.vz += dx*0.02; st.lx=e.clientX; st.ly=e.clientY;
+  });
+  const up = () => { st.grab=false; };
+  el.addEventListener("pointerup", up);
+  el.addEventListener("pointercancel", up);
+});
+let shown = "";
+const paint = (scene,n) => {
+  if (shown===scene.id) return;
+  shown = scene.id;
+  title.textContent = scene.title;
+  title.className = "reel-title face-"+scene.face+(scene.title.length>16?" is-long":"");
+  kicker.textContent = scene.kicker;
+  line.textContent = scene.line;
+  count.textContent = String(n+1).padStart(2,"0")+"  /  "+String(scenes.length).padStart(2,"0");
+};
+const frame = (now) => {
+  const rect = film.getBoundingClientRect();
+  const total = Math.max(1, film.offsetHeight - innerHeight);
+  const scrolled = Math.min(Math.max(-rect.top, 0), total);
+  const last = scenes.length-1;
+  const p = (scrolled/total)*last;
+  const i = Math.min(last-1, Math.floor(p));
+  const t = p-i;
+  const s = t*t*(3-2*t);
+  const breathe = reduce ? 1 : 1+Math.sin(now/4200)*0.012;
+  layers.forEach((el,idx) => {
+    let opacity=0, scale=1;
+    if (idx===i) { opacity=1-s; scale=(1+s*0.16)*breathe; }
+    else if (idx===i+1) { opacity=s; scale=(1.12-s*0.12)*breathe; }
+    el.style.opacity = opacity;
+    el.style.transform = "scale("+scale+")";
+    const video = el.querySelector("video");
+    if (video) { if (opacity>0.2) video.play().catch(()=>{}); else video.pause(); }
+  });
+  const show = s>0.5 ? scenes[i+1] : scenes[i];
+  paint(show, s>0.5 ? i+1 : i);
+  const from = hex(scenes[i].bead), to = hex(scenes[i+1].bead);
+  target = from.map((c,k)=>c+(to[k]-c)*s);
+  meter.style.width = (scrolled/total*100)+"%";
+  hint.style.opacity = p>0.04 ? "0" : "1";
+  if (!reduce) {
+    const [r,g,b] = color.map((c,k)=>c+(target[k]-c)*0.045);
+    color = [r,g,b];
+    beads.forEach((bead,n) => {
+      if (bead.settle && bead.z<0.85) { bead.vz*=0.9; bead.vy+=0.035; }
+      bead.x+=bead.vx; bead.y+=bead.vy; bead.z+=bead.vz;
+      if (bead.z<0.07 || bead.y>innerHeight+30 || bead.x<-20 || bead.x>innerWidth+20) Object.assign(bead, spawn(innerWidth, innerHeight));
+      const dot = dots[n]; if (!dot) return;
+      const size = Math.max(0.6, 16/bead.z);
+      const alpha = Math.max(0, Math.min(0.9, 1.15-bead.z*0.4));
+      const flicker = 0.55+Math.sin(now/160+bead.x*0.02)*0.45;
+      dot.setAttribute("cx", bead.x); dot.setAttribute("cy", bead.y);
+      dot.setAttribute("r", size*0.09);
+      dot.setAttribute("fill", "rgba("+(r|0)+","+(g|0)+","+(b|0)+","+(alpha*flicker)+")");
+    });
+  }
+  phys.forEach((st,i) => {
+    if (!st.grab && !reduce) {
+      const idle = Math.sin(now/900+i)*1.6;
+      st.vx += -st.rx*0.045; st.vy += -st.ry*0.04; st.vz += (idle-st.rz)*0.035;
+      st.vx*=0.86; st.vy*=0.88; st.vz*=0.88;
+      st.rx+=st.vx; st.ry+=st.vy; st.rz+=st.vz;
+    }
+    const el = cloths[i];
+    if (el) el.style.transform = "rotateX("+st.rx+"deg) rotateY("+st.ry+"deg) rotateZ("+st.rz+"deg)";
+  });
+  requestAnimationFrame(frame);
+};
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

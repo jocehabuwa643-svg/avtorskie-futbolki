@@ -1,2 +1,3 @@
-# avtorskie-futbolki
-Авторские футболки — вышивка и бисер
+# Авторские футболки
+
+https://jocehabuwa643-svg.github.io/avtorskie-futbolki/
