@@ -426,6 +426,82 @@
     });
   }
 
+  /* ——— Примерка: скролл крутит дубли, сцена входит из темноты и растворяется в «Крупно» ——— */
+  (() => {
+    const sec = $("#try");
+    if (!sec) return;
+    const stage = $(".try-stage", sec), media = $(".try-media", sec), vid = $(".try-v", sec);
+    const pick = () => (innerWidth / innerHeight < 0.8 ? "film/na-ney-v" : "film/na-ney");
+    let file = "";
+    vid.muted = true; vid.playsInline = true;
+    vid.addEventListener("loadeddata", () => { vid.classList.add("ready"); wake(); });
+    vid.addEventListener("seeked", wake);
+    function load() {
+      const f = pick();
+      if (f === file) return;
+      file = f;
+      vid.classList.remove("ready");
+      vid.poster = `${f}.jpg`;
+      vid.preload = "auto";
+      vid.src = `${f}.mp4`;
+      try { vid.load(); } catch (e) { /* ничего */ }
+    }
+    // ролики не трогаем, пока секция далеко
+    new IntersectionObserver(([e]) => { if (e.isIntersecting) load(); }, { rootMargin: "120% 0px" }).observe(sec);
+
+    if (RM) {
+      // меньше движения: без скраба, короткий показ один раз, по нажатию ещё раз
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting && e.intersectionRatio >= 0.5) {
+          load();
+          if (!vid.dataset.played) { vid.dataset.played = "1"; const pr = vid.play(); pr && pr.catch && pr.catch(() => {}); }
+        } else vid.pause();
+      }, { threshold: [0, 0.5] }).observe(sec);
+      stage.addEventListener("click", () => { load(); vid.currentTime = 0; const pr = vid.play(); pr && pr.catch && pr.catch(() => {}); });
+      return;
+    }
+
+    doc.classList.add("try-on");
+    let vh = innerHeight, pS = 0, primed = false, active = false;
+    function measure() {
+      vh = innerHeight;
+      sec.style.setProperty("--try-h", `${Math.round(vh * (narrow() ? 5.4 : 6.4) + vh)}px`);
+    }
+    function update(now, dt) {
+      if (!active) return false;
+      const r = sec.getBoundingClientRect();
+      const pT = clamp(-r.top / Math.max(1, r.height - vh), 0, 1);
+      pS += (pT - pS) * (1 - Math.exp(-dt * 8));
+      if (Math.abs(pT - pS) < 0.0003) pS = pT;
+      const p = pS;
+      stage.style.setProperty("--tin", (1 - smooth(0, 0.08, p)).toFixed(3));
+      stage.style.setProperty("--tout", smooth(0.87, 0.99, p).toFixed(3));
+      stage.style.setProperty("--tk", (smooth(0.03, 0.1, p) * (1 - smooth(0.82, 0.9, p))).toFixed(3));
+      stage.style.setProperty("--tl", smooth(0.12, 0.26, p).toFixed(3));
+      stage.style.setProperty("--tlo", (1 - smooth(0.48, 0.56, p)).toFixed(3));
+      media.style.setProperty("--tz", (1.07 - 0.07 * p).toFixed(4));
+      media.style.setProperty("--tyy", `${(-1.2 * p).toFixed(2)}%`);
+      let pending = false;
+      if (vid.readyState >= 1) {
+        if (!primed) { primed = true; const pr = vid.play(); if (pr && pr.then) pr.then(() => vid.pause()).catch(() => {}); }
+        const d = isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 12.4;
+        const target = clamp((p - 0.06) / 0.8, 0, 1) * (d - 0.06);
+        if (!vid.seeking && Math.abs(vid.currentTime - target) > 0.02) { try { vid.currentTime = target; } catch (e) { /* ещё не готово */ } }
+        if (Math.abs(vid.currentTime - target) > 0.03) pending = true;
+      }
+      return pS !== pT || pending;
+    }
+    measure();
+    tasks.add(update);
+    new IntersectionObserver(([e]) => { active = e.isIntersecting; if (active) wake(); }, { rootMargin: "10% 0px" }).observe(sec);
+    addEventListener("scroll", wake, { passive: true });
+    let lastW = innerWidth, lastH = innerHeight;
+    addEventListener("resize", () => {
+      if (innerWidth !== lastW || Math.abs(innerHeight - lastH) > 120) { lastW = innerWidth; lastH = innerHeight; measure(); if (file) load(); }
+      wake();
+    });
+  })();
+
   /* ——— Крупно: кадры вылетают по скроллу, наклоняются от курсора ——— */
   (() => {
     const cards = $$(".shot");

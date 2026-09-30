@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Unbounded:wght@800&family=Pangolin&family=Kurale&family=Ruslan+Display&family=Playfair+Display:ital,wght@1,900&family=Bad+Script&family=Caveat:wght@700&family=Fira+Sans+Condensed:wght@500&family=Marck+Script&family=Comfortaa:wght@700&family=Tenor+Sans&family=Philosopher:wght@700&family=Gochi+Hand&family=Yeseva+One&display=swap&text=%D0%90%D0%91%D0%92%D0%93%D0%94%D0%95%D0%81%D0%96%D0%97%D0%98%D0%99%D0%9A%D0%9B%D0%9C%D0%9D%D0%9E%D0%9F%D0%A0%D0%A1%D0%A2%D0%A3%D0%A4%D0%A5%D0%A6%D0%A7%D0%A8%D0%A9%D0%AA%D0%AB%D0%AC%D0%AD%D0%AE%D0%AF%D0%B0%D0%B1%D0%B2%D0%B3%D0%B4%D0%B5%D1%91%D0%B6%D0%B7%D0%B8%D0%B9%D0%BA%D0%BB%D0%BC%D0%BD%D0%BE%D0%BF%D1%80%D1%81%D1%82%D1%83%D1%84%D1%85%D1%86%D1%87%D1%88%D1%89%D1%8A%D1%8B%D1%8C%D1%8D%D1%8E%D1%8FABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20.%2C%22%27*%E2%80%A6-%E2%80%94%C2%AB%C2%BB%E2%80%9C%E2%80%9D%3F%21">
-<link rel="stylesheet" href="styles.css?v=20260930i">
+<link rel="stylesheet" href="styles.css?v=20260930k">
 <script>
 (function(){var d=document.documentElement;try{var t=localStorage.getItem("kiyaeva-theme");d.setAttribute("data-theme",t==="light"||t==="dark"?t:"system");}catch(e){}
 d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("rm");})();
@@ -152,6 +152,24 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
 
     </div>
     <div class="spine" aria-hidden="true"><i id="spine"></i></div>
+  </div>
+</section>
+
+<!-- Примерка: Ира в своих футболках, скролл крутит дубли -->
+<section class="try" id="try" aria-label="Примерка: футболки на Ире">
+  <div class="try-stage">
+    <div class="try-media">
+      <picture class="try-still">
+        <source media="(max-aspect-ratio: 4/5)" srcset="film/na-ney-v.jpg">
+        <img src="film/na-ney.jpg" alt="Ира Кияева в своей футболке «Ведьма» из чёрного стекляруса, в лифте" width="1152" height="720" loading="lazy" decoding="async">
+      </picture>
+      <video class="try-v" muted playsinline preload="none" aria-hidden="true" disablepictureinpicture disableremoteplayback></video>
+    </div>
+    <div class="try-scrim" aria-hidden="true"></div>
+    <p class="try-kicker">на ней</p>
+    <p class="try-line">Так надпись<br>сидит на теле.<br>Не&nbsp;на&nbsp;картинке.</p>
+    <div class="try-in" aria-hidden="true"></div>
+    <div class="try-out" aria-hidden="true"></div>
   </div>
 </section>
 
@@ -299,9 +317,16 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
 <footer class="end" id="order">
   <div class="end-media"><video data-src="film/c-box.mp4" poster="film/c-box.jpg" muted playsinline loop preload="none" aria-label="Футболку упаковывают в розовую коробку и завязывают ленту"></video></div>
   <div class="end-copy">
-    <p class="kicker">забрать себе</p>
-    <h2 class="serif">Серия кончается вместе&nbsp;с&nbsp;ниткой.</h2>
-    <p class="lede">Шьёт Ира Кияева, одна мастерская. Напиши, какая надпись твоя, и какой размер.</p>
+    <p class="kicker">про автора</p>
+    <h2 class="serif">Ира Кияева. <span class="nb">Настоящая авторская работа.</span></h2>
+    <p class="lede">Каждую футболку она собирает сама: бисер, нить, своя надпись. Это не фабрика и не картинка на ткани. Вблизи видно качество: бусина к бусине, стежок ровный, буква сидит там, где задумано.</p>
+    <p class="lede">Вам понравится. Вещь короткая, повтор не обещаем, носить её хочется сразу. Напишите размер и фразу — отправим вам доставкой.</p>
+    <ul class="plus" aria-label="Почему эта вещь">
+      <li>ручная работа, не принт</li>
+      <li>материалы, которые держат свет</li>
+      <li>надпись, которой нет второй</li>
+      <li>доставка до вас</li>
+    </ul>
     <div class="ctas">
       <a class="cta ig" href="https://www.instagram.com/kiyaeva_irina/" target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" aria-hidden="true"><defs><radialGradient id="igg" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#fdf497"/><stop offset=".05" stop-color="#fdf497"/><stop offset=".45" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset=".9" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="2.9" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.3" cy="7.7" r="1" fill="#fff"/></svg>
@@ -316,6 +341,6 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
   </div>
 </footer>
 
-<script src="site.js?v=20260930i"></script>
+<script src="site.js?v=20260930k"></script>
 </body>
 </html>
