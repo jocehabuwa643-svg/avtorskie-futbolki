@@ -22,7 +22,7 @@ jobs:
       - name: Собрать статику
         run: |
           mkdir -p _site
-          cp -a index.html styles.css .nojekyll media _site/
+          cp -a index.html styles.css site.js .nojekyll film _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
