@@ -143,6 +143,17 @@
     if (kind === "stitch") buildStitch(h);
     else if (kind === "write" || kind === "glass") splitLines(h);
     else splitLetters(h);
+    // живые детали материала: блики на стеклярусе, пузырьки в просекко
+    const deco = (n, cls) => { for (let k = 0; k < n; k++) { const el = document.createElement("i"); el.className = cls; el.style.setProperty("--k", k); el.setAttribute("aria-hidden", "true"); h.appendChild(el); } };
+    deco(+h.dataset.sparks || 0, "sp");
+    deco(+h.dataset.bubbles || 0, "bub");
+  });
+  // описание под надписью появляется по словам
+  $$(".ch .deck").forEach((d) => {
+    const words = d.textContent.trim().split(/\s+/);
+    d.setAttribute("aria-label", words.join(" "));
+    d.textContent = "";
+    words.forEach((w, k) => { const sp = document.createElement("span"); sp.className = "dw"; sp.setAttribute("aria-hidden", "true"); sp.style.setProperty("--i", k); sp.textContent = w; d.appendChild(sp); d.appendChild(document.createTextNode(" ")); });
   });
 
   /* подгонка кегля: надпись влезает в колонку целиком, без переносов внутри слов */
@@ -152,14 +163,13 @@
     const vh = innerHeight, vw = innerWidth, small = narrow();
     heads.forEach((h) => {
       const art = h.closest(".ch");
-      const bg = art.dataset.kind === "bg";
       // у скрытой главы ширина известна из раскладки: колонка абсолютная
       const colW = film ? art.offsetWidth || (small ? vw - 32 : vw * 0.46) : Math.min(art.clientWidth || vw - 32, 704);
-      const maxH = film ? (small ? vh * (bg ? 0.3 : 0.26) : vh * (bg ? 0.5 : 0.46)) : vh * 0.5;
+      const maxH = film ? (small ? vh * 0.2 : vh * 0.42) : vh * 0.5;
       if (h._stitch) {
         layoutStitch(h);
         const r = h._stitch.ratio || 4;
-        const w = Math.min(colW, maxH * r, small ? 9999 : vw * 0.52);
+        const w = Math.min(colW, maxH * r);
         h._stitch.svg.style.width = `${w}px`;
         h.style.setProperty("--fs", `${Math.max(22, (w / r) / (h._stitch.lines.length * 1.04))}px`);
         return;
@@ -170,7 +180,7 @@
       h.style.width = "";
       const tall = h.classList.contains("t-verh") ? 1.28 : h.classList.contains("t-money") ? 1.25 : 1;
       const s = Math.min(colW / Math.max(1, bw), maxH / Math.max(1, bh * tall));
-      const cap = small ? 150 : bg ? 250 : 210;
+      const cap = small ? 150 : 210;
       h.style.setProperty("--fs", `${clamp(100 * s * 0.98, 26, cap).toFixed(1)}px`);
     });
     doc.classList.remove("fitting");
@@ -180,21 +190,29 @@
   const Film = (() => {
     const film = $("#film"), stage = $("#stage");
     if (!film || RM) return null;
-    const cam = $("#cam"), bgcam = $("#bgcam"), frame = $("#frame"), scrim = $("#bgscrim");
-    const beadEl = $("#spine-bead"), spine = $(".spine", stage), nav = $("#top"), hint = $("#bead-hint");
+    const framesEl = $("#frames");
+    const beadEl = $("#spine-bead"), spine = $(".spine", stage), nav = $("#top"), cue = $("#cue");
     const FPS = 12; // клипы закодированы в 12 кадров/с: перематываем только при смене кадра
 
     doc.classList.add("film-on");
-    const chapters = $$(".ch", stage).map((el) => ({
-      el,
-      bgKind: el.dataset.kind === "bg",
-      len: parseFloat(el.dataset.len) || 1,
-      bgL: hex(el.dataset.bg), bgD: hex(el.dataset.bgD || el.dataset.bg),
-      inkL: hex(el.dataset.ink), inkD: hex(el.dataset.inkD || el.dataset.ink),
-      acc: hex(el.dataset.acc),
-      shots: JSON.parse(el.dataset.shots),
-      on: false,
-    }));
+    const chapters = $$(".ch", stage).map((el) => {
+      const tilt = (el.dataset.tilt || "0,0,0").split(",").map(Number);
+      const fr = document.createElement("div");
+      fr.className = "fr";
+      framesEl.appendChild(fr);
+      return {
+        el, fr,
+        side: el.dataset.side === "l" ? -1 : 1,
+        aspect: parseFloat(el.dataset.aspect) || 0.8,
+        ry: tilt[0], rz: tilt[1], rx: tilt[2],
+        len: parseFloat(el.dataset.len) || 1,
+        bgL: hex(el.dataset.bg), bgD: hex(el.dataset.bgD || el.dataset.bg),
+        inkL: hex(el.dataset.ink), inkD: hex(el.dataset.inkD || el.dataset.ink),
+        acc: hex(el.dataset.acc),
+        shots: JSON.parse(el.dataset.shots),
+        on: false, o: -1, tr: "",
+      };
+    });
 
     let total = 0;
     const shots = [];
@@ -202,6 +220,7 @@
       c.a = total; c.b = total + c.len; total = c.b;
       const wsum = c.shots.reduce((s, sh) => s + (sh.w || (sh.d ? sh.d : 1)), 0);
       let acc = c.a;
+      c.list = [];
       c.shots.forEach((sh, k) => {
         const span = (c.len * (sh.w || (sh.d ? sh.d : 1))) / wsum;
         const el = sh.v ? document.createElement("video") : document.createElement("img");
@@ -215,17 +234,18 @@
           if (ci === 0 && k === 0) el.src = sh.img; // первый экран нужен сразу
         }
         if (sh.o) el.style.transformOrigin = sh.o;
-        (c.bgKind ? bgcam : cam).appendChild(el);
-        shots.push({ ...sh, el, ci, bgKind: c.bgKind, a: acc, b: acc + span, first: ci === 0 && k === 0, loaded: ci === 0 && k === 0, primed: false, o: -1, tr: "" });
+        if (sh.pos) el.style.objectPosition = sh.pos;
+        c.fr.appendChild(el);
+        const s = { ...sh, el, ci, a: acc, b: acc + span, firstInCh: k === 0, lastInCh: k === c.shots.length - 1, first: ci === 0 && k === 0, loaded: ci === 0 && k === 0, primed: false, o: -1, tr: "" };
+        shots.push(s); c.list.push(s);
         acc += span;
       });
     });
-    shots[shots.length - 1].last = true;
-    const X = 0.12; // полуширина кроссфейда в долях главы
+    const X = 0.13; // полуширина перехода между главами в долях главы
 
-    let unit = 0, filmTop = 0, filmH = 0, vh = innerHeight, vw = innerWidth, spineH = 0;
+    let unit = 0, filmTop = 0, filmH = 0, vh = innerHeight, vw = innerWidth, spineH = 0, small = false;
     let p = 0, pT = 0, active = false, fontsReady = false;
-    let lastBg = "", lastCi = -1, lastDark = null, lastFrameO = -1, lastScrimO = -1, lastNav = -1, lastBead = -1;
+    let lastBg = "", lastCi = -1, lastDark = null, lastNav = -1, lastBead = -1;
 
     // цвет текста и акцента у главы свой и постоянный: меняется только фон сцены,
     // поэтому при смыве цвета браузер не пересчитывает стили у сотен букв
@@ -234,22 +254,42 @@
       chapters.forEach((c) => {
         c.el.style.setProperty("--sink", rgb(dark ? c.inkD : c.inkL));
         c.el.style.setProperty("--acc", rgb(c.acc));
+        c.fr.style.backgroundColor = rgb(mix(dark ? c.bgD : c.bgL, dark ? c.inkD : c.inkL, 0.12));
       });
       lastCi = -1; lastBg = "";
     }
 
-    function setPos() {
-      const small = narrow();
-      shots.forEach((s) => { if (s.bgKind) s.el.style.objectPosition = (small ? s.posM : s.pos) || "50% 30%"; });
-    }
+    // рамка стоит сбоку под углом, текст занимает оставшуюся колонку
     function measure() {
-      vw = innerWidth; vh = innerHeight;
-      unit = vh * (narrow() ? 0.62 : 0.72);
+      vw = innerWidth; vh = innerHeight; small = narrow();
+      unit = vh * (small ? 0.62 : 0.72);
       filmH = total * unit + vh;
       film.style.setProperty("--film-h", `${Math.round(filmH)}px`);
       filmTop = film.getBoundingClientRect().top + scrollY;
       spineH = spine ? spine.offsetHeight : 0;
-      setPos();
+      chapters.forEach((c) => {
+        let fw, fh, left, top;
+        if (small) {
+          const availH = vh * 0.47;
+          fh = Math.min(availH, (vw - 48) / c.aspect); fw = fh * c.aspect;
+          left = (vw - fw) / 2 + c.side * 6; top = 74;
+          c.el.style.left = ""; c.el.style.width = "";
+        } else {
+          fh = vh * (c.aspect >= 1 ? 0.68 : 0.76); fw = fh * c.aspect;
+          const cap = vw * (c.aspect >= 1 ? 0.42 : 0.36);
+          if (fw > cap) { fw = cap; fh = fw / c.aspect; }
+          const edge = vw * 0.075;
+          left = c.side > 0 ? vw - edge - fw : edge;
+          top = (vh - fh) / 2 + vh * 0.01;
+          const gap = vw * 0.055, colW = vw - fw - edge - vw * 0.06 - gap;
+          c.el.style.width = `${Math.round(colW)}px`;
+          c.el.style.left = `${Math.round(c.side > 0 ? vw * 0.06 : edge + fw + gap)}px`;
+        }
+        c.fw = fw; c.fh = fh;
+        c.fr.style.width = `${Math.round(fw)}px`; c.fr.style.height = `${Math.round(fh)}px`;
+        c.fr.style.left = `${Math.round(left)}px`; c.fr.style.top = `${Math.round(top)}px`;
+        c.tr = "";
+      });
     }
 
     function loadShot(s) {
@@ -295,33 +335,59 @@
       const from = chapters[bIdx], to = chapters[Math.min(bIdx + 1, chapters.length - 1)];
       const t = from === to ? 0 : smooth(bPos - 0.15, bPos + 0.15, p);
       const sBg = rgb(mix(dark ? from.bgD : from.bgL, dark ? to.bgD : to.bgL, t));
-      if (sBg !== lastBg) { stage.style.backgroundColor = sBg; scrim.style.setProperty("--sbg", sBg); lastBg = sBg; }
+      if (sBg !== lastBg) { stage.style.backgroundColor = sBg; lastBg = sBg; }
       // мелкие детали (нитка, подсказка, панель) перекрашиваются один раз на главу
       const near = t < 0.5 ? from : to;
       const ni = chapters.indexOf(near);
       if (ni !== lastCi || dark !== lastDark) {
         lastCi = ni; lastDark = dark;
         const sInk = rgb(dark ? near.inkD : near.inkL), sAcc = rgb(near.acc);
-        for (const el of [spine, hint]) if (el) { el.style.setProperty("--sink", sInk); el.style.setProperty("--acc", sAcc); }
-        frame.style.backgroundColor = rgb(mix(dark ? near.bgD : near.bgL, dark ? near.inkD : near.inkL, 0.1));
+        for (const el of [spine, cue]) if (el) { el.style.setProperty("--sink", sInk); el.style.setProperty("--acc", sAcc); }
         lastNav = -1;
       }
 
-      // кадры: видим не больше двух, перематываем только ведущий
-      let lead = null, leadO = 0, frameO = 0, scrimO = 0, pending = false;
+      // рамки: видны одна-две, каждая влетает сбоку под углом и уходит вверх
+      let lead = null, leadO = 0, pending = false;
+      for (let i = 0; i < chapters.length; i++) {
+        const ch = chapters[i];
+        const x = X * ch.len;
+        const fin = i === 0 ? 1 : smooth(ch.a - x, ch.a + x, p);
+        const fout = i === chapters.length - 1 ? 1 : 1 - smooth(ch.b - x, ch.b + x, p);
+        const o = Math.round(fin * fout * 100) / 100;
+        if (o !== ch.o) {
+          ch.fr.style.opacity = o;
+          if ((o > 0) !== (ch.o > 0)) ch.fr.style.visibility = o > 0 ? "visible" : "hidden";
+          ch.o = o;
+        }
+        if (o <= 0) continue;
+        const lt = clamp((p - ch.a) / ch.len, 0, 1);
+        const e = easeOut(fin), ex = 1 - fout;
+        const k = small ? 0.45 : 1;
+        const ry = ch.ry * k * (1 + (1 - e) * 1.5 + ex * 0.8 - lt * 0.4);
+        const rz = ch.rz * k * (1 + (1 - e) * 1.6 - lt * 0.5) + ex * ch.side * 3;
+        const rx = ch.rx * k + (1 - e) * 7 - ex * 9;
+        const tx = ch.side * (1 - e) * vw * (small ? 0.5 : 0.2);
+        const ty = (1 - e) * vh * 0.1 - ex * vh * 0.2 + (0.5 - lt) * vh * (small ? 0.02 : 0.045);
+        const sc = 0.9 + 0.1 * e - 0.07 * ex;
+        const tr = `perspective(1500px) translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) rotateY(${ry.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) rotateZ(${rz.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+        if (tr !== ch.tr) { ch.fr.style.transform = tr; ch.tr = tr; }
+      }
+
+      // кадры внутри рамки: перематываем только ведущий
       for (const s of shots) {
-        const x = X * chapters[s.ci].len;
         if (p > s.a - 1.3 && p < s.b + 0.7) loadShot(s);
         else if (p < s.a - 3 || p > s.b + 2.4) unloadShot(s);
-        const fin = s.first ? 1 : smooth(s.a - x, s.a + x, p);
-        const fout = s.last ? 1 : 1 - smooth(s.b - x, s.b + x, p);
+        const ch = chapters[s.ci];
+        if (ch.o <= 0) continue;
+        const x = 0.1 * ch.len;
+        const fin = s.firstInCh ? 1 : smooth(s.a - x, s.a + x, p);
+        const fout = s.lastInCh ? 1 : 1 - smooth(s.b - x, s.b + x, p);
         const o = Math.round(fin * fout * 100) / 100;
         if (o !== s.o) { s.el.style.opacity = o; s.o = o; }
         if (o <= 0) continue;
-        if (s.bgKind) scrimO = Math.max(scrimO, o); else frameO = Math.max(frameO, o);
-        if (o > leadO) { leadO = o; lead = s; }
-        const span = s.b - s.a;
-        const lt = clamp((p - (s.a - x)) / (span + 2 * x), 0, 1);
+        const w = o * ch.o;
+        if (w > leadO) { leadO = w; lead = s; }
+        const lt = clamp((p - (s.a - x)) / (s.b - s.a + 2 * x), 0, 1);
         s.lt = lt;
         const z = s.z ? lerp(s.z[0], s.z[1], easeOut(lt)) : 1;
         const tr = `scale(${z.toFixed(3)})`;
@@ -336,10 +402,6 @@
           pending = true;
         }
       }
-      // затемнение под фон встаёт раньше самого кадра, чтобы край видео не был виден на переходе
-      frameO = Math.round(frameO * 100) / 100; scrimO = Math.round(smooth(0, 0.3, scrimO) * 100) / 100;
-      if (frameO !== lastFrameO) { frame.style.opacity = frameO; lastFrameO = frameO; }
-      if (scrimO !== lastScrimO) { scrim.style.opacity = scrimO; lastScrimO = scrimO; }
 
       // главы: класс on включает вылет надписи, дальше работает CSS
       for (let i = 0; i < chapters.length; i++) {
@@ -380,7 +442,6 @@
       wake();
     });
     addEventListener("kiyaeva:theme", () => { paintChapters(); wake(); });
-    if (hint) hint.addEventListener("click", () => scrollTo({ top: filmTop + unit * chapters[0].len * 1.05, behavior: "smooth" }));
     return {
       fontsReady() { fontsReady = true; wake(); },
       measure,
@@ -430,31 +491,40 @@
   (() => {
     const cards = $$(".card");
     if (!cards.length) return;
-    cards.forEach((card) => {
+    cards.forEach((card, n) => {
+      card.style.setProperty("--tilt", n % 2 ? "-1" : "1");
       const ct = $(".ct", card);
       if (!ct) return;
       ct.setAttribute("aria-label", plain(ct));
+      // слова остаются целыми (перенос только между ними), внутри слова буквы переворачиваются по одной
       let i = 0;
+      const letters = (text, into, cls) => { for (const ch of text) { const c = document.createElement("span"); c.className = cls || "c"; c.textContent = ch; c.style.setProperty("--i", i++); into.appendChild(c); } };
       const walk = (node) => {
         for (const child of Array.from(node.childNodes)) {
-          if (child.nodeType === 3) {
-            const frag = document.createDocumentFragment();
-            child.textContent.split(/(\s+)/).forEach((part) => {
-              if (!part) return;
-              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
-              const w = document.createElement("span");
-              w.className = "w"; w.textContent = part; w.style.setProperty("--i", i++);
-              frag.appendChild(w);
-            });
-            child.replaceWith(frag);
-          } else if (child.nodeType === 1 && child.tagName === "I") {
-            child.classList.add("w"); child.style.setProperty("--i", i++);
-          }
+          if (child.nodeType !== 3) continue;
+          const frag = document.createDocumentFragment();
+          child.textContent.split(/(\s+)/).forEach((part) => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
+            const w = document.createElement("span");
+            w.className = "w";
+            letters(part, w);
+            frag.appendChild(w);
+          });
+          child.replaceWith(frag);
         }
       };
-      // «БОЛЬШЕ» с красной Е: слово остаётся целым, буква внутри него
-      if ($("i", ct)) { ct.innerHTML = ct.innerHTML.replace(/([^\s<>]+)<i>([^<]+)<\/i>/g, '<span class="w" style="--i:0">$1<i>$2</i></span>'); i = 1; Array.from(ct.childNodes).forEach((n) => { if (n.nodeType === 3 && n.textContent.trim()) { const w = document.createElement("span"); w.className = "w"; w.textContent = n.textContent.trim(); w.style.setProperty("--i", i++); n.replaceWith(w); } }); }
-      else walk(ct);
+      const red = $("i", ct);
+      if (red) {
+        // «БОЛЬШЕ» с красной Е: слово остаётся целым, красная буква внутри него
+        const prev = red.previousSibling;
+        const w = document.createElement("span");
+        w.className = "w";
+        if (prev && prev.nodeType === 3) { letters(prev.textContent.trim(), w); prev.remove(); }
+        letters(red.textContent, w, "c red");
+        red.replaceWith(w);
+      }
+      walk(ct);
     });
     const show = new IntersectionObserver((es) => es.forEach((e) => {
       if (!e.isIntersecting) return;
@@ -466,12 +536,26 @@
       if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!RM) { const pr = v.play(); pr && pr.catch && pr.catch(() => {}); } }
       else v.pause();
     }), { threshold: 0.25 });
+    const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     cards.forEach((card) => {
       show.observe(card);
       const v = $("video", card);
-      if (!v) return;
-      play.observe(v);
-      if (RM) v.addEventListener("click", () => { if (!v.src) v.src = v.dataset.src; v.paused ? v.play().catch(() => {}) : v.pause(); });
+      if (v) {
+        play.observe(v);
+        if (RM) v.addEventListener("click", () => { if (!v.src) v.src = v.dataset.src; v.paused ? v.play().catch(() => {}) : v.pause(); });
+      }
+      // объём: карточка поворачивается к курсору, по ней идёт блик. Считается только у карточки под курсором
+      const media = $(".card-media", card);
+      if (!fine || RM || !media) return;
+      let raf = 0, mx = 0, my = 0;
+      const apply = () => { raf = 0; media.style.setProperty("--mx", mx.toFixed(3)); media.style.setProperty("--my", my.toFixed(3)); };
+      media.addEventListener("pointermove", (e) => {
+        const r = media.getBoundingClientRect();
+        mx = (e.clientX - r.left) / r.width - 0.5; my = (e.clientY - r.top) / r.height - 0.5;
+        if (!raf) raf = requestAnimationFrame(apply);
+      });
+      media.addEventListener("pointerenter", () => media.classList.add("hot"));
+      media.addEventListener("pointerleave", () => { media.classList.remove("hot"); mx = my = 0; if (!raf) raf = requestAnimationFrame(apply); });
     });
   })();
 
@@ -926,7 +1010,7 @@
   })();
 
   /* ——— шрифты готовы: подгоняем кегли и запускаем интро ——— */
-  const ready = () => { fitHeads(); Film && Film.measure(); Film && Film.fontsReady(); wake(); };
+  const ready = () => { Film && Film.measure(); fitHeads(); Film && Film.fontsReady(); wake(); };
   fitHeads();
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(ready);

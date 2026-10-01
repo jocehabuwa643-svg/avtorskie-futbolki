@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,500;1,500;1,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Unbounded:wght@800&family=Pangolin&family=Kurale&family=Ruslan+Display&family=Playfair+Display:ital,wght@1,900&family=Bad+Script&family=Caveat:wght@700&family=Fira+Sans+Condensed:wght@500&family=Marck+Script&family=Comfortaa:wght@700&family=Philosopher:wght@700&family=Gochi+Hand&family=Yeseva+One&family=Great+Vibes&family=Neucha&display=swap&text=%D0%90%D0%91%D0%92%D0%93%D0%94%D0%95%D0%81%D0%96%D0%97%D0%98%D0%99%D0%9A%D0%9B%D0%9C%D0%9D%D0%9E%D0%9F%D0%A0%D0%A1%D0%A2%D0%A3%D0%A4%D0%A5%D0%A6%D0%A7%D0%A8%D0%A9%D0%AA%D0%AB%D0%AC%D0%AD%D0%AE%D0%AF%D0%B0%D0%B1%D0%B2%D0%B3%D0%B4%D0%B5%D1%91%D0%B6%D0%B7%D0%B8%D0%B9%D0%BA%D0%BB%D0%BC%D0%BD%D0%BE%D0%BF%D1%80%D1%81%D1%82%D1%83%D1%84%D1%85%D1%86%D1%87%D1%88%D1%89%D1%8A%D1%8B%D1%8C%D1%8D%D1%8E%D1%8FABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%20.%2C%22%27*%E2%80%A6-%E2%80%94%C2%AB%C2%BB%E2%80%9C%E2%80%9D%3F%21">
-<link rel="stylesheet" href="styles.css?v=20261001a">
+<link rel="stylesheet" href="styles.css?v=20261001c">
 <script>
 (function(){var d=document.documentElement;try{var t=localStorage.getItem("kiyaeva-theme");d.setAttribute("data-theme",t==="light"||t==="dark"?t:"system");}catch(e){}
 d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("rm");})();
@@ -50,28 +50,26 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
 <!-- Фильм: одна липкая сцена, каждая глава — одна футболка, без повторов -->
 <section class="film" id="film" aria-label="Футболки по одной">
   <div class="stage" id="stage">
-    <div class="bgcam" id="bgcam" aria-hidden="true"></div>
-    <div class="bgscrim" id="bgscrim" aria-hidden="true"></div>
-    <div class="frame" id="frame" aria-hidden="true"><div class="cam" id="cam"></div></div>
+    <div class="frames" id="frames" aria-hidden="true"></div>
     <div class="chapters" id="chapters">
 
-      <article class="ch" id="rg" data-kind="fr" data-len="1.5" data-bg="#ebe5e1" data-bg-d="#1b1716" data-ink="#1a1614" data-ink-d="#f1e9e4" data-acc="#c8283c"
+      <article class="ch" id="rg" data-side="r" data-aspect=".8" data-tilt="-9,1.6,2" data-len="1.5" data-bg="#ebe5e1" data-bg-d="#1b1716" data-ink="#1a1614" data-ink-d="#f1e9e4" data-acc="#c8283c"
         data-shots='[{"img":"film/rg-macro.jpg","z":[1.5,1.04],"o":"50% 44%","w":0.45},{"v":"film/f-rg","d":3.35,"z":[1.08,1]}]'>
         <figure class="ch-media"><img src="film/rg-macro.jpg" alt="RUSSIAN GIRL красным стеклярусом на варёной футболке" loading="lazy" decoding="async"></figure>
         <p class="kicker">красный стеклярус · варёный хлопок</p>
-        <h2 class="t t-rg" data-reveal="slam">RUSSIAN<br>GIRL</h2>
+        <h2 class="t t-rg" data-sparks="3" data-reveal="slam">RUSSIAN<br>GIRL</h2>
         <p class="deck">Красный стеклярус ждали из Москвы две недели: другой оттенок не подошёл. Буквы собраны по бусине и загораются, когда поворачиваешься.</p>
       </article>
 
-      <article class="ch" id="lama" data-kind="bg" data-len="1.25" data-bg="#17130f" data-bg-d="#17130f" data-ink="#f6f1e8" data-ink-d="#f6f1e8" data-acc="#f6f1e8"
-        data-shots='[{"v":"film/b-lama","d":4.8,"z":[1.06,1],"pos":"50% 14%","posM":"50% 0%"}]'>
+      <article class="ch" id="lama" data-side="l" data-aspect="1" data-tilt="11,-2.2,2" data-len="1.25" data-bg="#f1f0ec" data-bg-d="#161616" data-ink="#111111" data-ink-d="#f2f0ea" data-acc="#111111"
+        data-shots='[{"v":"film/b-lama","d":4.8,"z":[1.06,1],"pos":"50% 30%"}]'>
         <figure class="ch-media"><img src="film/b-lama.jpg" alt="Белая футболка NO PROBLLAMA с ламой в очках, под кожаной курткой" loading="lazy" decoding="async"></figure>
         <p class="kicker">чёрная нить · белый хлопок</p>
         <h2 class="t t-lama" data-reveal="stitch">NO PROBLLAMA</h2>
         <p class="deck">Лама нарисована одной чёрной строчкой, а очки-авиаторы собраны из бисера и переливаются на свету.</p>
       </article>
 
-      <article class="ch" id="more" data-kind="fr" data-len="1" data-bg="#e2e9ec" data-bg-d="#101a20" data-ink="#122029" data-ink-d="#e6f1f5" data-acc="#1f9fd0"
+      <article class="ch" id="more" data-side="r" data-aspect=".8" data-tilt="-13,2.4,3" data-len="1" data-bg="#e2e9ec" data-bg-d="#101a20" data-ink="#122029" data-ink-d="#e6f1f5" data-acc="#1f9fd0"
         data-shots='[{"v":"film/f-more","d":3.45,"z":[1.06,1]}]'>
         <figure class="ch-media"><img src="film/f-more.jpg" alt="Чёрная футболка МОРЕ с китами внутри букв" loading="lazy" decoding="async"></figure>
         <p class="kicker">гладь · голубая и песочная нить</p>
@@ -79,55 +77,55 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
         <p class="deck">Киты живут внутри букв: у каждого своя спина и свой хвост, вышитые гладью стежок к стежку.</p>
       </article>
 
-      <article class="ch" id="dome" data-kind="bg" data-len="1.25" data-bg="#15120e" data-bg-d="#15120e" data-ink="#f1e7d3" data-ink-d="#f1e7d3" data-acc="#c9a24a"
-        data-shots='[{"v":"film/b-dome","d":5.6,"z":[1.04,1],"pos":"50% 30%","posM":"50% 0%"}]'>
+      <article class="ch" id="dome" data-side="l" data-aspect="1" data-tilt="9,1.8,-2" data-len="1.25" data-bg="#15120e" data-bg-d="#15120e" data-ink="#f1e7d3" data-ink-d="#f1e7d3" data-acc="#c9a24a"
+        data-shots='[{"v":"film/b-dome","d":5.6,"z":[1.04,1],"pos":"50% 40%"}]'>
         <figure class="ch-media"><img src="film/b-dome.jpg" alt="Варёная футболка с золотым куполом из стекляруса" loading="lazy" decoding="async"></figure>
         <p class="kicker">золотой стеклярус · варёный хлопок</p>
-        <h2 class="t t-dome" data-reveal="gild">КУПОЛ</h2>
+        <h2 class="t t-dome" data-sparks="3" data-reveal="gild">КУПОЛ</h2>
         <p class="deck">Вязь, собранная в купол. Золотой стеклярус лежит плотно, как оклад, и горит от любого света.</p>
       </article>
 
-      <article class="ch" id="verh" data-kind="fr" data-len="1.05" data-bg="#e7dccb" data-bg-d="#1c1814" data-ink="#191412" data-ink-d="#f0e8dc" data-acc="#c2202f"
+      <article class="ch" id="verh" data-side="r" data-aspect=".8" data-tilt="-11,-2,3" data-len="1.05" data-bg="#e7dccb" data-bg-d="#1c1814" data-ink="#191412" data-ink-d="#f0e8dc" data-acc="#c2202f"
         data-shots='[{"v":"film/f-verh","d":4.4,"z":[1.1,1]}]'>
         <figure class="ch-media"><img src="film/f-verh.jpg" alt="Спина худи с надписью ВЕРХОВНАЯ ВЕДЬМА красным и чёрным стеклярусом" loading="lazy" decoding="async"></figure>
         <p class="kicker">худи · красный и чёрный стеклярус</p>
-        <h2 class="t t-verh" data-reveal="drop"><span class="l1">ВЕРХОВНАЯ</span><span class="l2">ВЕДЬМА</span></h2>
+        <h2 class="t t-verh" data-sparks="3" data-reveal="drop"><span class="l1">ВЕРХОВНАЯ</span><span class="l2">ВЕДЬМА</span></h2>
         <p class="deck">Высокие буквы во всю спину. На солнце красное горит, чёрное блестит. Есть и футболка: серебро, стразы и цепи.</p>
       </article>
 
-      <article class="ch" id="pros" data-kind="fr" data-len=".9" data-bg="#c8161f" data-bg-d="#8e0e16" data-ink="#fff3ee" data-ink-d="#fff3ee" data-acc="#0e0e0e"
+      <article class="ch" id="pros" data-side="l" data-aspect=".8" data-tilt="12,2.6,2" data-len=".9" data-bg="#c8161f" data-bg-d="#8e0e16" data-ink="#fff3ee" data-ink-d="#fff3ee" data-acc="#0e0e0e"
         data-shots='[{"v":"film/f-pros","d":1.8,"z":[1.02,1.12]}]'>
         <figure class="ch-media"><img src="film/f-pros.jpg" alt="Красная футболка Prosecco mood чёрным бисером" loading="lazy" decoding="async"></figure>
         <p class="kicker">чёрный бисер · красный хлопок</p>
-        <h2 class="t t-pros" data-reveal="pop">Prosecco<span class="sub">mood</span></h2>
+        <h2 class="t t-pros" data-bubbles="5" data-reveal="pop">Prosecco<span class="sub">mood</span></h2>
         <p class="deck">Одно слово крупно, настроение мелко. Всё началось с эскиза на бумаге и горсти чёрного бисера на красной ткани.</p>
       </article>
 
-      <article class="ch" id="vedma" data-kind="bg" data-len="1.25" data-bg="#0d100c" data-bg-d="#0d100c" data-ink="#eef0ea" data-ink-d="#eef0ea" data-acc="#b9c4b2"
-        data-shots='[{"v":"film/b-vedma","d":5.7,"z":[1.05,1],"pos":"50% 26%","posM":"50% 0%"}]'>
+      <article class="ch" id="vedma" data-side="r" data-aspect="1" data-tilt="-10,1.4,-2" data-len="1.25" data-bg="#0d100c" data-bg-d="#0d100c" data-ink="#eef0ea" data-ink-d="#eef0ea" data-acc="#b9c4b2"
+        data-shots='[{"v":"film/b-vedma","d":5.7,"z":[1.05,1],"pos":"50% 40%"}]'>
         <figure class="ch-media"><img src="film/b-vedma.jpg" alt="Чёрная футболка Ведьма из чёрного стекляруса, лес" loading="lazy" decoding="async"></figure>
         <p class="kicker">чёрный стеклярус · чёрный хлопок</p>
-        <h2 class="t t-vedma" data-reveal="glass">Ведьма</h2>
+        <h2 class="t t-vedma" data-sparks="2" data-reveal="glass">Ведьма</h2>
         <p class="deck">Чёрное стекло по чёрной ткани: надпись почти не видна, пока на неё не упадёт свет.</p>
       </article>
 
-      <article class="ch" id="shep" data-kind="bg" data-len="1.25" data-bg="#141413" data-bg-d="#141413" data-ink="#eef0ea" data-ink-d="#eef0ea" data-acc="#d9304a"
-        data-shots='[{"v":"film/b-shep","d":5.4,"z":[1.04,1],"pos":"50% 28%","posM":"50% 10%"}]'>
+      <article class="ch" id="shep" data-side="l" data-aspect="1" data-tilt="12,-1.8,3" data-len="1.25" data-bg="#141413" data-bg-d="#141413" data-ink="#eef0ea" data-ink-d="#eef0ea" data-acc="#d9304a"
+        data-shots='[{"v":"film/b-shep","d":5.4,"z":[1.04,1],"pos":"50% 40%"}]'>
         <figure class="ch-media"><img src="film/b-shep.jpg" alt="Чёрная футболка ВЕДЬМА шепчет, лес слушает с нитями бисера" loading="lazy" decoding="async"></figure>
         <p class="kicker">стеклярус · подвески-капли</p>
         <h2 class="t t-shep" data-reveal="strands"><span class="l1">ВЕДЬМА <small>шепчет</small></span><span class="l2">лес слушает</span></h2>
         <p class="deck">Каждая нить с каплей на конце пришита отдельно, поэтому они качаются, пока ты идёшь.</p>
       </article>
 
-      <article class="ch" id="money" data-kind="fr" data-len="1.15" data-bg="#2a2120" data-bg-d="#1c1615" data-ink="#f0ebe6" data-ink-d="#f0ebe6" data-acc="#cfd2d8"
+      <article class="ch" id="money" data-side="r" data-aspect=".8" data-tilt="-12,2.2,2" data-len="1.15" data-bg="#2a2120" data-bg-d="#1c1615" data-ink="#f0ebe6" data-ink-d="#f0ebe6" data-acc="#cfd2d8"
         data-shots='[{"v":"film/f-money","d":6.0,"z":[1.04,1]}]'>
         <figure class="ch-media"><img src="film/f-money.jpg" alt="Шоколадная футболка MONEYпуляторша серебряным стеклярусом" loading="lazy" decoding="async"></figure>
         <p class="kicker">серебряный стеклярус · шоколадный хлопок</p>
-        <h2 class="t t-money" data-reveal="sparkle" data-label="MONEYпуляторша"><span class="l1">MONEY</span><span class="l2">пуляторша</span></h2>
+        <h2 class="t t-money" data-sparks="4" data-reveal="sparkle" data-label="MONEYпуляторша"><span class="l1">MONEY</span><span class="l2">пуляторша</span></h2>
         <p class="deck">Игра слов, выложенная серебром в два яруса. Стеклярус уложен рядами, поэтому буква блестит по всей длине.</p>
       </article>
 
-      <article class="ch" id="ballet" data-kind="fr" data-len=".9" data-bg="#111113" data-bg-d="#0d0d0f" data-ink="#f1ece6" data-ink-d="#f1ece6" data-acc="#c2202f"
+      <article class="ch" id="ballet" data-side="l" data-aspect=".8" data-tilt="10,-2.4,3" data-len=".9" data-bg="#111113" data-bg-d="#0d0d0f" data-ink="#f1ece6" data-ink-d="#f1ece6" data-acc="#c2202f"
         data-shots='[{"v":"film/f-ballet","d":1.3,"z":[1.0,1.1]}]'>
         <figure class="ch-media"><img src="film/f-ballet.jpg" alt="Чёрная футболка: красная надпись стеклярусом, вместо одной буквы балерина" loading="lazy" decoding="async"></figure>
         <p class="kicker">красный стеклярус · балерина золотом</p>
@@ -135,16 +133,16 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
         <p class="deck">Вместо одной буквы танцует балерина: золотая пачка, белый контур. Остальное написано красным стеклярусом одним росчерком.</p>
       </article>
 
-      <article class="ch" id="mama" data-kind="bg" data-len="1.25" data-bg="#0f1216" data-bg-d="#0f1216" data-ink="#eef0f2" data-ink-d="#eef0f2" data-acc="#eef0f2"
-        data-shots='[{"v":"film/b-mama","d":5.7,"z":[1.05,1],"pos":"62% 40%","posM":"66% 0%"}]'>
+      <article class="ch" id="mama" data-side="r" data-aspect="1" data-tilt="-11,1.6,2" data-len="1.25" data-bg="#0f1216" data-bg-d="#0f1216" data-ink="#eef0f2" data-ink-d="#eef0f2" data-acc="#eef0f2"
+        data-shots='[{"v":"film/b-mama","d":5.7,"z":[1.05,1],"pos":"60% 40%"}]'>
         <figure class="ch-media"><img src="film/b-mama.jpg" alt="Чёрная футболка МАМА дракона, девушка в машине" loading="lazy" decoding="async"></figure>
         <p class="kicker">белые буквы · чёрный хлопок</p>
         <h2 class="t t-mama" data-reveal="runes"><span class="l1">МАМА</span><span class="l2">дракона</span></h2>
         <p class="deck">Буквы острые, как гребень на спине. Для тех, у кого дома растёт свой дракон.</p>
       </article>
 
-      <article class="ch" id="tyson" data-kind="bg" data-len="1.1" data-bg="#0e0d0e" data-bg-d="#0e0d0e" data-ink="#f1ece6" data-ink-d="#f1ece6" data-acc="#e0303a"
-        data-shots='[{"v":"film/b-tyson","d":2.6,"z":[1.04,1],"pos":"50% 22%","posM":"50% 0%"}]'>
+      <article class="ch" id="tyson" data-side="l" data-aspect="1" data-tilt="10,2,-2" data-len="1.1" data-bg="#0e0d0e" data-bg-d="#0e0d0e" data-ink="#f1ece6" data-ink-d="#f1ece6" data-acc="#e0303a"
+        data-shots='[{"v":"film/b-tyson","d":2.6,"z":[1.04,1],"pos":"50% 35%"}]'>
         <figure class="ch-media"><img src="film/b-tyson.jpg" alt="Чёрная футболка с цитатой Майка Тайсона красной нитью" loading="lazy" decoding="async"></figure>
         <p class="kicker">красная нить · бисерные стрелки</p>
         <h2 class="t t-tyson" data-reveal="stitch">“EVERYBODY<br>HAS A PLAN<br>UNTIL THEY<br>GET<br>PUNCHED IN<br>THE FACE.”<span class="sig">-MIKE TYSON</span></h2>
@@ -153,10 +151,7 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
 
     </div>
     <div class="spine" aria-hidden="true"><b id="spine-bead"></b></div>
-    <button type="button" class="bead-hint" id="bead-hint" aria-label="Листать ниже">
-      <span class="bead"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-      <span class="lbl">листай</span>
-    </button>
+    <p class="cue" id="cue" aria-hidden="true"><span>листай плавно</span><i></i></p>
   </div>
 </section>
 
@@ -311,18 +306,20 @@ d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion:
     </ul>
     <div class="ctas">
       <a class="cta ig" href="https://www.instagram.com/kiyaeva_irina/" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><defs><radialGradient id="igg" cx="30%" cy="107%" r="150%"><stop offset="0" stop-color="#fdf497"/><stop offset=".05" stop-color="#fdf497"/><stop offset=".45" stop-color="#fd5949"/><stop offset=".6" stop-color="#d6249f"/><stop offset=".9" stop-color="#285AEB"/></radialGradient></defs><rect x="2" y="2" width="20" height="20" rx="6" fill="url(#igg)"/><rect x="6.2" y="6.2" width="11.6" height="11.6" rx="3.6" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="12" cy="12" r="2.9" fill="none" stroke="#fff" stroke-width="1.7"/><circle cx="16.3" cy="7.7" r="1" fill="#fff"/></svg>
-        <span>Instagram</span>
+        <span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5.2" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="12" cy="12" r="4.1" fill="none" stroke="currentColor" stroke-width="1.9"/><circle cx="17.2" cy="6.8" r="1.25" fill="currentColor"/></svg></span>
+        <span class="lbl"><b>Написать в Instagram</b><small>@kiyaeva_irina</small></span>
+        <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
       <a class="cta vk" href="https://vk.ru/i.kiaeva" target="_blank" rel="noopener noreferrer">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="1.5" y="1.5" width="21" height="21" rx="6" fill="#0077FF"/><path fill="#fff" d="M12.73 16.9c-4.62 0-7.26-3.17-7.37-8.44h2.32c.08 3.87 1.78 5.51 3.13 5.84V8.46h2.18v3.34c1.34-.14 2.74-1.66 3.21-3.34h2.18c-.36 2.06-1.88 3.58-2.96 4.2 1.08.5 2.81 1.82 3.47 4.24h-2.4c-.52-1.61-1.8-2.86-3.5-3.03v3.03z"/></svg>
-        <span>ВКонтакте</span>
+        <span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.9 18.2c-6.2 0-9.75-4.25-9.9-11.33h3.12c.1 5.2 2.4 7.4 4.2 7.85V6.87h2.93v4.48c1.8-.2 3.68-2.23 4.31-4.48h2.93c-.49 2.77-2.53 4.8-3.98 5.64 1.45.68 3.78 2.45 4.66 5.69h-3.22c-.7-2.16-2.42-3.84-4.7-4.07v4.07z"/></svg></span>
+        <span class="lbl"><b>Написать во ВКонтакте</b><small>vk.ru/i.kiaeva</small></span>
+        <svg class="go" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </a>
     </div>
     <p class="small">Вышивка и бисер вручную · короткие серии</p>
   </div>
 </footer>
 
-<script src="site.js?v=20261001a"></script>
+<script src="site.js?v=20261001c"></script>
 </body>
 </html>
