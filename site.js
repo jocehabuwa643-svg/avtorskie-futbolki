@@ -24,7 +24,8 @@
   let rafId = 0, lastT = 0;
   function tick(now) {
     rafId = 0;
-    const dt = Math.min(0.05, lastT ? (now - lastT) / 1000 : 1 / 60);
+    // при редких кадрах (слабое устройство) сцена всё равно догоняет скролл за то же реальное время
+    const dt = Math.min(0.12, lastT ? (now - lastT) / 1000 : 1 / 60);
     lastT = now;
     let again = false;
     for (const f of tasks) {
@@ -74,6 +75,7 @@
               c.textContent = ch;
               c.style.setProperty("--i", i++);
               c.style.setProperty("--len", (0.7 + ((i * 37) % 17) / 9).toFixed(2));
+              c.style.setProperty("--rnd", ((((i * 53 + 7) % 19) / 9) - 1).toFixed(2));
               w.appendChild(c);
             }
             frag.appendChild(w);
@@ -85,6 +87,8 @@
       }
     };
     walk(h);
+    const all = $$(".c", h);
+    all.forEach((c, k) => c.style.setProperty("--ci", Math.abs(k - (all.length - 1) / 2).toFixed(1)));
   }
 
   function splitLines(h) {
@@ -134,6 +138,70 @@
     st.ratio = (maxW + 14) / H;
   }
 
+  /* спецэффекты вылета: осколки бисера, ударная волна, луч, след когтей. Всё на transform/opacity */
+  const FX = {
+    "t-rg":     { quake: [0.52, 0.42, 2], sha: 1.3, burst: [{ n: 12, at: 0.56, dir: "out", ox: 34, oy: 30, c: ["#e23a4c", "#ff9aa6", "#a81428"] }, { n: 9, at: 1.12, dir: "out", ox: 22, oy: 78, c: ["#e23a4c", "#ff9aa6", "#a81428"] }] },
+    "t-more":   { sha: 1.4, burst: [{ n: 11, at: 0.62, dir: "up", ox: 45, oy: 62, c: ["#1f9fd0", "#8fdcf5", "#ffffff"] }] },
+    "t-dome":   { sha: 1.3, beam: [1.0, 1.1, "rgba(255,242,198,.55)"], burst: [{ n: 10, at: 0.75, dir: "up", slow: 1, ox: 48, oy: 70, c: ["#fff2c6", "#e3c173", "#c9a24a"] }] },
+    "t-verh":   { quake: [0.68, 0.36, 2], sha: 1.35, burst: [{ n: 12, at: 0.72, dir: "out", ox: 38, oy: 78, c: ["#c2202f", "#ff7b86", "#2a2020"] }] },
+    "t-pros":   { quake: [0.5, 0.32, 1], sha: 1.0, burst: [{ n: 12, at: 0.36, dir: "up", hollow: 1, ox: 45, oy: 50, c: ["#ffffff", "#ffd9d2", "#150808"] }] },
+    "t-vedma":  { sha: 1.1, beam: [0.14, 0.5, "rgba(255,255,255,.7)"] },
+    "t-shep":   { quake: [0.55, 0.32, 1], sha: 1.1, burst: [{ n: 11, at: 0.62, dir: "down", ox: 46, oy: 55, c: ["#e02a4a", "#62d23c", "#ff8aa0"] }] },
+    "t-money":  { quake: [0.42, 0.26, 3], sha: 1.3, beam: [1.35, 0.8, "rgba(255,255,255,.6)"], burst: [{ n: 12, at: 0.5, dir: "left", ox: 8, oy: 45, c: ["#ffffff", "#cfd2d8", "#9aa0aa"] }] },
+    "t-ballet": { sha: 1.5, burst: [{ n: 10, at: 1.42, dir: "out", ox: 34, oy: 26, c: ["#e3c173", "#fff2c6", "#cf2536"] }] },
+    "t-mama":   { sha: 1.3, claw: 0.8, burst: [{ n: 13, at: 0.25, dir: "up", slow: 1, ox: 40, oy: 68, c: ["#ff9a3c", "#ffd27a", "#e2541f"] }] },
+    "t-lama":   { sha: 1.4, beam: [1.2, 0.8, "rgba(255,255,255,.75)"] },
+    "t-tyson":  { quake: [0.5, 0.5, 1], sha: 1.0, ring: [0.48, 34, 44], burst: [{ n: 13, at: 0.5, dir: "out", ox: 34, oy: 44, c: ["#e0303a", "#ff8088", "#7d1218"] }] },
+  };
+  function addFx(h, tk) {
+    const key = Object.keys(FX).find((k) => h.classList.contains(k));
+    if (!key) return;
+    const fx = FX[key];
+    // генератор с зерном: рисунок осколков одинаковый при каждом заходе
+    let seed = 0; for (const ch of key) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const el = (cls) => { const e = document.createElement("i"); e.className = cls; e.setAttribute("aria-hidden", "true"); tk.appendChild(e); return e; };
+    if (fx.sha) tk.style.setProperty("--sha", `${fx.sha}s`);
+    if (fx.quake) { tk.classList.add("q"); tk.style.setProperty("--qa", `${fx.quake[0]}s`); tk.style.setProperty("--qd", `${fx.quake[1]}s`); tk.style.setProperty("--qn", fx.quake[2]); }
+    (fx.burst || []).forEach((b) => {
+      for (let k = 0; k < b.n; k++) {
+        const e = el(b.hollow ? "pt hollow" : "pt");
+        let ang;
+        if (b.dir === "up") ang = -Math.PI / 2 + (rnd() - 0.5) * 1.5;
+        else if (b.dir === "down") ang = Math.PI / 2 + (rnd() - 0.5) * 1.3;
+        else if (b.dir === "left") ang = Math.PI + (rnd() - 0.5) * 1.2;
+        else ang = rnd() * Math.PI * 2;
+        const dist = (b.slow ? 0.7 : 1) * (0.55 + rnd() * 1.15);
+        e.style.setProperty("--dx", (Math.cos(ang) * dist * 1.5).toFixed(2));
+        e.style.setProperty("--dy", (Math.sin(ang) * dist).toFixed(2));
+        e.style.setProperty("--ox", `${(b.ox + (rnd() - 0.5) * 44).toFixed(0)}%`);
+        e.style.setProperty("--oy", `${(b.oy + (rnd() - 0.5) * 30).toFixed(0)}%`);
+        e.style.setProperty("--sz", (0.05 + rnd() * 0.07).toFixed(3));
+        e.style.setProperty("--s", (0.5 + rnd() * 0.9).toFixed(2));
+        e.style.setProperty("--c", b.c[k % b.c.length]);
+        e.style.setProperty("--d", `${(b.at + rnd() * 0.12).toFixed(2)}s`);
+        e.style.setProperty("--t", `${((b.slow ? 1.7 : 0.8) + rnd() * 0.5).toFixed(2)}s`);
+      }
+    });
+    if (fx.ring) { const e = el("rg-ring"); e.style.setProperty("--d", `${fx.ring[0]}s`); e.style.setProperty("--ox", `${fx.ring[1]}%`); e.style.setProperty("--oy", `${fx.ring[2]}%`); }
+    if (fx.beam) { const w = el("bmw"); const b = document.createElement("i"); b.className = "bm"; b.style.setProperty("--d", `${fx.beam[0]}s`); b.style.setProperty("--t", `${fx.beam[1]}s`); b.style.setProperty("--bc", fx.beam[2]); w.appendChild(b); }
+    if (fx.claw) { const e = el("claw"); e.style.setProperty("--d", `${fx.claw}s`); }
+  }
+  // тень: копия надписи одним цветом, лежит под ней со смещением
+  function castShadow(h) {
+    const tk = h.parentNode;
+    const old = $(".t-sh", tk);
+    if (old) old.remove();
+    const d = document.createElement("div");
+    d.className = `${h.className} t-sh`;
+    d.setAttribute("aria-hidden", "true");
+    d.innerHTML = h.innerHTML;
+    $$(".sp, .bub", d).forEach((e) => e.remove());
+    const src = $(".stitch-svg", h), dst = $(".stitch-svg", d);
+    if (src && dst) dst.style.width = src.style.width;
+    tk.insertBefore(d, h);
+  }
+
   // текст надписи для экранного диктора: переносы строк читаются как пробелы
   const plain = (el) => el.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/<\/(span|small)>/gi, " ").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
   const heads = $$(".t");
@@ -147,6 +215,11 @@
     const deco = (n, cls) => { for (let k = 0; k < n; k++) { const el = document.createElement("i"); el.className = cls; el.style.setProperty("--k", k); el.setAttribute("aria-hidden", "true"); h.appendChild(el); } };
     deco(+h.dataset.sparks || 0, "sp");
     deco(+h.dataset.bubbles || 0, "bub");
+    // .tw держит наклон, зеркальный рамке; .tk вздрагивает от удара; тень и осколки лежат рядом с надписью
+    const tw = document.createElement("div"); tw.className = "tw";
+    const tk = document.createElement("div"); tk.className = "tk";
+    h.parentNode.insertBefore(tw, h); tw.appendChild(tk); tk.appendChild(h);
+    addFx(h, tk);
   });
   // описание под надписью появляется по словам
   $$(".ch .deck").forEach((d) => {
@@ -163,6 +236,7 @@
     const vh = innerHeight, vw = innerWidth, small = narrow();
     heads.forEach((h) => {
       const art = h.closest(".ch");
+      const tw = h.closest(".tw");
       // у скрытой главы ширина известна из раскладки: колонка абсолютная
       const colW = film ? art.offsetWidth || (small ? vw - 32 : vw * 0.46) : Math.min(art.clientWidth || vw - 32, 704);
       const maxH = film ? (small ? vh * 0.2 : vh * 0.42) : vh * 0.5;
@@ -171,7 +245,9 @@
         const r = h._stitch.ratio || 4;
         const w = Math.min(colW, maxH * r);
         h._stitch.svg.style.width = `${w}px`;
-        h.style.setProperty("--fs", `${Math.max(22, (w / r) / (h._stitch.lines.length * 1.04))}px`);
+        h.style.removeProperty("--fs");
+        tw.style.setProperty("--fs", `${Math.max(22, (w / r) / (h._stitch.lines.length * 1.04))}px`);
+        castShadow(h);
         return;
       }
       h.style.setProperty("--fs", "100px");
@@ -181,7 +257,9 @@
       const tall = h.classList.contains("t-verh") ? 1.28 : h.classList.contains("t-money") ? 1.25 : 1;
       const s = Math.min(colW / Math.max(1, bw), maxH / Math.max(1, bh * tall));
       const cap = small ? 150 : 210;
-      h.style.setProperty("--fs", `${clamp(100 * s * 0.98, 26, cap).toFixed(1)}px`);
+      h.style.removeProperty("--fs");
+      tw.style.setProperty("--fs", `${clamp(100 * s * 0.96, 26, cap).toFixed(1)}px`);
+      castShadow(h);
     });
     doc.classList.remove("fitting");
   }
@@ -201,7 +279,7 @@
       fr.className = "fr";
       framesEl.appendChild(fr);
       return {
-        el, fr,
+        el, fr, tw: $(".tw", el),
         side: el.dataset.side === "l" ? -1 : 1,
         aspect: parseFloat(el.dataset.aspect) || 0.8,
         ry: tilt[0], rz: tilt[1], rx: tilt[2],
@@ -255,6 +333,8 @@
         c.el.style.setProperty("--sink", rgb(dark ? c.inkD : c.inkL));
         c.el.style.setProperty("--acc", rgb(c.acc));
         c.fr.style.backgroundColor = rgb(mix(dark ? c.bgD : c.bgL, dark ? c.inkD : c.inkL, 0.12));
+        const bg = dark ? c.bgD : c.bgL;
+        c.el.classList.toggle("dk", (bg[0] * 0.299 + bg[1] * 0.587 + bg[2] * 0.114) < 110);
       });
       lastCi = -1; lastBg = "";
     }
@@ -285,6 +365,8 @@
           c.el.style.width = `${Math.round(colW)}px`;
           c.el.style.left = `${Math.round(c.side > 0 ? vw * 0.06 : edge + fw + gap)}px`;
         }
+        // надпись стоит под тем же углом, что рамка, но в другую сторону: вместе они как раскрытая книга
+        if (c.tw) { c.tw.style.setProperty("--ty", `${(-c.ry * (small ? 0.7 : 1.3)).toFixed(1)}deg`); c.tw.style.setProperty("--tz", `${(-c.rz * 0.75).toFixed(1)}deg`); }
         c.fw = fw; c.fh = fh;
         c.fr.style.width = `${Math.round(fw)}px`; c.fr.style.height = `${Math.round(fh)}px`;
         c.fr.style.left = `${Math.round(left)}px`; c.fr.style.top = `${Math.round(top)}px`;
@@ -466,6 +548,8 @@
         ch.style.setProperty("--cbg", (dark && ch.dataset.bgD) || ch.dataset.bg);
         ch.style.setProperty("--sink", (dark && ch.dataset.inkD) || ch.dataset.ink);
         ch.style.setProperty("--acc", ch.dataset.acc);
+        const bg = hex((dark && ch.dataset.bgD) || ch.dataset.bg);
+        ch.classList.toggle("dk", (bg[0] * 0.299 + bg[1] * 0.587 + bg[2] * 0.114) < 110);
       });
     };
     doc.classList.add("tinted");
