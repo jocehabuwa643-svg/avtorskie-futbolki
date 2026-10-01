@@ -377,6 +377,8 @@
       for (const s of shots) {
         if (p > s.a - 1.3 && p < s.b + 0.7) loadShot(s);
         else if (p < s.a - 3 || p > s.b + 2.4) unloadShot(s);
+        // Safari начинает качать ролик только после play(): будим следующий кадр заранее, за полглавы
+        if (s.v && s.loaded && !s.primed && p > s.a - 0.6 && p < s.b) prime(s);
         const ch = chapters[s.ci];
         if (ch.o <= 0) continue;
         const x = 0.1 * ch.len;
