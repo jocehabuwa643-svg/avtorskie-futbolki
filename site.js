@@ -79,19 +79,17 @@
             frag.appendChild(w);
           });
           child.replaceWith(frag);
-        } else if (child.nodeType === 1 && child.tagName !== "BR") {
+        } else if (child.nodeType === 1 && child.tagName !== "BR" && !child.classList.contains("sub")) {
           walk(child);
         }
       }
     };
     walk(h);
-    h.style.setProperty("--n", i);
   }
 
   function splitLines(h) {
     const parts = h.innerHTML.split(/<br\s*\/?>/i);
     h.innerHTML = parts.map((p, k) => `<span class="ln" style="--li:${k}">${p}</span>`).join("");
-    h.style.setProperty("--L", parts.length);
   }
 
   const SVGNS = "http://www.w3.org/2000/svg";
@@ -122,7 +120,6 @@
 
   function layoutStitch(h) {
     const st = h._stitch;
-    if (!st) return;
     const lh = 104;
     let maxW = 10;
     const first = st.layers[0].children;
@@ -137,69 +134,68 @@
     st.ratio = (maxW + 14) / H;
   }
 
+  // текст надписи для экранного диктора: переносы строк читаются как пробелы
+  const plain = (el) => el.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/<\/(span|small)>/gi, " ").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
   const heads = $$(".t");
   heads.forEach((h) => {
-    const plain = h.textContent.replace(/\s+/g, " ").trim();
-    h.setAttribute("aria-label", plain);
+    h.setAttribute("aria-label", h.dataset.label || plain(h));
     const kind = h.dataset.reveal;
     if (kind === "stitch") buildStitch(h);
     else if (kind === "write" || kind === "glass") splitLines(h);
     else splitLetters(h);
   });
 
-  /* подгонка кегля: надпись должна влезть в колонку целиком, без переносов внутри слов */
+  /* подгонка кегля: надпись влезает в колонку целиком, без переносов внутри слов */
   function fitHeads() {
-    const stage = $("#stage");
     const film = doc.classList.contains("film-on");
-    const vh = innerHeight, vw = innerWidth;
+    doc.classList.add("fitting"); // на время замера показываем все главы
+    const vh = innerHeight, vw = innerWidth, small = narrow();
     heads.forEach((h) => {
       const art = h.closest(".ch");
-      const colW = film ? art.getBoundingClientRect().width || (narrow() ? vw - 32 : vw * 0.47) : Math.min(art.clientWidth || vw - 32, 704);
-      const maxH = film ? (narrow() ? vh * 0.27 : vh * 0.46) : vh * 0.5;
+      const bg = art.dataset.kind === "bg";
+      // у скрытой главы ширина известна из раскладки: колонка абсолютная
+      const colW = film ? art.offsetWidth || (small ? vw - 32 : vw * 0.46) : Math.min(art.clientWidth || vw - 32, 704);
+      const maxH = film ? (small ? vh * (bg ? 0.3 : 0.26) : vh * (bg ? 0.5 : 0.46)) : vh * 0.5;
       if (h._stitch) {
         layoutStitch(h);
         const r = h._stitch.ratio || 4;
-        const w = Math.min(colW, maxH * r);
+        const w = Math.min(colW, maxH * r, small ? 9999 : vw * 0.52);
         h._stitch.svg.style.width = `${w}px`;
         h.style.setProperty("--fs", `${Math.max(22, (w / r) / (h._stitch.lines.length * 1.04))}px`);
         return;
       }
-      const prev = h.style.getPropertyValue("--r");
-      h.style.setProperty("--r", "1");
       h.style.setProperty("--fs", "100px");
       h.style.width = "max-content";
-      const box = h.getBoundingClientRect();
+      const bw = h.offsetWidth, bh = h.offsetHeight;
       h.style.width = "";
-      if (prev) h.style.setProperty("--r", prev); else h.style.removeProperty("--r");
-      const tall = h.classList.contains("t-verh") ? 1.28 : 1;
-      const s = Math.min(colW / Math.max(1, box.width), maxH / Math.max(1, box.height * tall));
-      const cap = narrow() ? 150 : 210;
+      const tall = h.classList.contains("t-verh") ? 1.28 : h.classList.contains("t-money") ? 1.25 : 1;
+      const s = Math.min(colW / Math.max(1, bw), maxH / Math.max(1, bh * tall));
+      const cap = small ? 150 : bg ? 250 : 210;
       h.style.setProperty("--fs", `${clamp(100 * s * 0.98, 26, cap).toFixed(1)}px`);
     });
-    if (stage) stage.style.setProperty("--fit", "1");
+    doc.classList.remove("fitting");
   }
 
   /* ——— фильм ——— */
   const Film = (() => {
-    const film = $("#film"), stage = $("#stage"), cam = $("#cam"), frame = $("#frame");
-    const spine = $("#spine");
-    const threads = $$(".threads i", stage);
-    const nav = $("#top");
+    const film = $("#film"), stage = $("#stage");
     if (!film || RM) return null;
+    const cam = $("#cam"), bgcam = $("#bgcam"), frame = $("#frame"), scrim = $("#bgscrim");
+    const beadEl = $("#spine-bead"), spine = $(".spine", stage), nav = $("#top"), hint = $("#bead-hint");
+    const FPS = 12; // клипы закодированы в 12 кадров/с: перематываем только при смене кадра
 
     doc.classList.add("film-on");
     const chapters = $$(".ch", stage).map((el) => ({
       el,
-      h: $(".t", el),
+      bgKind: el.dataset.kind === "bg",
       len: parseFloat(el.dataset.len) || 1,
-      aspect: parseFloat(el.dataset.aspect) || 0.8,
       bgL: hex(el.dataset.bg), bgD: hex(el.dataset.bgD || el.dataset.bg),
       inkL: hex(el.dataset.ink), inkD: hex(el.dataset.inkD || el.dataset.ink),
       acc: hex(el.dataset.acc),
       shots: JSON.parse(el.dataset.shots),
+      on: false,
     }));
 
-    // раскладываем главы и кадры по одной оси
     let total = 0;
     const shots = [];
     chapters.forEach((c, ci) => {
@@ -214,58 +210,69 @@
           el.muted = true; el.playsInline = true; el.preload = "none";
           el.setAttribute("muted", ""); el.setAttribute("playsinline", ""); el.setAttribute("webkit-playsinline", "");
           el.setAttribute("disablepictureinpicture", ""); el.setAttribute("disableremoteplayback", "");
-          el.poster = `${sh.v}.jpg`;
         } else {
-          el.src = sh.img; el.alt = ""; el.decoding = "async";
+          el.alt = ""; el.decoding = "async";
+          if (ci === 0 && k === 0) el.src = sh.img; // первый экран нужен сразу
         }
         if (sh.o) el.style.transformOrigin = sh.o;
-        cam.appendChild(el);
-        shots.push({ ...sh, el, ci, a: acc, b: acc + span, first: ci === 0 && k === 0, loaded: !sh.v, primed: false, want: 0 });
+        (c.bgKind ? bgcam : cam).appendChild(el);
+        shots.push({ ...sh, el, ci, bgKind: c.bgKind, a: acc, b: acc + span, first: ci === 0 && k === 0, loaded: ci === 0 && k === 0, primed: false, o: -1, tr: "" });
         acc += span;
       });
     });
     shots[shots.length - 1].last = true;
-    const X = 0.13; // полуширина кроссфейда в долях главы
+    const X = 0.12; // полуширина кроссфейда в долях главы
 
-    let unit = 0, filmTop = 0, filmH = 0, vh = innerHeight, vw = innerWidth;
-    let p = 0, pT = 0, introR = 0, introStart = 0, active = false, fontsReady = false;
+    let unit = 0, filmTop = 0, filmH = 0, vh = innerHeight, vw = innerWidth, spineH = 0;
+    let p = 0, pT = 0, active = false, fontsReady = false;
+    let lastBg = "", lastCi = -1, lastDark = null, lastFrameO = -1, lastScrimO = -1, lastNav = -1, lastBead = -1;
 
+    // цвет текста и акцента у главы свой и постоянный: меняется только фон сцены,
+    // поэтому при смыве цвета браузер не пересчитывает стили у сотен букв
+    function paintChapters() {
+      const dark = isDark();
+      chapters.forEach((c) => {
+        c.el.style.setProperty("--sink", rgb(dark ? c.inkD : c.inkL));
+        c.el.style.setProperty("--acc", rgb(c.acc));
+      });
+      lastCi = -1; lastBg = "";
+    }
+
+    function setPos() {
+      const small = narrow();
+      shots.forEach((s) => { if (s.bgKind) s.el.style.objectPosition = (small ? s.posM : s.pos) || "50% 30%"; });
+    }
     function measure() {
       vw = innerWidth; vh = innerHeight;
-      unit = vh * (narrow() ? 0.68 : 0.78);
+      unit = vh * (narrow() ? 0.62 : 0.72);
       filmH = total * unit + vh;
       film.style.setProperty("--film-h", `${Math.round(filmH)}px`);
       filmTop = film.getBoundingClientRect().top + scrollY;
-      stage.style.setProperty("--colw", `${Math.max(280, vw * 0.87 - frameSize(1)[0] - vw * 0.045).toFixed(0)}px`);
-      threads.forEach((t, i) => t.style.setProperty("--k", i));
-    }
-
-    function frameSize(aspect) {
-      if (narrow()) {
-        const top = 66;
-        const availH = vh * 0.5;
-        let fw = Math.min(vw - 32, availH * aspect);
-        let fh = fw / aspect;
-        if (top + fh > vh * 0.6) { fh = vh * 0.6 - top; fw = fh * aspect; }
-        return [fw, fh];
-      }
-      let fh = vh * 0.8;
-      let fw = fh * aspect;
-      if (fw > vw * 0.42) { fw = vw * 0.42; fh = fw / aspect; }
-      return [fw, fh];
+      spineH = spine ? spine.offsetHeight : 0;
+      setPos();
     }
 
     function loadShot(s) {
-      if (s.loaded || !s.v) return;
+      if (s.loaded) return;
       s.loaded = true;
+      if (!s.v) { s.el.src = s.img; return; }
+      s.el.poster = `${s.v}.jpg`;
+      s.el.preload = "auto";
       s.el.src = `${s.v}.mp4`;
       s.el.addEventListener("loadeddata", wake, { once: true });
-      s.el.addEventListener("seeked", wake);
+      if (!s.bound) { s.bound = true; s.el.addEventListener("seeked", wake); }
+      try { s.el.load(); } catch (e) { /* ничего */ }
+    }
+    function unloadShot(s) {
+      // далеко ушедшие ролики освобождают декодер и память
+      if (!s.loaded || !s.v || s.first) return;
+      s.loaded = false; s.primed = false;
+      s.el.removeAttribute("src");
       try { s.el.load(); } catch (e) { /* ничего */ }
     }
     function prime(s) {
       // iOS показывает кадры после первого play(); сразу ставим на паузу
-      if (s.primed || !s.v) return;
+      if (s.primed) return;
       s.primed = true;
       const pr = s.el.play();
       if (pr && pr.then) pr.then(() => s.el.pause()).catch(() => {});
@@ -273,19 +280,10 @@
 
     function update(now, dt) {
       if (!active) return false;
-      const y = scrollY;
-      pT = clamp((y - filmTop) / Math.max(1, filmH - vh), 0, 1) * total;
-      const k = 1 - Math.exp(-dt * 7.5);
-      p += (pT - p) * k;
-      if (Math.abs(pT - p) < 0.0004) p = pT;
+      pT = clamp((scrollY - filmTop) / Math.max(1, filmH - vh), 0, 1) * total;
+      p += (pT - p) * (1 - Math.exp(-dt * 9));
+      if (Math.abs(pT - p) < 0.0005) p = pT;
 
-      // интро первой главы: надпись встаёт сама, потом ею управляет скролл
-      if (fontsReady && introR < 1) {
-        if (!introStart) introStart = now;
-        introR = clamp((now - introStart) / 1900, 0, 1);
-      }
-
-      // текущая глава и ближайшая граница
       let ci = 0;
       for (let i = 0; i < chapters.length; i++) if (p >= chapters[i].a) ci = i;
       const c = chapters[ci];
@@ -295,126 +293,128 @@
       let bIdx = ci, bPos = c.b;
       if (ci > 0 && p - c.a < c.b - p) { bIdx = ci - 1; bPos = c.a; }
       const from = chapters[bIdx], to = chapters[Math.min(bIdx + 1, chapters.length - 1)];
-      const t = from === to ? 0 : smooth(bPos - 0.16, bPos + 0.16, p);
-      const bg = mix(dark ? from.bgD : from.bgL, dark ? to.bgD : to.bgL, t);
-      const ink = mix(dark ? from.inkD : from.inkL, dark ? to.inkD : to.inkL, t);
-      const accC = mix(from.acc, to.acc, t);
-      const aspect = lerp(from.aspect, to.aspect, t);
-      const b = from === to ? 0 : bell(p - bPos, 0.09);
-      stage.style.setProperty("--sbg", rgb(bg));
-      stage.style.setProperty("--sink", rgb(ink));
-      stage.style.setProperty("--acc", rgb(accC));
-      stage.style.setProperty("--wash", rgb(to.acc));
-      stage.style.setProperty("--wo", (b * 0.7).toFixed(3));
-      stage.style.setProperty("--ws", (0.7 + b * 0.55).toFixed(3));
-
-      const [fw, fh] = frameSize(aspect);
-      frame.style.setProperty("--fw", `${fw.toFixed(1)}px`);
-      frame.style.setProperty("--fh", `${fh.toFixed(1)}px`);
-      const sway = (p - bPos) * 60 * b;
-      frame.style.setProperty("--fx", `${(narrow() ? sway * 0.3 : sway * 1.2).toFixed(1)}px`);
-      frame.style.setProperty("--fy", `${(b * -6).toFixed(1)}px`);
-      if (!narrow()) {
-        stage.style.setProperty("--wx", `${(100 - (7 + (fw / vw) * 50)).toFixed(1)}%`);
-        stage.style.setProperty("--wy", "50%");
-      } else {
-        stage.style.setProperty("--wx", "50%");
-        stage.style.setProperty("--wy", `${((66 + fh / 2) / vh * 100).toFixed(1)}%`);
+      const t = from === to ? 0 : smooth(bPos - 0.15, bPos + 0.15, p);
+      const sBg = rgb(mix(dark ? from.bgD : from.bgL, dark ? to.bgD : to.bgL, t));
+      if (sBg !== lastBg) { stage.style.backgroundColor = sBg; scrim.style.setProperty("--sbg", sBg); lastBg = sBg; }
+      // мелкие детали (нитка, подсказка, панель) перекрашиваются один раз на главу
+      const near = t < 0.5 ? from : to;
+      const ni = chapters.indexOf(near);
+      if (ni !== lastCi || dark !== lastDark) {
+        lastCi = ni; lastDark = dark;
+        const sInk = rgb(dark ? near.inkD : near.inkL), sAcc = rgb(near.acc);
+        for (const el of [spine, hint]) if (el) { el.style.setProperty("--sink", sInk); el.style.setProperty("--acc", sAcc); }
+        frame.style.backgroundColor = rgb(mix(dark ? near.bgD : near.bgL, dark ? near.inkD : near.inkL, 0.1));
+        lastNav = -1;
       }
 
-      // нитки-линии сетки прошиваются на смене главы
-      threads.forEach((th, i) => {
-        const q0 = smooth(bPos - 0.22 + i * 0.025, bPos + 0.02 + i * 0.025, p);
-        const q1 = smooth(bPos + 0.02 + i * 0.025, bPos + 0.26 + i * 0.025, p);
-        th.style.setProperty("--t0", `${(q1 * 100).toFixed(1)}%`);
-        th.style.setProperty("--t1", `${((1 - q0) * 100).toFixed(1)}%`);
-      });
-
-      // кадры
-      let pending = false;
+      // кадры: видим не больше двух, перематываем только ведущий
+      let lead = null, leadO = 0, frameO = 0, scrimO = 0, pending = false;
       for (const s of shots) {
-        const span = s.b - s.a;
         const x = X * chapters[s.ci].len;
+        if (p > s.a - 1.3 && p < s.b + 0.7) loadShot(s);
+        else if (p < s.a - 3 || p > s.b + 2.4) unloadShot(s);
         const fin = s.first ? 1 : smooth(s.a - x, s.a + x, p);
         const fout = s.last ? 1 : 1 - smooth(s.b - x, s.b + x, p);
-        const o = fin * fout;
-        const near = p > s.a - 1.4 && p < s.b + 0.6;
-        if (near) loadShot(s);
-        if (o <= 0.002) {
-          if (s.vis) { s.el.style.opacity = "0"; s.vis = false; }
-          continue;
-        }
-        s.vis = true;
+        const o = Math.round(fin * fout * 100) / 100;
+        if (o !== s.o) { s.el.style.opacity = o; s.o = o; }
+        if (o <= 0) continue;
+        if (s.bgKind) scrimO = Math.max(scrimO, o); else frameO = Math.max(frameO, o);
+        if (o > leadO) { leadO = o; lead = s; }
+        const span = s.b - s.a;
         const lt = clamp((p - (s.a - x)) / (span + 2 * x), 0, 1);
+        s.lt = lt;
         const z = s.z ? lerp(s.z[0], s.z[1], easeOut(lt)) : 1;
-        const shiftIn = (1 - fin) * 4, shiftOut = (1 - fout) * -4;
-        s.el.style.opacity = o.toFixed(3);
-        s.el.style.transform = `translate3d(${(shiftIn + shiftOut).toFixed(2)}%,0,0) scale(${(z * (1 + (1 - fout) * 0.03)).toFixed(4)})`;
-        if (s.v && s.el.readyState >= 1) {
-          prime(s);
-          const d = s.el.duration && isFinite(s.el.duration) ? s.el.duration : s.d;
-          const target = clamp(lt * (d - 0.06), 0, d - 0.04);
-          if (!s.el.seeking && Math.abs(s.el.currentTime - target) > 0.018) {
-            try { s.el.currentTime = target; } catch (e) { /* ещё не готово */ }
-          }
-          if (Math.abs(s.el.currentTime - target) > 0.03) pending = true;
+        const tr = `scale(${z.toFixed(3)})`;
+        if (tr !== s.tr) { s.el.style.transform = tr; s.tr = tr; }
+      }
+      if (lead && lead.v && lead.loaded) prime(lead); // на iPhone данные не идут, пока не вызван play()
+      if (lead && lead.v && lead.el.readyState >= 1) {
+        const d = lead.el.duration && isFinite(lead.el.duration) ? lead.el.duration : lead.d;
+        const target = Math.min(d - 0.05, Math.round(lead.lt * (d - 0.05) * FPS) / FPS);
+        if (Math.abs(lead.el.currentTime - target) > 0.03) {
+          if (!lead.el.seeking) { try { lead.el.currentTime = target; } catch (e) { /* ещё не готово */ } }
+          pending = true;
         }
       }
+      // затемнение под фон встаёт раньше самого кадра, чтобы край видео не был виден на переходе
+      frameO = Math.round(frameO * 100) / 100; scrimO = Math.round(smooth(0, 0.3, scrimO) * 100) / 100;
+      if (frameO !== lastFrameO) { frame.style.opacity = frameO; lastFrameO = frameO; }
+      if (scrimO !== lastScrimO) { scrim.style.opacity = scrimO; lastScrimO = scrimO; }
 
-      // главы: надпись встаёт, фраза проявляется, на выходе растворяется
-      chapters.forEach((ch, i) => {
+      // главы: класс on включает вылет надписи, дальше работает CSS
+      for (let i = 0; i < chapters.length; i++) {
+        const ch = chapters[i];
         const u = (p - ch.a) / ch.len;
-        let r = smooth(-0.02, 0.34, u);
-        if (i === 0) r = Math.min(1, Math.max(r, introR));
-        const xo = i === chapters.length - 1 ? smooth(1.05, 1.3, u) : smooth(0.8, 1.0, u);
-        const live = r > 0.001 && xo < 0.999 && u > -0.2 && u < 1.2;
+        const lastCh = i === chapters.length - 1;
+        const on = fontsReady && (i === 0 ? u < 0.86 : u >= 0.1 && (lastCh || u < 0.88));
+        const live = u > -0.6 && u < 1.6;
         if (live !== ch.live) { ch.el.classList.toggle("live", live); ch.live = live; }
-        if (!live) return;
-        ch.el.style.setProperty("--r", r.toFixed(3));
-        ch.h.style.setProperty("--r", r.toFixed(3));
-        ch.h.style.setProperty("--r2", clamp((r - 0.45) / 0.55, 0, 1).toFixed(3));
-        ch.el.style.opacity = (1 - xo).toFixed(3);
-        ch.el.style.transform = xo > 0 ? `translate3d(0,${(-xo * 3).toFixed(2)}vh,0)` : "";
-        ch.el.style.filter = xo > 0.01 && !narrow() ? `blur(${(xo * 6).toFixed(1)}px)` : "";
-      });
+        if (on !== ch.on) { ch.el.classList.toggle("on", on); ch.on = on; }
+      }
 
-      spine && spine.style.setProperty("--sp", (p / total).toFixed(4));
-      // панель сверху подстраивается под цвет сцены
-      const inView = y < filmTop + filmH - vh * 0.5;
-      nav.style.setProperty("--nav-ink", inView ? rgb(ink) : "");
-      nav.style.setProperty("--nav-bg", inView ? rgb(bg) : "");
-
-      return p !== pT || pending || (fontsReady && introR < 1);
+      const by = Math.round((p / total) * spineH);
+      if (by !== lastBead && beadEl) { beadEl.style.transform = `translate3d(0,${by}px,0)`; lastBead = by; }
+      const inView = scrollY < filmTop + filmH - vh * 0.5 ? 1 : 0;
+      const navKey = inView ? ni : -2;
+      if (navKey !== lastNav) {
+        nav.style.setProperty("--nav-ink", inView ? rgb(dark ? near.inkD : near.inkL) : "");
+        nav.style.setProperty("--nav-bg", inView ? rgb(dark ? near.bgD : near.bgL) : "");
+        nav.classList.toggle("over-film", !!inView);
+        lastNav = navKey;
+      }
+      return p !== pT || pending;
     }
 
     measure();
+    paintChapters();
     tasks.add(update);
-    const io = new IntersectionObserver(([e]) => { active = e.isIntersecting; if (active) wake(); else nav.style.removeProperty("--nav-ink"), nav.style.removeProperty("--nav-bg"); }, { rootMargin: "20% 0px" });
-    io.observe(film);
+    new IntersectionObserver(([e]) => {
+      active = e.isIntersecting;
+      if (active) wake(); else { nav.style.removeProperty("--nav-ink"); nav.style.removeProperty("--nav-bg"); nav.classList.remove("over-film"); lastNav = -1; }
+    }, { rootMargin: "20% 0px" }).observe(film);
     addEventListener("scroll", wake, { passive: true });
     let lastW = innerWidth, lastH = innerHeight;
     addEventListener("resize", () => {
-      // адресная строка на телефоне меняет высоту на пару десятков пикселей — не пересчитываем фильм из-за этого
+      // адресная строка на телефоне меняет высоту на пару десятков пикселей: фильм из-за этого не пересчитываем
       if (innerWidth !== lastW || Math.abs(innerHeight - lastH) > 120) { lastW = innerWidth; lastH = innerHeight; measure(); fitHeads(); }
       wake();
     });
-    addEventListener("kiyaeva:theme", wake);
-    loadShot(shots[1]);
+    addEventListener("kiyaeva:theme", () => { paintChapters(); wake(); });
+    if (hint) hint.addEventListener("click", () => scrollTo({ top: filmTop + unit * chapters[0].len * 1.05, behavior: "smooth" }));
     return {
       fontsReady() { fontsReady = true; wake(); },
       measure,
     };
   })();
 
+  // подсказка «листай» видна только в самом начале
+  (() => {
+    let was = null;
+    const sync = () => { const s = scrollY > 24; if (s !== was) { doc.classList.toggle("scrolled", s); was = s; } };
+    addEventListener("scroll", sync, { passive: true });
+    sync();
+  })();
+
   if (!Film) {
-    // меньше движения или нет сцены: главы по очереди, в каждой короткий фрагмент ролика по нажатию
+    // меньше движения или нет сцены: главы по очереди, каждая на своём цвете
+    const tint = () => {
+      const dark = isDark();
+      $$(".ch").forEach((ch) => {
+        ch.style.setProperty("--cbg", (dark && ch.dataset.bgD) || ch.dataset.bg);
+        ch.style.setProperty("--sink", (dark && ch.dataset.inkD) || ch.dataset.ink);
+        ch.style.setProperty("--acc", ch.dataset.acc);
+      });
+    };
+    doc.classList.add("tinted");
+    tint();
+    addEventListener("kiyaeva:theme", tint);
+    // в каждой главе короткий фрагмент ролика по нажатию
     $$(".ch").forEach((ch) => {
       const shots = JSON.parse(ch.dataset.shots || "[]");
       const v = shots.find((s) => s.v);
       const fig = $(".ch-media", ch);
       // первая глава начинается с вышивки крупно, а не с лица: её кадр оставляем как есть
       if (!v || !fig || !shots[0].v) return;
-      fig.style.position = "relative";
       const vid = document.createElement("video");
       vid.muted = true; vid.playsInline = true; vid.loop = true; vid.preload = "none";
       vid.setAttribute("muted", ""); vid.setAttribute("playsinline", "");
@@ -426,150 +426,53 @@
     });
   }
 
-  /* ——— Примерка: скролл крутит дубли, сцена входит из темноты и растворяется в «Крупно» ——— */
+  /* ——— Крупно: карточка вылетает один раз, когда входит в экран; дальше ничего не считается ——— */
   (() => {
-    const sec = $("#try");
-    if (!sec) return;
-    const stage = $(".try-stage", sec), media = $(".try-media", sec), vid = $(".try-v", sec);
-    const pick = () => (innerWidth / innerHeight < 0.8 ? "film/na-ney-v" : "film/na-ney");
-    let file = "";
-    vid.muted = true; vid.playsInline = true;
-    vid.addEventListener("loadeddata", () => { vid.classList.add("ready"); wake(); });
-    vid.addEventListener("seeked", wake);
-    function load() {
-      const f = pick();
-      if (f === file) return;
-      file = f;
-      vid.classList.remove("ready");
-      vid.poster = `${f}.jpg`;
-      vid.preload = "auto";
-      vid.src = `${f}.mp4`;
-      try { vid.load(); } catch (e) { /* ничего */ }
-    }
-    // ролики не трогаем, пока секция далеко
-    new IntersectionObserver(([e]) => { if (e.isIntersecting) load(); }, { rootMargin: "120% 0px" }).observe(sec);
-
-    if (RM) {
-      // меньше движения: без скраба, короткий показ один раз, по нажатию ещё раз
-      new IntersectionObserver(([e]) => {
-        if (e.isIntersecting && e.intersectionRatio >= 0.5) {
-          load();
-          if (!vid.dataset.played) { vid.dataset.played = "1"; const pr = vid.play(); pr && pr.catch && pr.catch(() => {}); }
-        } else vid.pause();
-      }, { threshold: [0, 0.5] }).observe(sec);
-      stage.addEventListener("click", () => { load(); vid.currentTime = 0; const pr = vid.play(); pr && pr.catch && pr.catch(() => {}); });
-      return;
-    }
-
-    doc.classList.add("try-on");
-    let vh = innerHeight, pS = 0, primed = false, active = false;
-    function measure() {
-      vh = innerHeight;
-      sec.style.setProperty("--try-h", `${Math.round(vh * (narrow() ? 5.4 : 6.4) + vh)}px`);
-    }
-    function update(now, dt) {
-      if (!active) return false;
-      const r = sec.getBoundingClientRect();
-      const pT = clamp(-r.top / Math.max(1, r.height - vh), 0, 1);
-      pS += (pT - pS) * (1 - Math.exp(-dt * 8));
-      if (Math.abs(pT - pS) < 0.0003) pS = pT;
-      const p = pS;
-      stage.style.setProperty("--tin", (1 - smooth(0, 0.08, p)).toFixed(3));
-      stage.style.setProperty("--tout", smooth(0.87, 0.99, p).toFixed(3));
-      stage.style.setProperty("--tk", (smooth(0.03, 0.1, p) * (1 - smooth(0.82, 0.9, p))).toFixed(3));
-      stage.style.setProperty("--tl", smooth(0.12, 0.26, p).toFixed(3));
-      stage.style.setProperty("--tlo", (1 - smooth(0.48, 0.56, p)).toFixed(3));
-      media.style.setProperty("--tz", (1.07 - 0.07 * p).toFixed(4));
-      media.style.setProperty("--tyy", `${(-1.2 * p).toFixed(2)}%`);
-      let pending = false;
-      if (vid.readyState >= 1) {
-        if (!primed) { primed = true; const pr = vid.play(); if (pr && pr.then) pr.then(() => vid.pause()).catch(() => {}); }
-        const d = isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 12.4;
-        const target = clamp((p - 0.06) / 0.8, 0, 1) * (d - 0.06);
-        if (!vid.seeking && Math.abs(vid.currentTime - target) > 0.02) { try { vid.currentTime = target; } catch (e) { /* ещё не готово */ } }
-        if (Math.abs(vid.currentTime - target) > 0.03) pending = true;
-      }
-      return pS !== pT || pending;
-    }
-    measure();
-    tasks.add(update);
-    new IntersectionObserver(([e]) => { active = e.isIntersecting; if (active) wake(); }, { rootMargin: "10% 0px" }).observe(sec);
-    addEventListener("scroll", wake, { passive: true });
-    let lastW = innerWidth, lastH = innerHeight;
-    addEventListener("resize", () => {
-      if (innerWidth !== lastW || Math.abs(innerHeight - lastH) > 120) { lastW = innerWidth; lastH = innerHeight; measure(); if (file) load(); }
-      wake();
-    });
-  })();
-
-  /* ——— Крупно: кадры вылетают по скроллу, наклоняются от курсора ——— */
-  (() => {
-    const cards = $$(".shot");
+    const cards = $$(".card");
     if (!cards.length) return;
-    const state = cards.map((el) => ({ el, media: $(".media", el), v: $("video", el), from: el.dataset.from || "bottom", tx: 0, ty: 0, hx: 0, hy: 0, near: false }));
-    const lazy = new IntersectionObserver((es) => es.forEach((e) => {
-      const s = state.find((x) => x.el === e.target);
-      if (!s) return;
-      s.near = e.isIntersecting;
-      if (e.isIntersecting && s.v && !s.v.src && s.v.dataset.src) { s.v.src = s.v.dataset.src; }
-      if (e.isIntersecting) wake();
-    }), { rootMargin: "60% 0px" });
-    const play = new IntersectionObserver((es) => es.forEach((e) => {
-      const v = $("video", e.target);
-      if (!v || RM) return;
-      if (e.isIntersecting && e.intersectionRatio > 0.3) { if (!v.src && v.dataset.src) v.src = v.dataset.src; const pr = v.play(); pr && pr.catch && pr.catch(() => {}); }
-      else v.pause();
-    }), { threshold: [0, 0.3, 0.6] });
-    state.forEach((s) => { lazy.observe(s.el); play.observe(s.el); });
-
-    if (RM) {
-      state.forEach((s) => s.v && s.v.addEventListener("click", () => { if (!s.v.src) s.v.src = s.v.dataset.src; s.v.paused ? s.v.play().catch(() => {}) : s.v.pause(); }));
-      return;
-    }
-
-    const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
-    if (fine) state.forEach((s) => {
-      s.media.addEventListener("pointermove", (e) => {
-        const r = s.media.getBoundingClientRect();
-        s.hx = (e.clientX - r.left) / r.width - 0.5;
-        s.hy = (e.clientY - r.top) / r.height - 0.5;
-        s.media.style.setProperty("--go", "1");
-        s.media.style.setProperty("--gx", s.hx.toFixed(3));
-        wake();
-      });
-      s.media.addEventListener("pointerleave", () => { s.hx = 0; s.hy = 0; s.media.style.setProperty("--go", "0"); wake(); });
+    cards.forEach((card) => {
+      const ct = $(".ct", card);
+      if (!ct) return;
+      ct.setAttribute("aria-label", plain(ct));
+      let i = 0;
+      const walk = (node) => {
+        for (const child of Array.from(node.childNodes)) {
+          if (child.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            child.textContent.split(/(\s+)/).forEach((part) => {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
+              const w = document.createElement("span");
+              w.className = "w"; w.textContent = part; w.style.setProperty("--i", i++);
+              frag.appendChild(w);
+            });
+            child.replaceWith(frag);
+          } else if (child.nodeType === 1 && child.tagName === "I") {
+            child.classList.add("w"); child.style.setProperty("--i", i++);
+          }
+        }
+      };
+      // «БОЛЬШЕ» с красной Е: слово остаётся целым, буква внутри него
+      if ($("i", ct)) { ct.innerHTML = ct.innerHTML.replace(/([^\s<>]+)<i>([^<]+)<\/i>/g, '<span class="w" style="--i:0">$1<i>$2</i></span>'); i = 1; Array.from(ct.childNodes).forEach((n) => { if (n.nodeType === 3 && n.textContent.trim()) { const w = document.createElement("span"); w.className = "w"; w.textContent = n.textContent.trim(); w.style.setProperty("--i", i++); n.replaceWith(w); } }); }
+      else walk(ct);
     });
-
-    let running = false;
-    function update(now, dt) {
-      const vh = innerHeight, vw = innerWidth;
-      let again = false;
-      const k = 1 - Math.exp(-dt * 8);
-      for (const s of state) {
-        if (!s.near) continue;
-        const r = s.el.getBoundingClientRect();
-        if (r.bottom < -vh * 0.3 || r.top > vh * 1.3) continue;
-        const e = easeOut(clamp((vh - r.top) / (vh * 0.62), 0, 1));
-        const c = (r.top + r.height / 2 - vh / 2) / vh;
-        let x = 0, y = 0, rot = 0;
-        const m = 1 - e;
-        if (s.from === "left") { x = -m * vw * 0.36; rot = -m * 7; }
-        else if (s.from === "right") { x = m * vw * 0.36; rot = m * 7; }
-        else { y = m * vh * 0.32; rot = m * 3; }
-        const big = s.el.classList.contains("sz-xl") || s.el.classList.contains("sz-l");
-        y += c * (big ? -26 : -52);
-        s.tx += (s.hx - s.tx) * k; s.ty += (s.hy - s.ty) * k;
-        if (Math.abs(s.hx - s.tx) > 0.002 || Math.abs(s.hy - s.ty) > 0.002) again = true;
-        const rx = -s.ty * 7 + c * 5, ry = s.tx * 9;
-        const sc = 0.86 + 0.14 * e;
-        s.el.style.opacity = clamp(e * 1.7, 0, 1).toFixed(3);
-        s.el.style.transform = `perspective(1300px) translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${rot.toFixed(2)}deg) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) scale(${sc.toFixed(4)})`;
-      }
-      return again;
-    }
-    tasks.add(update);
-    addEventListener("scroll", wake, { passive: true });
-    wake();
+    const show = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      show.unobserve(e.target);
+    }), { threshold: 0.22, rootMargin: "0px 0px -8% 0px" });
+    const play = new IntersectionObserver((es) => es.forEach((e) => {
+      const v = e.target;
+      if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!RM) { const pr = v.play(); pr && pr.catch && pr.catch(() => {}); } }
+      else v.pause();
+    }), { threshold: 0.25 });
+    cards.forEach((card) => {
+      show.observe(card);
+      const v = $("video", card);
+      if (!v) return;
+      play.observe(v);
+      if (RM) v.addEventListener("click", () => { if (!v.src) v.src = v.dataset.src; v.paused ? v.play().catch(() => {}) : v.pause(); });
+    });
   })();
 
   /* ——— финал: ролик с лентой ——— */
@@ -605,7 +508,7 @@
       track.style.setProperty("--tw", `${(w * 100).toFixed(2)}%`);
       track.style.setProperty("--tx", `${max > 0 ? ((row.scrollLeft / max) * (1 / w - 1) * 100).toFixed(2) : 0}%`);
     }
-    row.addEventListener("scroll", () => { syncTrack(); wake(); }, { passive: true });
+    row.addEventListener("scroll", () => { syncTrack(); if (row.scrollLeft > 24) rack.classList.add("touched"); wake(); }, { passive: true });
     addEventListener("resize", syncTrack);
     syncTrack();
     const step = () => (items[0].getBoundingClientRect().width + parseFloat(getComputedStyle(row).columnGap || 30)) * (narrow() ? 1 : 2);
@@ -624,14 +527,15 @@
 
     // появление: вешалки выезжают по одной
     const sims = [];
-    new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !rack.classList.contains("in")) {
-        rack.classList.add("in");
-        const t0 = performance.now();
-        sims.forEach((s, k) => { s.theta = RM ? 0 : 0.085; s.thetaV = 0; s.arrive = t0 + k * 95; });
-        wake();
-      }
-    }, { threshold: 0.12 }).observe(rack);
+    new IntersectionObserver(([e], o) => {
+      if (!e.isIntersecting || rack.classList.contains("in")) return;
+      rack.classList.add("in");
+      o.disconnect();
+      const t0 = performance.now();
+      // вещи летят влево вместе с рейкой: подол отстаёт, потом догоняет и качается
+      sims.forEach((s, k) => { s.theta = RM ? 0 : -0.3; s.thetaV = 0; s.arrive = t0 + 120 + k * 70 + 1100; });
+      wake();
+    }, { threshold: 0.3 }).observe(view);
 
     // ——— ткань: сетка частиц, привязанная к плечикам ———
     const NX = 13, NY = 16;
@@ -756,9 +660,10 @@
       const n = NX * NY;
       const { pos, prev, rest, kr, pin, edgeArr, restLen, shade } = s;
       // маятник плечиков
-      const arriving = s.arrive && t < s.arrive + 1400;
+      const arriving = s.arrive && t < s.arrive + 2600;
       const breeze = RM ? 0 : 0.0045 * Math.sin(t * 0.00055 + s.seed) + 0.0022 * Math.sin(t * 0.0013 + s.seed * 2.1);
-      const target = breeze + (s.grab ? clamp((s.grab.px - s.grab.rx) / s.w, -0.5, 0.5) * 0.06 : 0);
+      const lag = !RM && s.arrive && t < s.arrive - 420 ? -0.3 : 0; // пока рейка едет, подол отстаёт
+      const target = breeze + lag + (s.grab ? clamp((s.grab.px - s.grab.rx) / s.w, -0.5, 0.5) * 0.06 : 0);
       const kS = RM ? 60 : 28, cS = RM ? 14 : 3.2;
       s.thetaV += ((target - s.theta) * kS - s.thetaV * cS) * dt;
       s.theta += s.thetaV * dt;
