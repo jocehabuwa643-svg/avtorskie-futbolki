@@ -573,50 +573,147 @@
     });
   }
 
-  /* ——— Крупно: карточка вылетает один раз, когда входит в экран; дальше ничего не считается ——— */
-  (() => {
+  /* ——— Крупно: название крупно, вылет по теме вещи, рядом кружат её предметы ——— */
+  const Cards = (() => {
     const cards = $$(".card");
-    if (!cards.length) return;
+    if (!cards.length) return null;
+
+    // значки: то, из чего сделана шутка на футболке
+    const ICON = {
+      star: '<path fill="currentColor" d="M12 0C12.9 6.6 17.4 11.1 24 12 17.4 12.9 12.9 17.4 12 24 11.1 17.4 6.6 12.9 0 12 6.6 11.1 11.1 6.6 12 0Z"/>',
+      crown: '<path fill="currentColor" d="M3.5 8 8.5 12.5 12 4l3.5 8.5L20.5 8 22 18H2zM2 20h20v2H2z"/>',
+      halo: '<ellipse cx="12" cy="12" rx="10.5" ry="4.2" fill="none" stroke="currentColor" stroke-width="2.4"/>',
+      bill: '<rect x="1" y="6" width="22" height="12" rx="2" fill="currentColor"/><circle cx="12" cy="12" r="3" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="1.4"/><path d="M4.500 9.500v5M19.500 9.500v5" stroke="#fff" stroke-opacity=".7" stroke-width="1.3" stroke-linecap="round"/>',
+      coin: '<circle cx="12" cy="12" r="11" fill="currentColor"/><circle cx="12" cy="12" r="8.3" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="1.1"/><path d="M10 18V6.500h3.200a3 3 0 0 1 0 6H8.200M8.200 15.200h5.200" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>',
+      book: '<path fill="currentColor" d="M12 6C10 4.400 7 4 3 4v14c4 0 7 .400 9 2 2-1.600 5-2 9-2V4c-4 0-7 .400-9 2z"/><path d="M12 6v14" stroke="#fff" stroke-opacity=".7" stroke-width="1.2"/>',
+      note: '<path fill="currentColor" d="M9 18.500a3 3 0 1 1-2-2.830V4l13-2.500v13.500a3 3 0 1 1-2-2.830V6.040L9 8z"/>',
+      snow: '<path d="M12 1.500v21M2.900 6.750l18.200 10.500M21.100 6.750 2.900 17.250M12 5.500 9.500 3M12 5.500 14.500 3M12 18.500 9.500 21M12 18.500l2.500 2.500" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      moon: '<path fill="currentColor" d="M20 14.500A9 9 0 1 1 9.500 4a7 7 0 0 0 10.500 10.500z"/>',
+      bolt: '<path fill="currentColor" d="M13 1 4 14h6l-1 9 9-13h-6z"/>',
+    };
+    // [вид движения, значок, цвет, параметры]
+    const FX = {
+      such:   { ob: [["orbit", "star", "#e0688a", { ph: 0 }], ["orbit", "star", "#f0a8b8", { ph: 0.36, sz: 0.3 }], ["orbit", "crown", "#c9973a", { ph: 0.68, sz: 0.5 }]], burst: { n: 10, at: 0.95, c: ["#e0688a", "#f4c2cc", "#c9973a"] }, quake: [0.9, 0.36, 2] },
+      bogw:   { ob: [["float", "halo", "#c9973a", { x: 9, y: -6, sz: 0.9 }], ["orbit", "star", "#c9973a", { ph: 0.1, sz: 0.3 }], ["orbit", "star", "currentColor", { ph: 0.6, sz: 0.24 }]] },
+      dengi:  { ob: [["fly", "bill", "#2f8f5f", { y: 12, ph: 0, sz: 0.5 }], ["fly", "bill", "#3fae78", { y: 48, ph: 0.3, sz: 0.38 }], ["fly", "bill", "#2f8f5f", { y: 82, ph: 0.55, sz: 0.46 }], ["fly", "bill", "#57c08b", { y: 30, ph: 0.8, sz: 0.32 }]] },
+      zdes:   { ob: [["orbit", "coin", "#e0559a", { ph: 0, spin: 1, sz: 0.44 }], ["orbit", "coin", "#c9973a", { ph: 0.34, spin: 1, sz: 0.36 }], ["orbit", "coin", "#e0559a", { ph: 0.67, spin: 1, sz: 0.3 }]] },
+      books:  { ob: [["float", "book", "#9aa0aa", { x: 94, y: -4, sz: 0.62 }], ["float", "book", "#e3203a", { x: -6, y: 92, sz: 0.46 }], ["twinkle", "star", "#e3203a", { x: 60, y: -6, sz: 0.26 }], ["twinkle", "star", "#e3203a", { x: 102, y: 62, sz: 0.2 }], ["twinkle", "star", "#9aa0aa", { x: 22, y: 100, sz: 0.22 }]] },
+      vokrug: { glow: 1, ob: [["orbit", "bolt", "#e8a81a", { ph: 0, fast: 1, sz: 0.44 }], ["orbit", "bolt", "#ff6a3d", { ph: 0.33, fast: 1, sz: 0.36 }], ["orbit", "bolt", "#e8a81a", { ph: 0.66, fast: 1, sz: 0.3 }], ["twinkle", "star", "#e8a81a", { x: 86, y: 60, sz: 0.34 }], ["twinkle", "star", "#e8a81a", { x: 40, y: 104, sz: 0.24 }]], burst: { n: 12, at: 0.7, c: ["#e8a81a", "#ff6a3d", "#8b8680"] }, quake: [0.6, 0.4, 2] },
+      song:   { ob: [["rise", "note", "currentColor", { x: 8, ph: 0, sz: 0.42 }], ["rise", "note", "currentColor", { x: 38, ph: 0.3, sz: 0.32 }], ["rise", "note", "currentColor", { x: 66, ph: 0.6, sz: 0.38 }], ["rise", "note", "currentColor", { x: 92, ph: 0.85, sz: 0.28 }]] },
+      meteli: { ob: [["fly rev", "snow", "#7fb2dd", { y: 4, ph: 0, sz: 0.36 }], ["fly rev", "snow", "#a9cdea", { y: 30, ph: 0.2, sz: 0.24 }], ["fly rev", "snow", "#7fb2dd", { y: 56, ph: 0.42, sz: 0.3 }], ["fly rev", "snow", "#a9cdea", { y: 80, ph: 0.6, sz: 0.2 }], ["fly rev", "snow", "#7fb2dd", { y: 18, ph: 0.78, sz: 0.26 }], ["fly rev", "snow", "#a9cdea", { y: 94, ph: 0.9, sz: 0.32 }]] },
+      gold:   { beam: 1, ob: [["orbit", "moon", "#c9973a", { ph: 0, sz: 0.5 }], ["orbit", "star", "#c9973a", { ph: 0.4, sz: 0.28 }], ["orbit", "star", "#e3c173", { ph: 0.74, sz: 0.22 }]] },
+    };
+    const mk = (tag, cls) => { const e = document.createElement(tag); e.className = cls; e.setAttribute("aria-hidden", "true"); return e; };
+
     cards.forEach((card, n) => {
       card.style.setProperty("--tilt", n % 2 ? "-1" : "1");
       const ct = $(".ct", card);
       if (!ct) return;
       ct.setAttribute("aria-label", plain(ct));
-      // слова остаются целыми (перенос только между ними), внутри слова буквы переворачиваются по одной
-      let i = 0;
-      const letters = (text, into, cls) => { for (const ch of text) { const c = document.createElement("span"); c.className = cls || "c"; c.textContent = ch; c.style.setProperty("--i", i++); into.appendChild(c); } };
-      const walk = (node) => {
-        for (const child of Array.from(node.childNodes)) {
-          if (child.nodeType !== 3) continue;
-          const frag = document.createDocumentFragment();
-          child.textContent.split(/(\s+)/).forEach((part) => {
-            if (!part) return;
-            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
-            const w = document.createElement("span");
-            w.className = "w";
-            letters(part, w);
-            frag.appendChild(w);
-          });
-          child.replaceWith(frag);
+      // слова остаются целыми, внутри слова буквы вылетают по одной; строки помечаются для разных вылетов
+      let i = 0, line = 0, j = 0;
+      const letters = (text, into, extra) => {
+        for (const ch of text) {
+          const c = document.createElement("span");
+          c.className = `c l${line}${extra || ""}`;
+          c.textContent = ch;
+          c.style.setProperty("--i", i); c.style.setProperty("--j", j);
+          c.style.setProperty("--rnd", ((((i * 53 + 7) % 19) / 9) - 1).toFixed(2));
+          i++; j++;
+          into.appendChild(c);
         }
       };
-      const red = $("i", ct);
-      if (red) {
-        // «БОЛЬШЕ» с красной Е: слово остаётся целым, красная буква внутри него
-        const prev = red.previousSibling;
-        const w = document.createElement("span");
-        w.className = "w";
-        if (prev && prev.nodeType === 3) { letters(prev.textContent.trim(), w); prev.remove(); }
-        letters(red.textContent, w, "c red");
-        red.replaceWith(w);
+      for (const child of Array.from(ct.childNodes)) {
+        if (child.nodeType === 1 && child.tagName === "BR") { line++; j = 0; continue; }
+        if (child.nodeType === 1 && child.tagName === "I") {
+          // «БОЛЬШЕ» с красной Е: буква входит в предыдущее слово
+          const prev = child.previousSibling;
+          const w = prev && prev.classList && prev.classList.contains("w") ? prev : (() => { const s = document.createElement("span"); s.className = "w"; ct.insertBefore(s, child); return s; })();
+          letters(child.textContent, w, " red");
+          child.remove();
+          continue;
+        }
+        if (child.nodeType !== 3) continue;
+        const frag = document.createDocumentFragment();
+        child.textContent.split(/(\s+)/).forEach((part) => {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
+          const w = document.createElement("span");
+          w.className = "w";
+          letters(part, w);
+          frag.appendChild(w);
+        });
+        child.replaceWith(frag);
       }
-      walk(ct);
+      const all = $$(".c", ct);
+      all.forEach((c, k) => c.style.setProperty("--ci", Math.abs(k - (all.length - 1) / 2).toFixed(1)));
+
+      // обёртка: держит наклон, размер и всё, что кружит вокруг названия
+      const cw = mk("div", "cw"); cw.removeAttribute("aria-hidden");
+      // название стоит отдельной строкой над карточкой, во всю её ширину
+      card.insertBefore(cw, card.firstChild); cw.appendChild(ct);
+      const fx = FX[card.dataset.fx];
+      if (!fx || RM) return;
+      let seed = 7 + n * 131;
+      const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+      if (fx.glow) cw.insertBefore(mk("i", "cg"), ct);
+      if (fx.beam) { const w = mk("i", "bmw"); const b = mk("i", "bm"); b.style.setProperty("--d", "1.1s"); b.style.setProperty("--t", "1s"); b.style.setProperty("--bc", "rgba(255,242,198,.6)"); w.appendChild(b); cw.appendChild(w); }
+      if (fx.quake) { ct.classList.add("q"); ct.style.setProperty("--qa", `${fx.quake[0]}s`); ct.style.setProperty("--qd", `${fx.quake[1]}s`); ct.style.setProperty("--qn", fx.quake[2]); }
+      (fx.ob || []).forEach(([kind, icon, color, o], k) => {
+        const ob = mk("span", `ob ${kind}`);
+        const oy = mk("span", "oy");
+        const oi = mk("span", o.spin ? "oi spin" : "oi");
+        oi.innerHTML = `<svg viewBox="0 0 24 24">${ICON[icon]}</svg>`;
+        oi.style.color = color;
+        oi.style.setProperty("--sz", ((o.sz || 0.4) * (narrow() ? 1.25 : 1)).toFixed(2));
+        const D = kind === "orbit" ? (o.fast ? 2.6 : 5.2) + k * 0.7 : kind.startsWith("fly") ? 3.4 + k * 0.5 : kind === "rise" ? 3.6 + k * 0.4 : 4 + k * 0.6;
+        ob.style.setProperty("--D", `${D.toFixed(2)}s`);
+        ob.style.setProperty("--ph", `${(-(o.ph || 0) * D * 2).toFixed(2)}s`);
+        if (o.x !== undefined) ob.style.setProperty("--x", `${o.x}%`);
+        if (o.y !== undefined) ob.style.setProperty("--y", `${o.y}%`);
+        ob.style.setProperty("--dr", `${((rnd() - 0.5) * 0.9).toFixed(2)}em`);
+        oy.appendChild(oi); ob.appendChild(oy); cw.appendChild(ob);
+      });
+      if (fx.burst) for (let k = 0; k < fx.burst.n; k++) {
+        const e = mk("i", "pt");
+        const ang = rnd() * Math.PI * 2, dist = 0.6 + rnd() * 1.2;
+        e.style.setProperty("--dx", (Math.cos(ang) * dist * 1.5).toFixed(2));
+        e.style.setProperty("--dy", (Math.sin(ang) * dist).toFixed(2));
+        e.style.setProperty("--ox", `${(20 + rnd() * 60).toFixed(0)}%`);
+        e.style.setProperty("--oy", `${(30 + rnd() * 45).toFixed(0)}%`);
+        e.style.setProperty("--sz", (0.05 + rnd() * 0.07).toFixed(3));
+        e.style.setProperty("--s", (0.5 + rnd() * 0.9).toFixed(2));
+        e.style.setProperty("--c", fx.burst.c[k % fx.burst.c.length]);
+        e.style.setProperty("--d", `${(fx.burst.at + rnd() * 0.14).toFixed(2)}s`);
+        e.style.setProperty("--t", `${(0.8 + rnd() * 0.5).toFixed(2)}s`);
+        cw.appendChild(e);
+      }
     });
+
+    // кегль: самая длинная строка названия занимает всю колонку
+    function fit() {
+      const small = narrow();
+      cards.forEach((card) => {
+        const cw = $(".cw", card), ct = $(".ct", card);
+        if (!cw || !ct) return;
+        cw.style.setProperty("--fs", "100px");
+        const w100 = ct.offsetWidth || 1;
+        const colW = card.clientWidth || innerWidth - 32;
+        const fs = clamp((colW / w100) * 100 * 0.9, 30, small ? 96 : 176);
+        cw.style.setProperty("--fs", `${fs.toFixed(1)}px`);
+        cw.style.setProperty("--ow", `${Math.round(ct.offsetWidth)}px`);
+        cw.style.setProperty("--oh", `${Math.round(ct.offsetHeight)}px`);
+      });
+    }
+    fit();
+
     const show = new IntersectionObserver((es) => es.forEach((e) => {
       if (!e.isIntersecting) return;
       e.target.classList.add("in");
       show.unobserve(e.target);
     }), { threshold: 0.22, rootMargin: "0px 0px -8% 0px" });
+    // всё, что кружит, работает только пока карточка на экране
+    const live = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle("live", e.isIntersecting)), { rootMargin: "5% 0px" });
     const play = new IntersectionObserver((es) => es.forEach((e) => {
       const v = e.target;
       if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!RM) { const pr = v.play(); pr && pr.catch && pr.catch(() => {}); } }
@@ -624,7 +721,7 @@
     }), { threshold: 0.25 });
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     cards.forEach((card) => {
-      show.observe(card);
+      show.observe(card); live.observe(card);
       const v = $("video", card);
       if (v) {
         play.observe(v);
@@ -643,6 +740,39 @@
       media.addEventListener("pointerenter", () => media.classList.add("hot"));
       media.addEventListener("pointerleave", () => { media.classList.remove("hot"); mx = my = 0; if (!raf) raf = requestAnimationFrame(apply); });
     });
+    let lw = innerWidth;
+    addEventListener("resize", () => { if (innerWidth !== lw) { lw = innerWidth; fit(); } });
+    return { fit };
+  })();
+
+  /* ——— заголовки разделов и подвал: буквы поднимаются, когда блок входит в экран ——— */
+  (() => {
+    $$("h2.rv").forEach((h) => {
+      h.setAttribute("aria-label", plain(h));
+      let i = 0;
+      const walk = (node) => {
+        for (const child of Array.from(node.childNodes)) {
+          if (child.nodeType === 3) {
+            const frag = document.createDocumentFragment();
+            child.textContent.split(/(\s+)/).forEach((part) => {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(" ")); return; }
+              const w = document.createElement("span"); w.className = "w"; w.setAttribute("aria-hidden", "true");
+              for (const ch of part) { const c = document.createElement("span"); c.className = "c"; c.textContent = ch; c.style.setProperty("--i", i++); w.appendChild(c); }
+              frag.appendChild(w);
+            });
+            child.replaceWith(frag);
+          } else if (child.nodeType === 1) walk(child);
+        }
+      };
+      walk(h);
+    });
+    const blocks = $$(".close-head, .rack-head, .end-copy, .end-media");
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } }), { threshold: 0.2, rootMargin: "0px 0px -6% 0px" });
+    blocks.forEach((b) => io.observe(b));
+    // логотипы крутятся только пока видны
+    const ctas = $("#ctas");
+    if (ctas) new IntersectionObserver(([e]) => ctas.classList.toggle("live", e.isIntersecting), { rootMargin: "10% 0px" }).observe(ctas);
   })();
 
   /* ——— финал: ролик с лентой ——— */
@@ -1096,7 +1226,7 @@
   })();
 
   /* ——— шрифты готовы: подгоняем кегли и запускаем интро ——— */
-  const ready = () => { Film && Film.measure(); fitHeads(); Film && Film.fontsReady(); wake(); };
+  const ready = () => { Film && Film.measure(); fitHeads(); Cards && Cards.fit(); Film && Film.fontsReady(); wake(); };
   fitHeads();
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(ready);
