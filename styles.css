@@ -898,6 +898,51 @@ html[data-theme="dark"] .ct { color: var(--hd, var(--ink)); }
 @keyframes sheen { 0%, 62% { transform: translateX(-75%); } 100% { transform: translateX(75%); } }
 @keyframes tug { 0% { box-shadow: 0 0 0 0 rgba(200, 40, 60, .55); transform: translateX(0); } 50% { transform: translateX(-6px); } 100% { box-shadow: 0 0 0 14px rgba(200, 40, 60, 0); transform: translateX(0); } }
 
+/* ——— колофон: тихая подпись в самом низу, вся строка — одна ссылка ——— */
+.colophon { margin: 0; padding: clamp(40px, 9vh, 96px) 16px calc(14px + env(safe-area-inset-bottom)); text-align: center; background: var(--paper); }
+.colophon a {
+  display: inline-block; padding: 12px 18px; /* поле вокруг для пальца, на вид строка не больше */
+  color: var(--ink); text-decoration: none; cursor: pointer;
+  opacity: .35;
+  transition: opacity .3s ease;
+  animation: dimlamp 5.7s linear infinite;
+  -webkit-tap-highlight-color: transparent;
+}
+.colo-a, .colo-b { display: block; font-size: 10.5px; line-height: 1.7; white-space: nowrap; }
+.colo-a { font-family: var(--ui); font-weight: 500; letter-spacing: .14em; }
+.colo-b {
+  /* сжатые литеры титров: лёгкое двоение и горизонтальные царапины плёнки */
+  position: relative;
+  font-family: "Oswald", "Arial Narrow", sans-serif; font-weight: 500; font-size: 11px;
+  letter-spacing: .36em; padding-left: .36em; text-transform: uppercase;
+  text-shadow: 1.2px 0 0 color-mix(in srgb, currentColor 34%, transparent), -1.6px .4px 0 color-mix(in srgb, currentColor 18%, transparent);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='20'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 1.2' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='20'%3E%3Cfilter id='n' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 1.2' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.5 1.62'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.colo-b::after {
+  /* на долю секунды надпись двоится сильнее */
+  content: attr(data-t); position: absolute; left: 0; right: 0; top: 0; padding-left: inherit;
+  opacity: 0; transform: translate3d(2px, 0, 0);
+  animation: ghost 6.3s linear infinite;
+}
+/* слабая лампа: неровный цикл, прозрачность гуляет между 0.22 и 0.48, без вспышек */
+@keyframes dimlamp {
+  0% { opacity: .36; } 9% { opacity: .42; } 13% { opacity: .27; } 16% { opacity: .4; }
+  31% { opacity: .46; } 44% { opacity: .33; } 47% { opacity: .23; } 51% { opacity: .38; }
+  68% { opacity: .48; } 79% { opacity: .3; } 83% { opacity: .41; } 92% { opacity: .25; } 100% { opacity: .36; }
+}
+@keyframes ghost {
+  0%, 37% { opacity: 0; transform: translate3d(2px, 0, 0); }
+  38.5% { opacity: .55; transform: translate3d(2.5px, -.5px, 0); }
+  40%, 80% { opacity: 0; transform: translate3d(2px, 0, 0); }
+  81% { opacity: .4; transform: translate3d(-2px, .5px, 0); }
+  82.5%, 100% { opacity: 0; transform: translate3d(2px, 0, 0); }
+}
+@media (hover: hover) and (pointer: fine) { .colophon a:hover { animation: none; opacity: .62; } }
+.colophon a:focus-visible { animation: none; opacity: .8; outline: 1px solid currentColor; outline-offset: 2px; }
+.rm .colophon a, .rm .colo-b::after { animation: none; }
+@media (prefers-reduced-motion: reduce) { .colophon a, .colo-b::after { animation: none; } }
+
 /* ——— меньше движения ——— */
 .rm .card .card-media { clip-path: none; transform: rotateY(calc(var(--tilt) * 4deg)); transition: none; }
 .rm .cw { transform: none; }
