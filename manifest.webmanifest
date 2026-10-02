@@ -1,0 +1,25 @@
+{
+  "name": "Авторские футболки — Ира Кияева",
+  "short_name": "Футболки",
+  "lang": "ru",
+  "description": "Футболки с вышивкой и бисером ручной работы",
+  "start_url": "./",
+  "scope": "./",
+  "display": "minimal-ui",
+  "background_color": "#f1ede7",
+  "theme_color": "#ece7e2",
+  "icons": [
+    {
+      "src": "film/i-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "film/i-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

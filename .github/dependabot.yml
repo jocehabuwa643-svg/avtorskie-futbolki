@@ -1,0 +1,9 @@
+# Раз в неделю проверяет, не вышли ли новые версии действий из pages.yml, и присылает запрос на обновление хеша.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "Выкладка:"

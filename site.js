@@ -3,7 +3,11 @@
   "use strict";
 
   const doc = document.documentElement;
+  // совсем старый браузер: оставляем статичную страницу (без класса js всё видно сразу)
+  if (!("IntersectionObserver" in window) || !window.requestAnimationFrame || !window.Set || !window.Map) { doc.classList.remove("js"); return; }
   const RM = doc.classList.contains("rm");
+  // раздел, упавший в незнакомом браузере, не тянет за собой остальные: его содержимое показывается статично
+  const safe = (fn, onfail) => { try { return fn(); } catch (err) { console.warn(err); if (onfail) onfail(); else doc.classList.remove("js"); return null; } };
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -14,6 +18,8 @@
   const mqDark = matchMedia("(prefers-color-scheme: dark)");
   const isDark = () => { const t = doc.getAttribute("data-theme"); return t === "dark" || (t !== "light" && mqDark.matches); };
   const narrow = () => innerWidth < 900;
+  // фильм: рамка над текстом только на узком вертикальном экране; телефон на боку получает раскладку «рамка сбоку»
+  const stacked = () => innerWidth < 560 || (innerWidth < 900 && innerHeight >= innerWidth);
 
   const hex = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const mix = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
@@ -34,6 +40,136 @@
     if (again) rafId = requestAnimationFrame(tick); else lastT = 0;
   }
   const wake = () => { if (!rafId) rafId = requestAnimationFrame(tick); };
+
+  /* ——— кадры вместо <video> ———
+     Mi Browser и часть встроенных Android-браузеров отдают <video> собственному плееру: кадр выпадает из рамки,
+     теряет наклон и получает чужие кнопки. Там, и везде, где ролик не загрузился, те же кадры рисуются на canvas
+     из листов film/s/<ролик>-<n>.webp (сетка 4 в ряд, 12 кадров на лист; делает tools/sheets.py). */
+  const SEQ = {"f-rg":{"n":20,"fps":6,"w":432,"h":540},"f-more":{"n":21,"fps":6,"w":432,"h":540},"f-verh":{"n":26,"fps":6,"w":432,"h":540},"f-pros":{"n":11,"fps":6,"w":432,"h":540},"f-money":{"n":36,"fps":6,"w":432,"h":540},"f-ballet":{"n":8,"fps":6,"w":432,"h":540},"b-lama":{"n":29,"fps":6,"w":480,"h":480},"b-dome":{"n":34,"fps":6,"w":480,"h":480},"b-vedma":{"n":34,"fps":6,"w":480,"h":480},"b-shep":{"n":33,"fps":6,"w":480,"h":480},"b-mama":{"n":34,"fps":6,"w":480,"h":480},"b-tyson":{"n":16,"fps":6,"w":480,"h":480},"c-bogw":{"n":59,"fps":8,"w":400,"h":400},"c-dengi":{"n":28,"fps":8,"w":384,"h":480},"c-box":{"n":37,"fps":8,"w":360,"h":408}};
+  const SEQ_PER = 12, SEQ_COLS = 4;
+  const clipKey = (path) => path.slice(path.lastIndexOf("/") + 1).replace(/\.mp4$/, "");
+  // ?kino=frames и ?kino=video — принудительный режим для проверки
+  const kino = (() => { try { return new URLSearchParams(location.search).get("kino"); } catch (e) { return null; } })();
+  // если в прошлый раз браузер сам запустил ролик своим плеером, это запомнено (см. videoTaken)
+  const tookBefore = (() => { try { if (kino === "video") localStorage.removeItem("kiyaeva-kino"); return localStorage.getItem("kiyaeva-kino") === "frames"; } catch (e) { return false; } })();
+  const NOVIDEO = kino === "frames" || (kino !== "video" && (tookBefore || /MiuiBrowser|XiaoMi\/|UCBrowser|UBrowser|MQQBrowser|QQBrowser|Quark\/|HuaweiBrowser|HeyTapBrowser|OppoBrowser|VivoBrowser|baidubrowser|baiduboxapp|SogouMobileBrowser|2345Browser|Opera Mini/i.test(navigator.userAgent)));
+  if (NOVIDEO) doc.classList.add("novideo");
+
+  function flipbook(key, canvas) {
+    const m = SEQ[key];
+    const ctx = m && canvas.getContext && canvas.getContext("2d");
+    if (!ctx) return null;
+    canvas.width = m.w; canvas.height = m.h;
+    const sheets = [];
+    let shown = "";
+    const ok = (i) => { const im = sheets[(i / SEQ_PER) | 0]; return !!im && im.complete && im.naturalWidth > 0; };
+    const blit = (i, a) => {
+      const k = i % SEQ_PER;
+      ctx.globalAlpha = a;
+      // без крайнего пикселя: на границе кадров в листе сжатие подмешивает соседа
+      ctx.drawImage(sheets[(i / SEQ_PER) | 0], (k % SEQ_COLS) * m.w + 1, ((k / SEQ_COLS) | 0) * m.h + 1, m.w - 2, m.h - 2, 0, 0, m.w, m.h);
+    };
+    return {
+      n: m.n, fps: m.fps,
+      load(onready) {
+        for (let s = 0; s * SEQ_PER < m.n; s++) {
+          if (sheets[s]) continue;
+          const im = new Image();
+          im.decoding = "async";
+          im.onload = onready;
+          im.src = `film/s/${key}-${s}.webp`;
+          sheets[s] = im;
+        }
+      },
+      unload() { sheets.length = 0; shown = ""; },
+      // pos — номер кадра с дробью. blend: в движении соседние кадры смешиваются, в покое стоит один чёткий
+      draw(pos, blend, wrap) {
+        let i = Math.floor(pos), f = pos - i;
+        if (blend) f = Math.round(f * 5) / 5; else f = f >= 0.5 ? 1 : 0;
+        if (f >= 1) { i += 1; f = 0; }
+        i = wrap ? ((i % m.n) + m.n) % m.n : clamp(i, 0, m.n - 1);
+        let j = wrap ? (i + 1) % m.n : i + 1;
+        if (!ok(i)) { // лист ещё едет: показываем ближайший готовый кадр
+          let k = i;
+          while (k >= 0 && !ok(k)) k--;
+          if (k < 0) return false;
+          i = k; f = 0;
+        }
+        if (f > 0 && (j >= m.n || !ok(j))) f = 0;
+        const id = `${i}:${f}`;
+        if (id === shown) return true;
+        blit(i, 1);
+        if (f > 0) blit(j, f);
+        shown = id;
+        return true;
+      },
+    };
+  }
+
+  // петля (карточки «Крупно», подвал): <video> заменяется на canvas, кадры идут по времени
+  const loops = new Map();
+  function loopCanvas(v) {
+    const key = clipKey(v.dataset.src || "");
+    const c = document.createElement("canvas");
+    const fb = flipbook(key, c);
+    if (!fb) return null;
+    c.className = v.className;
+    c.setAttribute("role", "img");
+    if (v.getAttribute("aria-label")) c.setAttribute("aria-label", v.getAttribute("aria-label"));
+    if (v.poster) c.style.background = `url("${v.getAttribute("poster")}") center / cover no-repeat`;
+    v.replaceWith(c);
+    const st = { on: false, t: 0 };
+    const step = (now, dt) => {
+      if (!st.on) return false;
+      st.t += dt;
+      fb.draw(st.t * fb.fps, true, true);
+      return true;
+    };
+    tasks.add(step);
+    const ctl = {
+      el: c,
+      get paused() { return !st.on; },
+      play() { fb.load(wake); st.on = true; wake(); },
+      pause() { st.on = false; },
+    };
+    loops.set(c, ctl);
+    return ctl;
+  }
+  // единый доступ к петле: настоящий ролик или его замена на canvas
+  const loopOf = (el) => loops.get(el) || {
+    el,
+    get paused() { return el.paused; },
+    play() { if (!el.src && el.dataset.src) el.src = el.dataset.src; const pr = el.play(); pr && pr.catch && pr.catch(() => {}); },
+    pause() { el.pause(); },
+  };
+  // ролик не загрузился (кодек, сеть, режим экономии) или его забрал плеер браузера: тихо переходим на кадры
+  const loopSwaps = new Map();
+  function guardLoop(v, onswap) {
+    if (NOVIDEO) { const ctl = loopCanvas(v); return ctl ? ctl.el : v; }
+    const swap = () => {
+      if (!loopSwaps.has(v)) return;
+      loopSwaps.delete(v);
+      try { v.pause(); } catch (e) { /* ничего */ }
+      const ctl = loopCanvas(v);
+      if (ctl && onswap) onswap(ctl.el); // наблюдатель сам запустит петлю, если она на экране
+    };
+    loopSwaps.set(v, swap);
+    v.addEventListener("error", () => { if (v.getAttribute("src")) swap(); }, { once: true });
+    return v;
+  }
+  // Браузер, которого нет в списке, сам запустил ролик главы (мы ролики только перематываем и держим на паузе):
+  // значит, он отдал видео своему плееру. Убираем всё видео со страницы и запоминаем это на будущие заходы.
+  const onVideoTaken = [];
+  let videoGone = NOVIDEO;
+  function videoTaken() {
+    if (videoGone) return;
+    videoGone = true;
+    try { localStorage.setItem("kiyaeva-kino", "frames"); } catch (e) { /* приватный режим */ }
+    doc.classList.add("novideo");
+    onVideoTaken.forEach((fn) => fn());
+    Array.from(loopSwaps.values()).forEach((swap) => swap());
+    wake();
+  }
 
   /* ——— тема ——— */
   const themeBtn = $("#theme");
@@ -233,13 +369,22 @@
   function fitHeads() {
     const film = doc.classList.contains("film-on");
     doc.classList.add("fitting"); // на время замера показываем все главы
-    const vh = innerHeight, vw = innerWidth, small = narrow();
+    const vh = innerHeight, vw = innerWidth, small = stacked();
     heads.forEach((h) => {
       const art = h.closest(".ch");
       const tw = h.closest(".tw");
       // у скрытой главы ширина известна из раскладки: колонка абсолютная
-      const colW = film ? art.offsetWidth || (small ? vw - 32 : vw * 0.46) : Math.min(art.clientWidth || vw - 32, 704);
-      const maxH = film ? (small ? vh * 0.2 : vh * 0.42) : vh * 0.5;
+      let colW = film ? art.offsetWidth || (small ? vw - 32 : vw * 0.46) : Math.min(art.clientWidth || vw - 32, 704);
+      // низкое окно (телефон на боку): надписи нужно оставить место под описание
+      const maxH = film ? (small ? vh * 0.2 : vh * (vh < 430 ? 0.3 : 0.42)) : vh * 0.5;
+      if (film && !small) {
+        // надпись стоит под углом в перспективе: ближний к зрителю край выходит крупнее.
+        // На широком экране он вылезал за край окна, поэтому ширину считаем с учётом этого увеличения
+        const ty = parseFloat(tw.style.getPropertyValue("--ty")) || 0;
+        const near = ty < 0 ? 0.72 : 0.28;
+        const m = 1100 / Math.max(300, 1100 - Math.sin(Math.abs(ty) * Math.PI / 180) * near * colW);
+        colW = Math.min(colW, (colW + vw * 0.06 - 24) / ((1 - near) + near * m));
+      }
       if (h._stitch) {
         layoutStitch(h);
         const r = h._stitch.ratio || 4;
@@ -265,7 +410,7 @@
   }
 
   /* ——— фильм ——— */
-  const Film = (() => {
+  const Film = safe(() => {
     const film = $("#film"), stage = $("#stage");
     if (!film || RM) return null;
     const framesEl = $("#frames");
@@ -301,20 +446,24 @@
       c.list = [];
       c.shots.forEach((sh, k) => {
         const span = (c.len * (sh.w || (sh.d ? sh.d : 1))) / wsum;
-        const el = sh.v ? document.createElement("video") : document.createElement("img");
+        // ролик: <video>, а где видео отбирает браузер — canvas с теми же кадрами
+        let el, flip = null;
+        if (sh.v && NOVIDEO) { el = document.createElement("canvas"); flip = flipbook(clipKey(sh.v), el); }
+        else el = document.createElement(sh.v ? "video" : "img");
+        const vid = !!sh.v && !NOVIDEO;
         el.className = "shot-el";
-        if (sh.v) {
+        if (vid) {
           el.muted = true; el.playsInline = true; el.preload = "none";
           el.setAttribute("muted", ""); el.setAttribute("playsinline", ""); el.setAttribute("webkit-playsinline", "");
           el.setAttribute("disablepictureinpicture", ""); el.setAttribute("disableremoteplayback", "");
-        } else {
+        } else if (!sh.v) {
           el.alt = ""; el.decoding = "async";
           if (ci === 0 && k === 0) el.src = sh.img; // первый экран нужен сразу
         }
         if (sh.o) el.style.transformOrigin = sh.o;
         if (sh.pos) el.style.objectPosition = sh.pos;
         c.fr.appendChild(el);
-        const s = { ...sh, el, ci, a: acc, b: acc + span, firstInCh: k === 0, lastInCh: k === c.shots.length - 1, first: ci === 0 && k === 0, loaded: ci === 0 && k === 0, primed: false, o: -1, tr: "" };
+        const s = { ...sh, el, vid, flip, ci, a: acc, b: acc + span, firstInCh: k === 0, lastInCh: k === c.shots.length - 1, first: ci === 0 && k === 0, loaded: ci === 0 && k === 0, primed: false, o: -1, tr: "" };
         shots.push(s); c.list.push(s);
         acc += span;
       });
@@ -334,15 +483,17 @@
         c.el.style.setProperty("--acc", rgb(c.acc));
         c.fr.style.backgroundColor = rgb(mix(dark ? c.bgD : c.bgL, dark ? c.inkD : c.inkL, 0.12));
         const bg = dark ? c.bgD : c.bgL;
-        c.el.classList.toggle("dk", (bg[0] * 0.299 + bg[1] * 0.587 + bg[2] * 0.114) < 110);
+        const lum = (v) => v[0] * 0.299 + v[1] * 0.587 + v[2] * 0.114;
+        c.el.classList.toggle("dk", lum(bg) < 110);
+        if (Math.abs(lum(c.acc) - lum(bg)) < 64) c.el.style.setProperty("--kick", rgb(dark ? c.inkD : c.inkL)); else c.el.style.removeProperty("--kick");
       });
       lastCi = -1; lastBg = "";
     }
 
     // рамка стоит сбоку под углом, текст занимает оставшуюся колонку
     function measure() {
-      vw = innerWidth; vh = innerHeight; small = narrow();
-      unit = vh * (small ? 0.62 : 0.72);
+      vw = innerWidth; vh = innerHeight; small = stacked();
+      unit = Math.max(420, vh * (small ? 0.62 : 0.72)); // на низком окне глава не должна пролетать за одно движение
       filmH = total * unit + vh;
       film.style.setProperty("--film-h", `${Math.round(filmH)}px`);
       filmTop = film.getBoundingClientRect().top + scrollY;
@@ -374,31 +525,60 @@
       });
     }
 
+    // ролик не пошёл (кодек, сеть, режим экономии): тот же кадр рисуем из листов
+    function toFlip(s) {
+      if (!s.vid) return;
+      const c = document.createElement("canvas");
+      c.className = s.el.className;
+      c.style.cssText = s.el.style.cssText;
+      s.el.replaceWith(c);
+      s.el = c; s.vid = false; s.primed = false;
+      s.flip = flipbook(clipKey(s.v), c);
+      c.style.background = `url("${s.v}.jpg") center / cover no-repeat`;
+      if (s.loaded && s.flip) s.flip.load(wake);
+      wake();
+    }
     function loadShot(s) {
       if (s.loaded) return;
       s.loaded = true;
       if (!s.v) { s.el.src = s.img; return; }
+      if (!s.vid) {
+        // до первого листа в рамке стоит постер
+        s.el.style.background = `url("${s.v}.jpg") center / cover no-repeat`;
+        if (s.flip) s.flip.load(wake);
+        return;
+      }
       s.el.poster = `${s.v}.jpg`;
       s.el.preload = "auto";
       s.el.src = `${s.v}.mp4`;
       s.el.addEventListener("loadeddata", wake, { once: true });
-      if (!s.bound) { s.bound = true; s.el.addEventListener("seeked", wake); }
+      if (!s.bound) {
+        s.bound = true;
+        s.el.addEventListener("seeked", wake);
+        s.el.addEventListener("error", () => { if (s.loaded && s.el.getAttribute("src")) toFlip(s); });
+        // ролик идёт сам, хотя мы его не запускали: проверяем через треть секунды, что это не наш короткий play()→pause()
+        s.el.addEventListener("playing", () => { if (!s.priming) setTimeout(() => { if (s.vid && !s.priming && !s.el.paused) videoTaken(); }, 320); });
+      }
       try { s.el.load(); } catch (e) { /* ничего */ }
     }
     function unloadShot(s) {
       // далеко ушедшие ролики освобождают декодер и память
       if (!s.loaded || !s.v || s.first) return;
       s.loaded = false; s.primed = false;
+      if (!s.vid) { if (s.flip) s.flip.unload(); return; }
       s.el.removeAttribute("src");
       try { s.el.load(); } catch (e) { /* ничего */ }
     }
     function prime(s) {
       // iOS показывает кадры после первого play(); сразу ставим на паузу
-      if (s.primed) return;
+      if (s.primed || !s.vid) return;
       s.primed = true;
+      s.priming = true;
+      const done = () => setTimeout(() => { s.priming = false; }, 400);
       const pr = s.el.play();
-      if (pr && pr.then) pr.then(() => s.el.pause()).catch(() => {});
+      if (pr && pr.then) pr.then(() => { s.el.pause(); done(); }).catch(done); else done();
     }
+    onVideoTaken.push(() => shots.forEach((s) => { if (s.vid) { try { s.el.pause(); } catch (e) { /* ничего */ } toFlip(s); } }));
 
     function update(now, dt) {
       if (!active) return false;
@@ -460,7 +640,7 @@
         if (p > s.a - 1.3 && p < s.b + 0.7) loadShot(s);
         else if (p < s.a - 3 || p > s.b + 2.4) unloadShot(s);
         // Safari начинает качать ролик только после play(): будим следующий кадр заранее, за полглавы
-        if (s.v && s.loaded && !s.primed && p > s.a - 0.6 && p < s.b) prime(s);
+        if (s.vid && s.loaded && !s.primed && p > s.a - 0.6 && p < s.b) prime(s);
         const ch = chapters[s.ci];
         if (ch.o <= 0) continue;
         const x = 0.1 * ch.len;
@@ -476,9 +656,11 @@
         const z = s.z ? lerp(s.z[0], s.z[1], easeOut(lt)) : 1;
         const tr = `scale(${z.toFixed(3)})`;
         if (tr !== s.tr) { s.el.style.transform = tr; s.tr = tr; }
+        // кадры из листов: в движении смешиваются, в покое стоит один чёткий
+        if (s.flip && s.loaded) s.flip.draw(lt * (s.flip.n - 1), p !== pT);
       }
-      if (lead && lead.v && lead.loaded) prime(lead); // на iPhone данные не идут, пока не вызван play()
-      if (lead && lead.v && lead.el.readyState >= 1) {
+      if (lead && lead.vid && lead.loaded) prime(lead); // на iPhone данные не идут, пока не вызван play()
+      if (lead && lead.vid && lead.el.readyState >= 1) {
         const d = lead.el.duration && isFinite(lead.el.duration) ? lead.el.duration : lead.d;
         const target = Math.min(d - 0.05, Math.round(lead.lt * (d - 0.05) * FPS) / FPS);
         if (Math.abs(lead.el.currentTime - target) > 0.03) {
@@ -530,15 +712,15 @@
       fontsReady() { fontsReady = true; wake(); },
       measure,
     };
-  })();
+  }, () => doc.classList.remove("film-on"));
 
   // подсказка «листай» видна только в самом начале
-  (() => {
+  safe(() => {
     let was = null;
     const sync = () => { const s = scrollY > 24; if (s !== was) { doc.classList.toggle("scrolled", s); was = s; } };
     addEventListener("scroll", sync, { passive: true });
     sync();
-  })();
+  });
 
   if (!Film) {
     // меньше движения или нет сцены: главы по очереди, каждая на своём цвете
@@ -561,7 +743,7 @@
       const v = shots.find((s) => s.v);
       const fig = $(".ch-media", ch);
       // первая глава начинается с вышивки крупно, а не с лица: её кадр оставляем как есть
-      if (!v || !fig || !shots[0].v) return;
+      if (!v || !fig || !shots[0].v || NOVIDEO) return;
       const vid = document.createElement("video");
       vid.muted = true; vid.playsInline = true; vid.loop = true; vid.preload = "none";
       vid.setAttribute("muted", ""); vid.setAttribute("playsinline", "");
@@ -574,7 +756,7 @@
   }
 
   /* ——— Крупно: название крупно, вылет по теме вещи, рядом кружат её предметы ——— */
-  const Cards = (() => {
+  const Cards = safe(() => {
     const cards = $$(".card");
     if (!cards.length) return null;
 
@@ -715,17 +897,19 @@
     // всё, что кружит, работает только пока карточка на экране
     const live = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle("live", e.isIntersecting)), { rootMargin: "5% 0px" });
     const play = new IntersectionObserver((es) => es.forEach((e) => {
-      const v = e.target;
-      if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; if (!RM) { const pr = v.play(); pr && pr.catch && pr.catch(() => {}); } }
-      else v.pause();
+      const v = loopOf(e.target);
+      if (e.isIntersecting) { if (!RM) v.play(); } else v.pause();
     }), { threshold: 0.25 });
+    const tapPlay = (el) => el.addEventListener("click", () => { const v = loopOf(el); v.paused ? v.play() : v.pause(); });
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     cards.forEach((card) => {
       show.observe(card); live.observe(card);
-      const v = $("video", card);
-      if (v) {
+      const v0 = $("video", card);
+      if (v0) {
+        // замена на canvas, если ролик не загрузился: новый элемент встаёт под те же наблюдатели
+        const v = guardLoop(v0, (c) => { play.observe(c); if (RM) tapPlay(c); });
         play.observe(v);
-        if (RM) v.addEventListener("click", () => { if (!v.src) v.src = v.dataset.src; v.paused ? v.play().catch(() => {}) : v.pause(); });
+        if (RM) tapPlay(v);
       }
       // объём: карточка поворачивается к курсору, по ней идёт блик. Считается только у карточки под курсором
       const media = $(".card-media", card);
@@ -743,10 +927,10 @@
     let lw = innerWidth;
     addEventListener("resize", () => { if (innerWidth !== lw) { lw = innerWidth; fit(); } });
     return { fit };
-  })();
+  });
 
   /* ——— заголовки разделов и подвал: буквы поднимаются, когда блок входит в экран ——— */
-  (() => {
+  safe(() => {
     $$("h2.rv").forEach((h) => {
       h.setAttribute("aria-label", plain(h));
       let i = 0;
@@ -776,21 +960,24 @@
     // палец на подписи разработчика нажимает только пока подпись видна
     const colo = $(".colophon");
     if (colo) new IntersectionObserver(([e]) => colo.classList.toggle("idle", !e.isIntersecting), { rootMargin: "10% 0px" }).observe(colo);
-  })();
+  });
 
   /* ——— финал: ролик с лентой ——— */
-  (() => {
-    const v = $(".end video");
-    if (!v) return;
-    new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; if (!RM) { const pr = v.play(); pr && pr.catch && pr.catch(() => {}); } }
-      else v.pause();
-    }, { threshold: 0.25, rootMargin: "20% 0px" }).observe(v);
-    if (RM) v.addEventListener("click", () => { if (!v.src) v.src = v.dataset.src; v.paused ? v.play().catch(() => {}) : v.pause(); });
-  })();
+  safe(() => {
+    const v0 = $(".end video");
+    if (!v0) return;
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      const v = loopOf(e.target);
+      if (e.isIntersecting) { if (!RM) v.play(); } else v.pause();
+    }), { threshold: 0.25, rootMargin: "20% 0px" });
+    const tapPlay = (el) => el.addEventListener("click", () => { const v = loopOf(el); v.paused ? v.play() : v.pause(); });
+    const v = guardLoop(v0, (c) => { io.observe(c); if (RM) tapPlay(c); });
+    io.observe(v);
+    if (RM) tapPlay(v);
+  });
 
   /* ——— Гардероб ——— */
-  (() => {
+  safe(() => {
     const rack = $("#rack"), view = $("#rack-view"), row = $("#row"), canvas = $("#cloth");
     if (!rack || !row) return;
     const items = $$(".hang", row);
@@ -820,7 +1007,7 @@
     // мышью можно тянуть сам ряд, если схватить не за футболку
     let drag = null;
     row.addEventListener("pointerdown", (e) => {
-      if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest(".shirt")) return;
+      if (e.pointerType !== "mouse" || e.button !== 0 || e.target.closest(".shirt, button, a")) return;
       drag = { x: e.clientX, s: row.scrollLeft };
       row.setPointerCapture(e.pointerId);
     });
@@ -1077,6 +1264,16 @@
     }
     let glOK = !!gl;
     if (gl) { try { initGL(); } catch (e) { glOK = false; } }
+    // видеокарта отняла контекст (слабый телефон, долгий фон): показываем обычные картинки, при возврате рисуем снова
+    let lost = false;
+    if (gl) {
+      canvas.addEventListener("webglcontextlost", (e) => { e.preventDefault(); lost = true; rack.classList.remove("gl"); });
+      canvas.addEventListener("webglcontextrestored", () => {
+        try { initGL(); } catch (e) { return; }
+        sims.forEach((s) => { s.tex = null; s.ready = false; s.loading = false; });
+        lost = false; rack.classList.add("gl"); sizeCanvas(); wake();
+      });
+    }
     if (!glOK && !ctx2d) { rack.classList.remove("gl"); return; }
 
     function loadTex(s) {
@@ -1201,7 +1398,7 @@
 
     let simT = 0;
     function update(now, dt) {
-      if (!vis) return false;
+      if (!vis || lost) return false;
       const vr = view.getBoundingClientRect();
       if (Math.abs(vr.width - cw) > 1 || Math.abs(vr.height - ch) > 1) sizeCanvas();
       const list = [];
@@ -1226,7 +1423,99 @@
     tasks.add(update);
     // соседние текстуры подгружаем заранее
     sims.slice(0, 6).forEach((s) => new IntersectionObserver(([e], o) => { if (e.isIntersecting) { loadTex(s); o.disconnect(); } }, { rootMargin: "100% 100%" }).observe(s.shirt));
-  })();
+  });
+
+  /* ——— «хочу такую»: под вещью кнопка, по ней листок с готовым сообщением Ире ——— */
+  safe(() => {
+    const ig = $(".coin.ig"), vk = $(".coin.vk");
+    if (!ig || !vk) return;
+    const fontOf = (el) => (el.className.match(/\bf-[a-z]+\b/) || [""])[0];
+    let box = null, veil, nameEl, ta, okEl, opener = null, root;
+    const copy = () => {
+      const text = ta.value;
+      const legacy = () => { ta.focus(); ta.select(); try { return document.execCommand("copy"); } catch (e) { return false; } };
+      let ok = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).catch(legacy); ok = true; }
+      } catch (e) { /* закрыто политикой: пробуем по-старому */ }
+      if (!ok) ok = legacy();
+      okEl.textContent = ok ? "Текст скопирован. Вставьте его в сообщение." : "Не получилось скопировать: выделите текст и скопируйте сами.";
+      return ok;
+    };
+    const close = () => {
+      if (!root || root.hidden) return;
+      root.classList.remove("open");
+      setTimeout(() => { root.hidden = true; }, RM ? 0 : 320);
+      if (opener && opener.focus) opener.focus();
+    };
+    const build = () => {
+      root = document.createElement("div");
+      root.className = "ask"; root.hidden = true;
+      const logo = (a) => { const svg = $(".coin-face.front svg", a); return svg ? svg.outerHTML : ""; };
+      root.innerHTML = `<div class="ask-veil"></div>
+<div class="ask-box" role="dialog" aria-modal="true" aria-labelledby="ask-h" tabindex="-1">
+  <button type="button" class="ask-x" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
+  <p class="kicker">написать Ире</p>
+  <h3 class="ask-name" id="ask-h"></h3>
+  <label class="ask-l" for="ask-t">сообщение — допишите размер</label>
+  <textarea id="ask-t" rows="4" spellcheck="false"></textarea>
+  <p class="ask-how">Нажмите на значок: текст скопируется и откроется страница Иры. Останется вставить его в сообщение.</p>
+  <div class="ask-go">
+    <a class="ask-btn ig" target="_blank" rel="noopener noreferrer" aria-label="Скопировать текст и открыть Instagram">${logo(ig)}</a>
+    <a class="ask-btn vk" target="_blank" rel="noopener noreferrer" aria-label="Скопировать текст и открыть ВКонтакте">${logo(vk)}</a>
+    <button type="button" class="want ask-copy">только скопировать</button>
+  </div>
+  <p class="ask-ok" role="status" aria-live="polite"></p>
+</div>`;
+      document.body.appendChild(root);
+      box = $(".ask-box", root); veil = $(".ask-veil", root); nameEl = $(".ask-name", root); ta = $("textarea", root); okEl = $(".ask-ok", root);
+      $(".ask-btn.ig", root).href = ig.href; $(".ask-btn.vk", root).href = vk.href;
+      veil.addEventListener("click", close);
+      $(".ask-x", root).addEventListener("click", close);
+      $(".ask-copy", root).addEventListener("click", copy);
+      $$(".ask-btn", root).forEach((a) => a.addEventListener("click", copy));
+      // страница под листком не едет
+      const stop = (e) => e.preventDefault();
+      veil.addEventListener("wheel", stop, { passive: false });
+      veil.addEventListener("touchmove", stop, { passive: false });
+      root.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") { close(); return; }
+        if (e.key !== "Tab") return;
+        const f = $$("button, a[href], textarea", box);
+        const first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && (document.activeElement === first || document.activeElement === box)) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      });
+    };
+    // у вещи без читаемой надписи название описательное: оно идёт без кавычек
+    const open = (name, font, from, desc) => {
+      if (!root) build();
+      opener = from;
+      nameEl.className = `ask-name ${desc ? "serif" : font}`;
+      nameEl.textContent = desc ? name.charAt(0).toUpperCase() + name.slice(1) : `«${name}»`;
+      ta.value = `Здравствуйте, Ира! Хочу футболку ${desc ? name : `«${name}»`}. Мой размер: `;
+      okEl.textContent = "";
+      root.hidden = false;
+      void root.offsetWidth; // чтобы переход сработал с начального состояния
+      root.classList.add("open");
+      box.focus();
+    };
+    const add = (host, name, font, desc) => {
+      if (!host || !name) return;
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "want";
+      b.textContent = "хочу такую";
+      b.setAttribute("aria-label", `Хочу такую: ${name}`);
+      b.addEventListener("click", () => open(name, font, b, desc));
+      host.appendChild(b);
+    };
+    $$(".hang").forEach((li) => { const st = $("figcaption strong", li); if (st) add($("figcaption", li), li.dataset.name || plain(st), fontOf(st), !!li.dataset.name); });
+    $$(".card").forEach((card) => { const ct = $(".ct", card); if (ct) add($(".card-copy", card), card.dataset.name || ct.getAttribute("aria-label") || plain(ct), fontOf(ct), !!card.dataset.name); });
+  });
+
+  // возврат на страницу (кнопка «назад», вкладка из фона): сцена досчитывает кадр
+  addEventListener("pageshow", (e) => { if (e.persisted) wake(); });
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) wake(); });
 
   /* ——— шрифты готовы: подгоняем кегли и запускаем интро ——— */
   const ready = () => { Film && Film.measure(); fitHeads(); Cards && Cards.fit(); Film && Film.fontsReady(); wake(); };
@@ -1238,4 +1527,5 @@
     addEventListener("load", ready);
   }
   wake();
+  window.kiyaevaReady = true; // сторож в <head> видит, что скрипт дошёл до конца
 })();
