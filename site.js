@@ -773,6 +773,9 @@
     // логотипы крутятся только пока видны
     const ctas = $("#ctas");
     if (ctas) new IntersectionObserver(([e]) => ctas.classList.toggle("live", e.isIntersecting), { rootMargin: "10% 0px" }).observe(ctas);
+    // палец на подписи разработчика нажимает только пока подпись видна
+    const colo = $(".colophon");
+    if (colo) new IntersectionObserver(([e]) => colo.classList.toggle("idle", !e.isIntersecting), { rootMargin: "10% 0px" }).observe(colo);
   })();
 
   /* ——— финал: ролик с лентой ——— */
