@@ -54,6 +54,36 @@
   const tookBefore = (() => { try { if (kino === "video") localStorage.removeItem("kiyaeva-kino"); return localStorage.getItem("kiyaeva-kino") === "frames"; } catch (e) { return false; } })();
   const NOVIDEO = kino === "frames" || (kino !== "video" && (tookBefore || /MiuiBrowser|XiaoMi\/|UCBrowser|UBrowser|MQQBrowser|QQBrowser|Quark\/|HuaweiBrowser|HeyTapBrowser|OppoBrowser|VivoBrowser|baidubrowser|baiduboxapp|SogouMobileBrowser|2345Browser|Opera Mini/i.test(navigator.userAgent)));
   if (NOVIDEO) doc.classList.add("novideo");
+  // блик по бусинам (--sx) и золотая кромка кнопки (--pa) двигаются только там, где свойство можно анимировать плавно
+  if (window.CSS && CSS.registerProperty) {
+    try {
+      CSS.registerProperty({ name: "--sx", syntax: "<percentage>", inherits: true, initialValue: "130%" });
+      CSS.registerProperty({ name: "--pa", syntax: "<angle>", inherits: false, initialValue: "200deg" });
+      doc.classList.add("has-prop");
+    } catch (e) { /* уже зарегистрировано */ }
+  }
+  // бусины слетаются к буквам: случайные точки над надписью, у каждой свой путь и задержка
+  function gatherBeads(into, colors, n, seedKey, long) {
+    let seed = 0; for (const ch of seedKey) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+    const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    for (let k = 0; k < n; k++) {
+      const e = document.createElement("i");
+      e.className = "gb"; e.setAttribute("aria-hidden", "true");
+      const c = colors[k % colors.length];
+      const ang = rnd() * Math.PI * 2, dist = 1.1 + rnd() * 1.4;
+      e.style.setProperty("--ox", `${(6 + rnd() * 88).toFixed(0)}%`);
+      e.style.setProperty("--oy", `${(14 + rnd() * 72).toFixed(0)}%`);
+      e.style.setProperty("--dx", (Math.cos(ang) * dist * 1.4).toFixed(2));
+      e.style.setProperty("--dy", (Math.sin(ang) * dist).toFixed(2));
+      e.style.setProperty("--r", `${((rnd() - 0.5) * 160).toFixed(0)}deg`);
+      e.style.setProperty("--d", `${(rnd() * 0.45).toFixed(2)}s`);
+      e.style.setProperty("--t", `${(0.7 + rnd() * 0.3).toFixed(2)}s`);
+      e.style.setProperty("--gh", long ? ".14" : ".08");
+      e.style.setProperty("--gc", c[0]); e.style.setProperty("--gw", c[1]); e.style.setProperty("--gl", c[2]);
+      into.appendChild(e);
+    }
+  }
+  const BEAD = { red: ["#d32a43", "#ffc2ca", "#6e0c1a"], black: ["#2b2b33", "#f0f0f6", "#08080b"], silver: ["#c6cbd3", "#ffffff", "#6e737d"], teal: ["#129c95", "#c4f6f1", "#05403e"], pink: ["#e7b6c1", "#fff6f8", "#94606e"], green: ["#5ccc38", "#e2ffd2", "#226611"], gold: ["#d4ab55", "#fff2c4", "#7d5a1f"] };
 
   function flipbook(key, canvas) {
     const m = SEQ[key];
@@ -283,15 +313,15 @@
 
   /* спецэффекты вылета: осколки бисера, ударная волна, луч, след когтей. Всё на transform/opacity */
   const FX = {
-    "t-rg":     { quake: [0.52, 0.42, 2], sha: 1.3, burst: [{ n: 12, at: 0.56, dir: "out", ox: 34, oy: 30, c: ["#e23a4c", "#ff9aa6", "#a81428"] }, { n: 9, at: 1.12, dir: "out", ox: 22, oy: 78, c: ["#e23a4c", "#ff9aa6", "#a81428"] }] },
+    "t-rg":     { gather: Object.assign(["red"], { long: true }), quake: [0.52, 0.42, 2], sha: 1.3, burst: [{ n: 12, at: 0.56, dir: "out", ox: 34, oy: 30, c: ["#e23a4c", "#ff9aa6", "#a81428"] }, { n: 9, at: 1.12, dir: "out", ox: 22, oy: 78, c: ["#e23a4c", "#ff9aa6", "#a81428"] }] },
     "t-more":   { sha: 1.4, burst: [{ n: 11, at: 0.62, dir: "up", ox: 45, oy: 62, c: ["#1f9fd0", "#8fdcf5", "#ffffff"] }] },
     "t-dome":   { sha: 1.3, beam: [1.0, 1.1, "rgba(255,242,198,.55)"], burst: [{ n: 10, at: 0.75, dir: "up", slow: 1, ox: 48, oy: 70, c: ["#fff2c6", "#e3c173", "#c9a24a"] }] },
-    "t-verh":   { quake: [0.68, 0.36, 2], sha: 1.35, burst: [{ n: 12, at: 0.72, dir: "out", ox: 38, oy: 78, c: ["#c2202f", "#ff7b86", "#2a2020"] }] },
-    "t-pros":   { quake: [0.5, 0.32, 1], sha: 1.0, burst: [{ n: 12, at: 0.36, dir: "up", hollow: 1, ox: 45, oy: 50, c: ["#ffffff", "#ffd9d2", "#150808"] }] },
-    "t-vedma":  { sha: 1.1, beam: [0.14, 0.5, "rgba(255,255,255,.7)"] },
-    "t-shep":   { quake: [0.55, 0.32, 1], sha: 1.1, burst: [{ n: 11, at: 0.62, dir: "down", ox: 46, oy: 55, c: ["#e02a4a", "#62d23c", "#ff8aa0"] }] },
-    "t-money":  { quake: [0.42, 0.26, 3], sha: 1.3, beam: [1.35, 0.8, "rgba(255,255,255,.6)"], burst: [{ n: 12, at: 0.5, dir: "left", ox: 8, oy: 45, c: ["#ffffff", "#cfd2d8", "#9aa0aa"] }] },
-    "t-ballet": { sha: 1.5, burst: [{ n: 10, at: 1.42, dir: "out", ox: 34, oy: 26, c: ["#e3c173", "#fff2c6", "#cf2536"] }] },
+    "t-verh":   { gather: Object.assign(["red", "black"], { long: true }), quake: [0.68, 0.36, 2], sha: 1.35, burst: [{ n: 12, at: 0.72, dir: "out", ox: 38, oy: 78, c: ["#c2202f", "#ff7b86", "#2a2020"] }] },
+    "t-pros":   { gather: Object.assign(["black"], { long: false }), quake: [0.5, 0.32, 1], sha: 1.0, burst: [{ n: 12, at: 0.36, dir: "up", hollow: 1, ox: 45, oy: 50, c: ["#ffffff", "#ffd9d2", "#150808"] }] },
+    "t-vedma":  { gather: Object.assign(["black", "silver"], { long: false }), sha: 1.1, beam: [0.14, 0.5, "rgba(255,255,255,.7)"] },
+    "t-shep":   { gather: Object.assign(["red", "green"], { long: false }), quake: [0.55, 0.32, 1], sha: 1.1, burst: [{ n: 11, at: 0.62, dir: "down", ox: 46, oy: 55, c: ["#e02a4a", "#62d23c", "#ff8aa0"] }] },
+    "t-money":  { gather: Object.assign(["silver"], { long: true }), quake: [0.42, 0.26, 3], sha: 1.3, beam: [1.35, 0.8, "rgba(255,255,255,.6)"], burst: [{ n: 12, at: 0.5, dir: "left", ox: 8, oy: 45, c: ["#ffffff", "#cfd2d8", "#9aa0aa"] }] },
+    "t-ballet": { gather: Object.assign(["red"], { long: true }), sha: 1.5, burst: [{ n: 10, at: 1.42, dir: "out", ox: 34, oy: 26, c: ["#e3c173", "#fff2c6", "#cf2536"] }] },
     "t-mama":   { sha: 1.3, claw: 0.8, burst: [{ n: 13, at: 0.25, dir: "up", slow: 1, ox: 40, oy: 68, c: ["#ff9a3c", "#ffd27a", "#e2541f"] }] },
     "t-lama":   { sha: 1.4, beam: [1.2, 0.8, "rgba(255,255,255,.75)"] },
     "t-tyson":  { quake: [0.5, 0.5, 1], sha: 1.0, ring: [0.48, 34, 44], burst: [{ n: 13, at: 0.5, dir: "out", ox: 34, oy: 44, c: ["#e0303a", "#ff8088", "#7d1218"] }] },
@@ -329,6 +359,7 @@
     if (fx.ring) { const e = el("rg-ring"); e.style.setProperty("--d", `${fx.ring[0]}s`); e.style.setProperty("--ox", `${fx.ring[1]}%`); e.style.setProperty("--oy", `${fx.ring[2]}%`); }
     if (fx.beam) { const w = el("bmw"); const b = document.createElement("i"); b.className = "bm"; b.style.setProperty("--d", `${fx.beam[0]}s`); b.style.setProperty("--t", `${fx.beam[1]}s`); b.style.setProperty("--bc", fx.beam[2]); w.appendChild(b); }
     if (fx.claw) { const e = el("claw"); e.style.setProperty("--d", `${fx.claw}s`); }
+    if (fx.gather) gatherBeads(tk, fx.gather.map((c) => BEAD[c]), 24, key, fx.gather.long);
   }
   // тень: копия надписи одним цветом, лежит под ней со смещением
   function castShadow(h) {
@@ -881,6 +912,8 @@
         ob.style.setProperty("--dr", `${((rnd() - 0.5) * 0.9).toFixed(2)}em`);
         oy.appendChild(oi); ob.appendChild(oy); cw.appendChild(ob);
       });
+      const CG = { such: ["pink"], bogw: ["black"], dengi: ["teal", "silver"], books: ["silver", "silver", "red"] };
+      if (CG[card.dataset.fx]) gatherBeads(cw, CG[card.dataset.fx].map((c) => BEAD[c]), 22, card.dataset.fx, card.dataset.fx === "bogw");
       if (fx.burst) for (let k = 0; k < fx.burst.n; k++) {
         const e = mk("i", "pt");
         const ang = rnd() * Math.PI * 2, dist = 0.6 + rnd() * 1.2;
@@ -1453,6 +1486,45 @@
     sims.slice(0, 6).forEach((s) => new IntersectionObserver(([e], o) => { if (e.isIntersecting) { loadTex(s); o.disconnect(); } }, { rootMargin: "100% 100%" }).observe(s.shirt));
   });
 
+  /* ——— материалы надписей: каждая выложена тем же, чем на футболке (стили .mb/.mt и цвета .m-* в styles.css) ——— */
+  safe(() => {
+    const put = (root, sel, mat, color) => { if (root) $$(sel, root).forEach((e) => e.classList.add(mat, color)); };
+    // главы фильма: [выбор внутри надписи, материал (mb — стеклярус и бисер, mt — нить и гладь), цвет]
+    const FILM = {
+      "t-rg": [[".c", "mb", "m-red"]],
+      "t-more": [[".c", "mt", "m-blue"], [".sub", "mt", "m-sand"]],
+      "t-verh": [[".l1 .c", "mb", "m-red"], [".l2 .c", "mb", "m-black"]],
+      "t-pros": [[".c", "mb", "m-black"], [".sub", "mb", "m-black"]],
+      "t-vedma": [[".ln", "mb", "m-black"]],
+      "t-shep": [[".l1 .c", "mb", "m-red"], [".l2 .c", "mb", "m-green"]],
+      "t-money": [[".c", "mb", "m-silver"]],
+      "t-ballet": [[".ln", "mb", "m-red"]],
+      "t-mama": [[".c", "mt", "m-white"]],
+    };
+    $$("h2.t").forEach((h) => { const key = Object.keys(FILM).find((k) => h.classList.contains(k)); if (key) FILM[key].forEach(([sel, m, c]) => put(h, sel, m, c)); });
+    // «Крупно»
+    const CARDS = {
+      such: [[".c", "mb", "m-pink"]],
+      bogw: [[".c", "mb", "m-black"]],
+      dengi: [[".c.l0", "mb", "m-teal"], [".c.l1", "mb", "m-silver"]],
+      zdes: [[".c", "mt", "m-rose"]],
+      books: [[".c:not(.red)", "mb", "m-silver"], [".c.red", "mb", "m-red"]],
+      vokrug: [[".c", "mt", "m-white"]],
+      song: [[".c", "mt", "m-white"]],
+      meteli: [[".c", "mt", "m-rthread"]],
+      gold: [[".c", "mt", "m-gold"]],
+    };
+    $$(".card").forEach((card) => {
+      const ct = $(".ct", card), m = CARDS[card.dataset.fx];
+      if (!ct || !m) return;
+      m.forEach(([sel, mat, c]) => put(ct, sel, mat, c));
+      ct.classList.add("matd", `mat-${card.dataset.fx}`);
+    });
+    // заголовок раздела о ручной работе — как RUSSIAN GIRL; слово «вручную» на первом экране — тоже стеклярус
+    put($(".craft-head"), "h2 .c", "mb", "m-red");
+    const acc = $(".ih-acc"); if (acc) acc.classList.add("mb", "m-red");
+  });
+
   /* ——— «Узнать цену»: у каждой вещи и на первом экране. Листок с готовым вопросом и двумя значками: Instagram и ВКонтакте ——— */
   safe(() => {
     const ig = $(".coin.ig"), vk = $(".coin.vk");
@@ -1526,6 +1598,9 @@
       } else {
         nameEl.className = `ask-name${desc ? " serif" : ""}`;
         nameEl.textContent = desc ? name.charAt(0).toUpperCase() + name.slice(1) : `«${name}»`;
+        // длинное слово широким шрифтом не должно рваться посередине
+        const longest = Math.max(...name.split(/\s+/).map((w) => w.length));
+        nameEl.style.fontSize = longest > 11 ? `${Math.max(1.3, 2.5 - (longest - 11) * 0.16).toFixed(2)}rem` : "";
         ta.value = `Здравствуйте, Ира! Сколько стоит футболка ${desc ? name : `«${name}»`}? Мой размер: `;
       }
       okEl.textContent = "";
@@ -1539,7 +1614,7 @@
       if (!host || !name) return;
       const b = document.createElement("button");
       b.type = "button"; b.className = `price${extra ? " " + extra : ""}`;
-      b.textContent = "Узнать цену";
+      b.innerHTML = '<span class="pr-b" aria-hidden="true"></span><span class="pr-t">Узнать цену</span>';
       b.setAttribute("aria-label", `Узнать цену: ${name}`);
       b.addEventListener("click", () => open(name, fontOf(fontEl), b, desc));
       host.appendChild(b);

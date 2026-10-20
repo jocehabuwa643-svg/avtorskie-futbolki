@@ -28,14 +28,15 @@
 @font-face { font-family: "Kurale"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/kurale-ceb9bb.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Marck Script"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/marckscript-a24d97.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Neucha"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/neucha-550e53.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
-@font-face { font-family: "Oswald"; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/oswald-39b466.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
-@font-face { font-family: "Oswald"; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/oswald-39b466.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Pangolin"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/pangolin-92e585.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Philosopher"; font-style: normal; font-weight: 700; font-display: swap; src: url("fonts/philosopher-5935cd.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Playfair Display"; font-style: italic; font-weight: 900; font-display: swap; src: url("fonts/playfairdisplay-i-b490bc.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Ruslan Display"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/ruslandisplay-c13177.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Unbounded"; font-style: normal; font-weight: 800; font-display: swap; src: url("fonts/unbounded-80f6c0.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
 @font-face { font-family: "Yeseva One"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/yesevaone-d8ce67.woff2") format("woff2"); unicode-range: U+20-22, U+27, U+2a, U+2c-2e, U+30-39, U+3f, U+41-5a, U+61-7a, U+ab, U+bb, U+c4, U+cb, U+cf, U+d6, U+dc, U+e4, U+eb, U+ef, U+f6, U+fc, U+ff, U+102-103, U+114-115, U+11e-11f, U+12c-12d, U+14e-14f, U+16c-16d, U+178, U+306, U+308, U+401, U+40e, U+410-44f, U+451, U+45e, U+4c1-4c2, U+4d0-4d3, U+4d6-4d7, U+4dc-4df, U+4e4-4e7, U+4ec-4ed, U+4f0-4f1, U+4f4-4f5, U+4f8-4f9, U+1e26-1e27, U+1e84-1e85, U+1e8c-1e8d, U+1e97, U+2014, U+201c-201d, U+2026; }
+
+@font-face { font-family: "Oswald"; font-style: normal; font-weight: 300 700; font-display: swap; src: url("fonts/oswald-v-cyrillic-735e90.woff2") format("woff2"); unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Oswald"; font-style: normal; font-weight: 300 700; font-display: swap; src: url("fonts/oswald-v-latin-3c61d8.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; }
@@ -56,6 +57,8 @@ button { font: inherit; color: inherit; }
   --ui: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
   --serif: "Cormorant Garamond", "Times New Roman", serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  /* киношный шрифт заголовков и кнопок: вытянутые, плотные, читаемые буквы */
+  --cine: "Oswald", "Arial Narrow", "Roboto Condensed", sans-serif;
   --ease: cubic-bezier(.16, 1, .3, 1);
   --ease-io: cubic-bezier(.77, 0, .175, 1);
   color-scheme: light;
@@ -121,7 +124,7 @@ body {
 .f-gochi { font-family: "Gochi Hand", cursive; letter-spacing: .03em; }
 .f-yeseva { font-family: "Yeseva One", serif; }
 .f-badscript { font-family: "Bad Script", cursive; }
-.f-serif, .serif { font-family: var(--serif); font-style: italic; font-weight: 500; }
+.f-serif, .serif { font-family: var(--cine); font-style: normal; font-weight: 600; text-transform: uppercase; letter-spacing: .005em; }
 
 .kicker {
   margin: 0 0 .9rem;
@@ -263,7 +266,7 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 .ch .deck {
   margin: 1.5rem 0 0;
   max-width: 24em;
-  font: 500 clamp(1.3rem, 1.75vw, 1.8rem)/1.28 var(--serif);
+  font: 500 clamp(1.05rem, 1.3vw, 1.32rem)/1.5 var(--ui);
   letter-spacing: .005em;
   color: color-mix(in srgb, var(--sink) 90%, transparent);
   text-wrap: pretty;
@@ -405,7 +408,7 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 @keyframes cork { 0% { opacity: 0; transform: translate3d(0, .9em, 0) scale(.15) rotate(calc(var(--rnd, 0) * 40deg - 20deg)); } 60% { opacity: 1; } 100% { opacity: 1; transform: none; } }
 
 /* Ведьма: надпись вспыхивает, как от молнии, потом по стеклу идёт блик */
-.film-on .ch.on .t-vedma .ln { animation-name: strike, shine, shineloop; animation-duration: 1s, 2.2s, 7s; animation-iteration-count: 1, 1, 3; animation-timing-function: linear, var(--ease), ease-in-out; animation-delay: .1s, .5s, 3.6s; animation-fill-mode: both, both, none; transform-origin: 20% 60%; }
+.film-on .ch.on .t-vedma .ln { animation: strike 1s linear .1s both; transform-origin: 20% 60%; }
 @keyframes strike {
   0% { opacity: 0; transform: scale(1.5) skewX(-10deg); }
   6% { opacity: 1; } 12% { opacity: .12; } 18% { opacity: 1; transform: scale(1.22) skewX(-5deg); } 26% { opacity: .2; }
@@ -418,8 +421,8 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 @keyframes hail { 0% { opacity: 0; transform: translate3d(calc(var(--rnd, 0) * .7em), -1.7em, 0) scale(1.9) rotate(calc(var(--rnd, 0) * 32deg)); } 55% { opacity: 1; } 100% { opacity: 1; transform: none; } }
 
 /* MONEYпуляторша: буквы влетают справа, как пули, вторая строка печатается очередью */
-.film-on .ch.on .t-money .l1 .c { animation-name: bullet, shine, shineloop; animation-duration: .34s, 1.6s, 5.5s; animation-iteration-count: 1, 1, 3; animation-timing-function: cubic-bezier(.2, .9, .3, 1), var(--ease), ease-in-out; animation-delay: calc(var(--i, 0) * 85ms + .12s), calc(var(--i, 0) * 85ms + .3s), calc(var(--i, 0) * 90ms + 3s); animation-fill-mode: both, both, none; }
-.film-on .ch.on .t-money .l2 .c { animation-name: tap, shine, shineloop; animation-duration: .22s, 1.6s, 5.5s; animation-iteration-count: 1, 1, 3; animation-timing-function: var(--ease), var(--ease), ease-in-out; animation-delay: calc((var(--i, 0) - 5) * 42ms + .72s), calc((var(--i, 0) - 5) * 42ms + .8s), calc(var(--i, 0) * 90ms + 3s); animation-fill-mode: both, both, none; }
+.film-on .ch.on .t-money .l1 .c { animation: bullet .34s cubic-bezier(.2, .9, .3, 1) both; animation-delay: calc(var(--i, 0) * 85ms + .12s); }
+.film-on .ch.on .t-money .l2 .c { animation: tap .22s var(--ease) both; animation-delay: calc((var(--i, 0) - 5) * 42ms + .72s); }
 @keyframes bullet { 0% { opacity: 0; transform: translate3d(9em, 0, 0) skewX(-38deg) scaleX(2.8); } 20% { opacity: 1; } 72% { transform: translate3d(-.1em, 0, 0) skewX(7deg) scaleX(.9); } 100% { opacity: 1; transform: none; } }
 @keyframes tap { 0% { opacity: 0; transform: translate3d(0, .35em, 0) scale(1.5); } 100% { opacity: 1; transform: none; } }
 
@@ -491,15 +494,81 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 .stitch-svg .body { fill: currentColor; }
 .stitch-svg .run { fill: none; stroke: currentColor; stroke-width: calc(var(--sw, 2.2) * .7); stroke-dasharray: 7 5; opacity: .75; }
 
-/* материалы: золото, серебро, стекло — градиент на каждой букве (Safari не пропускает clip родителя) */
-.t-dome .c, .t-money .c, .t-vedma .ln {
-  background-size: 300% 100%; background-position: 0% 0;
-  -webkit-background-clip: text; background-clip: text;
-  color: transparent; -webkit-text-fill-color: transparent;
+/* ——— МАТЕРИАЛЫ: буквы выложены тем же, чем надпись на футболке ———
+   Стеклярус — ряды стеклянных трубочек с бликом по оси и швами между ними; нить — плотная гладь косыми стежками.
+   Текстура на каждой букве (Safari не пропускает clip родителя), сверху бежит блик (--sx двигает скрипт через свойство,
+   зарегистрированное в CSS.registerProperty). Цвет буквы остаётся для теней и нитей с каплями — прозрачна только заливка. */
+.mb, .mt { -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+/* стеклярус и бисер: плитка с настоящими трубочками (tools/beads.py), --bt — размер плитки, то есть крупность бусин */
+.mb {
+  background-image:
+    linear-gradient(105deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, .78) 49%, rgba(255, 255, 255, .2) 53%, rgba(255, 255, 255, 0) 61%),
+    var(--tile);
+  background-size: 320% 100%, var(--bt, .5em) var(--bt, .5em);
+  background-repeat: no-repeat, repeat;
+  background-position: calc(var(--sx, 130%) + var(--i, var(--li, 0)) * 7%) 0, 0 0;
 }
-.t-dome .c { background-image: linear-gradient(100deg, #b88f45 0%, #e3c173 28%, #fff2c6 44%, #d9b366 56%, #9b7531 76%, #c9a24a 100%); }
-.t-money .c { background-image: linear-gradient(100deg, #c9ccd2 0%, #f5f6f8 30%, #ffffff 44%, #aeb2ba 58%, #e4e6ea 80%, #c9ccd2 100%); }
-.t-vedma .ln { background-image: linear-gradient(112deg, #c9c6d2 0%, #ffffff 30%, #8f8a9c 46%, #e9e6ee 64%, #b7b2c4 100%); }
+.mt { background-size: 320% 100%, auto, auto; background-position: calc(var(--sx, 130%) + var(--i, var(--li, 0)) * 7%) 0, 0 0, 0 0; }
+/* гладь и нить: тонкие косые стежки с переливом */
+.mt {
+  background-image:
+    linear-gradient(105deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, .55) 50%, rgba(255, 255, 255, 0) 60%),
+    repeating-linear-gradient(var(--ma, -56deg), var(--ml) 0, var(--mb) .007em, var(--mh) .013em, var(--mb) .019em, var(--ml) .025em),
+    linear-gradient(var(--mb), var(--mb));
+}
+/* цвета */
+.m-red    { --mb: #d32a43; --mh: #ffb9c3; --ml: #7c0e1e; --mg: #3f060e;  --tile: url("film/t/red.png");}
+.m-black  { --mb: #2b2b33; --mh: #e9e9f0; --ml: #0c0c10; --mg: #000;  --tile: url("film/t/black.png");}
+.m-silver { --mb: #c6cbd3; --mh: #ffffff; --ml: #7a7f89; --mg: #4a4e56;  --tile: url("film/t/silver.png");}
+.m-teal   { --mb: #129c95; --mh: #b4f2ec; --ml: #06524f; --mg: #032e2c;  --tile: url("film/t/teal.png");}
+.m-pink   { --bt: .42em; --mb: #e7b6c1; --mh: #fff3f6; --ml: #a3707e; --mg: #6a4550;  --tile: url("film/t/pink-seed.png");}
+.m-green  { --mb: #5ccc38; --mh: #dcffc8; --ml: #2a7516; --mg: #14460a;  --tile: url("film/t/green.png");}
+.m-blue   { --mb: #1f9fd0; --mh: #b9ecff; --ml: #0b5f82; }
+.m-sand   { --mb: #c9a462; --mh: #f6e3b4; --ml: #7e6031; }
+.m-white  { --mb: #ece9e3; --mh: #ffffff; --ml: #9d9890; }
+.m-rose   { --mb: #df4f93; --mh: #ffc2de; --ml: #8e1f55; }
+.m-rthread { --mb: #c3342b; --mh: #ff9c90; --ml: #6f130e; }
+.m-gold   { --mb: #d4ab55; --mh: #fff0be; --ml: #8c6424; }
+/* какая надпись чем выложена — как на футболке */
+.t-rg .c { --ma: 74deg; }
+.t-verh .l1 .c { --mlen: .07em; }
+.t-pros .c, .t-pros .sub { --tile: url("film/t/black-seed.png"); --bt: .4em; }
+.t-vedma .ln { --mlen: .1em; --ma: 40deg; }
+.t-money .c { --ma: 62deg; --mlen: .14em; }
+.t-ballet .ln { --ma: 30deg; --mlen: .1em; }
+.mat-such .c { --mlen: .075em; --ma: 66deg; }
+.mat-bogw .c { --mlen: .17em; --ma: 76deg; }
+.mat-dengi .c { --mlen: .11em; --ma: 68deg; }
+.mat-books .c { --ma: 82deg; --mlen: .1em; }
+.mat-gold .c { --ma: -60deg; }
+/* тень под бусинами: тот же текст одним цветом (клон .t-sh), материалу не мешает */
+.t-sh .mb, .t-sh .mt, .t-sh.mb, .t-sh.mt { -webkit-text-fill-color: var(--shc) !important; }
+/* надпись в «Крупно»: объём даёт тень фильтром — text-shadow ляжет поверх бусин */
+.ct.matd { text-shadow: none; filter: drop-shadow(.018em .045em 0 rgba(0, 0, 0, .42)) drop-shadow(0 .09em .14em rgba(0, 0, 0, .3)); }
+/* чёрные бусины на тёмной теме: светлая кромка, как свет на стекле, иначе «Богиня» сливается с фоном */
+html[data-theme="dark"] .ct.mat-bogw { filter: drop-shadow(0 0 .01em rgba(255, 255, 255, .75)) drop-shadow(0 0 .04em rgba(255, 255, 255, .18)) drop-shadow(.018em .045em 0 rgba(0, 0, 0, .6)); }
+@media (prefers-color-scheme: dark) { html[data-theme="system"] .ct.mat-bogw { filter: drop-shadow(0 0 .01em rgba(255, 255, 255, .75)) drop-shadow(0 0 .04em rgba(255, 255, 255, .18)) drop-shadow(.018em .045em 0 rgba(0, 0, 0, .6)); } }
+/* бусины слетаются к буквам перед тем, как надпись встанет */
+.gb {
+  position: absolute; z-index: 3; left: var(--ox); top: var(--oy); pointer-events: none;
+  width: calc(var(--fs, 100px) * .045); height: calc(var(--fs, 100px) * var(--gh, .14)); border-radius: calc(var(--fs, 100px) * .022);
+  background: linear-gradient(90deg, var(--gl), var(--gc) 30%, var(--gw) 46%, var(--gc) 66%, var(--gl));
+  box-shadow: 0 0 calc(var(--fs, 100px) * .03) rgba(255, 255, 255, .25);
+  opacity: 0;
+}
+.film-on .ch.on .gb, .js .card.in .gb { animation: gather var(--t, .8s) cubic-bezier(.55, 0, .2, 1) var(--d, .1s) backwards; }
+@keyframes gather {
+  0% { opacity: 0; transform: translate3d(calc(var(--dx) * var(--fs, 100px)), calc(var(--dy) * var(--fs, 100px)), 0) rotate(var(--r, 0deg)) scale(1.5); }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(0, 0, 0) rotate(calc(var(--r, 0deg) * .15)) scale(.55); }
+}
+.has-prop.film-on .ch.on .tw { animation: sxloop 5.4s ease-in-out 1.9s 4; }
+.has-prop.js .card.live .cw { animation: sxloop 5.4s ease-in-out 1.6s 4; }
+.has-prop .craft-head.seen h2, .has-prop .intro.live .ih-acc { animation: sxloop 5s ease-in-out 1.4s 6; }
+@keyframes sxloop { 0%, 52% { --sx: 130%; } 100% { --sx: -60%; } }
+.rm .gb { display: none; }
+.rm .tw, .rm .cw, .rm .craft-head h2, .rm .ih-acc { animation: none !important; }
 
 /* по главам: шрифт той же природы, что надпись на ткани */
 .t-rg { font-family: "Oswald", sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; --h: #c8283c; line-height: .86; }
@@ -576,7 +645,7 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
   transition: opacity .6s ease, visibility 0s;
 }
 .cue span {
-  font: 500 clamp(.95rem, 1.2vw, 1.2rem)/1 var(--serif);
+  font: 500 clamp(.95rem, 1.2vw, 1.2rem)/1 var(--cine);
   letter-spacing: .5em; text-transform: uppercase; white-space: nowrap; padding-left: .5em;
   background: linear-gradient(100deg, color-mix(in srgb, var(--sink) 46%, transparent) 0%, color-mix(in srgb, var(--sink) 46%, transparent) 38%, var(--sink) 50%, color-mix(in srgb, var(--sink) 46%, transparent) 62%, color-mix(in srgb, var(--sink) 46%, transparent) 100%);
   background-size: 260% 100%;
@@ -627,16 +696,16 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
   background: radial-gradient(70% 60% at 82% 46%, color-mix(in srgb, #c8283c 9%, transparent), transparent 70%), var(--paper);
 }
 .intro-k { color: #c8283c; }
-.intro-h { margin: 0; font: italic 500 clamp(3.3rem, 7.2vw, 8.6rem)/.9 var(--serif); letter-spacing: -.015em; }
+.intro-h { margin: 0; font: 600 clamp(3.1rem, 7.4vw, 8.4rem)/.92 var(--cine); letter-spacing: .005em; text-transform: uppercase; }
 .intro-h .ih { display: block; }
-.ih-acc { position: relative; display: inline-block !important; color: #c8283c; padding-bottom: .08em; }
+.ih-acc { position: relative; display: inline-block !important; color: #c8283c; padding-bottom: .08em; --ma: 74deg; }
 /* стежок под словом «вручную»: пунктир прошивается слева направо */
 .ih-acc::after {
   content: ""; position: absolute; left: .04em; right: .04em; bottom: -.02em; height: .045em; min-height: 3px;
   background: repeating-linear-gradient(90deg, currentColor 0 .16em, transparent .16em .28em);
   transform-origin: 0 50%;
 }
-.intro-lede { max-width: 31em; margin: 1.6rem 0 0; font: 500 clamp(1.2rem, 1.55vw, 1.55rem)/1.38 var(--serif); color: color-mix(in srgb, var(--ink) 84%, transparent); }
+.intro-lede { max-width: 33em; margin: 1.6rem 0 0; font: 500 clamp(1.04rem, 1.25vw, 1.26rem)/1.55 var(--ui); color: color-mix(in srgb, var(--ink) 84%, transparent); }
 .intro-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.6rem; margin-top: 2rem; }
 .intro-cta .price { margin-top: 0; }
 .intro-more {
@@ -663,21 +732,21 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 /* появление: футболки въезжают снизу по одной, бусины рассыпаются; дальше вещи покачиваются на плечиках */
 .js:not(.rm) .ia { animation: iain 1.2s cubic-bezier(.16, 1, .3, 1) both; }
 .js:not(.rm) .ia-1 { animation-delay: .25s; } .js:not(.rm) .ia-2 { animation-delay: .1s; } .js:not(.rm) .ia-3 { animation-delay: .4s; }
-.js:not(.rm) .intro.live .ia { animation: iain 1.2s cubic-bezier(.16, 1, .3, 1) both, sway 5.5s ease-in-out 1.6s infinite alternate; }
+.js:not(.rm) .intro.live .ia { animation: iain 1.2s cubic-bezier(.16, 1, .3, 1) both, iasway 5.5s ease-in-out 1.6s infinite alternate; }
 .js:not(.rm) .intro.live .ia-1 { animation-delay: .25s, 1.9s; animation-duration: 1.2s, 6.3s; }
 .js:not(.rm) .intro.live .ia-3 { animation-delay: .4s, 1.7s; animation-duration: 1.2s, 4.9s; }
 .js:not(.rm) .bead { animation: beadin .9s cubic-bezier(.34, 1.4, .64, 1) both; animation-delay: calc(.6s + var(--d, 0s)); }
 .b2 { --d: .1s; } .b3 { --d: .2s; } .b4 { --d: .3s; } .b5 { --d: .4s; }
-.js:not(.rm) .intro.live .bead { animation: beadin .9s cubic-bezier(.34, 1.4, .64, 1) both, bob 3.6s ease-in-out 1.6s infinite alternate; animation-delay: calc(.6s + var(--d, 0s)), calc(1.6s + var(--d, 0s)); }
-.js:not(.rm) .intro-copy > * { animation: rise .9s cubic-bezier(.16, 1, .3, 1) both; }
+.js:not(.rm) .intro.live .bead { animation: beadin .9s cubic-bezier(.34, 1.4, .64, 1) both, iabob 3.6s ease-in-out 1.6s infinite alternate; animation-delay: calc(.6s + var(--d, 0s)), calc(1.6s + var(--d, 0s)); }
+.js:not(.rm) .intro-copy > * { animation: iarise .9s cubic-bezier(.16, 1, .3, 1) both; }
 .js:not(.rm) .intro-copy > :nth-child(2) { animation-delay: .08s; } .js:not(.rm) .intro-copy > :nth-child(3) { animation-delay: .2s; }
 .js:not(.rm) .intro-copy > :nth-child(4) { animation-delay: .32s; } .js:not(.rm) .intro-copy > :nth-child(5) { animation-delay: .44s; }
 .js:not(.rm) .ih-acc::after { animation: stitchline 1s steps(12, end) .9s both; }
 @keyframes iain { from { opacity: 0; transform: translate3d(0, 18%, 0) rotate(calc(var(--r) * 2.2)); } to { opacity: 1; transform: rotate(var(--r)); } }
-@keyframes sway { from { transform: rotate(var(--r)); } to { transform: rotate(calc(var(--r) + 2.2deg)); } }
+@keyframes iasway { from { transform: rotate(var(--r)); } to { transform: rotate(calc(var(--r) + 2.2deg)); } }
 @keyframes beadin { from { opacity: 0; transform: scale(0); } to { opacity: 1; transform: none; } }
-@keyframes bob { from { transform: none; } to { transform: translate3d(0, -9px, 0); } }
-@keyframes rise { from { opacity: 0; transform: translate3d(0, 26px, 0); } to { opacity: 1; transform: none; } }
+@keyframes iabob { from { transform: none; } to { transform: translate3d(0, -9px, 0); } }
+@keyframes iarise { from { opacity: 0; transform: translate3d(0, 26px, 0); } to { opacity: 1; transform: none; } }
 @keyframes stitchline { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @media (max-width: 899px) {
   .intro { grid-template-columns: minmax(0, 1fr); min-height: 0; padding: 96px 16px 6vh; gap: 2.2rem; }
@@ -689,7 +758,7 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 /* ——— ручная работа: почему это не принт ——— */
 .craft { position: relative; padding: 20vh 6vw 6vh; background: var(--paper); }
 .craft-head { max-width: 64rem; }
-.craft-head h2 { margin: 0; font-size: clamp(3.4rem, 10vw, 9rem); line-height: .88; letter-spacing: -.01em; }
+.craft-head h2 { margin: 0; font-size: clamp(3.4rem, 10vw, 9rem); line-height: .9; letter-spacing: .01em; color: #c8283c; --ma: 74deg; filter: drop-shadow(.02em .05em 0 rgba(0, 0, 0, .35)) drop-shadow(0 .1em .15em rgba(0, 0, 0, .25)); }
 .craft-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 5vw; align-items: center; margin-top: 7vh; }
 .craft-macro { position: relative; margin: 0; border-radius: 30px; overflow: hidden; aspect-ratio: 4 / 5; background: var(--paper-2); box-shadow: var(--card-shadow); max-width: 34rem; }
 .craft-macro img { width: 100%; height: 100%; object-fit: cover; }
@@ -700,8 +769,8 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 .craft-list { margin: 0; padding: 0; list-style: none; counter-reset: c; display: grid; gap: 2.1rem; }
 .craft-list li { counter-increment: c; display: grid; grid-template-columns: 3.4rem minmax(0, 1fr); column-gap: 1rem; }
 .craft-list li::before { content: counter(c, decimal-leading-zero); grid-row: span 2; padding-top: .7rem; border-top: 1px solid currentColor; font: 500 .8rem/1 var(--mono); color: #c8283c; }
-.craft-list b { font: italic 500 clamp(1.6rem, 2.5vw, 2.4rem)/1.05 var(--serif); }
-.craft-list span { margin-top: .45rem; max-width: 30em; font: 500 clamp(1.1rem, 1.3vw, 1.3rem)/1.4 var(--serif); color: color-mix(in srgb, var(--ink) 80%, transparent); }
+.craft-list b { font: 500 clamp(1.4rem, 2.2vw, 2.1rem)/1.05 var(--cine); text-transform: uppercase; letter-spacing: .03em; }
+.craft-list span { margin-top: .55rem; max-width: 32em; font: 500 clamp(1rem, 1.15vw, 1.15rem)/1.55 var(--ui); color: color-mix(in srgb, var(--ink) 80%, transparent); }
 .craft-cta { display: flex; justify-content: center; margin-top: 7vh; }
 .js:not(.rm) .craft-grid, .js:not(.rm) .craft-cta { opacity: 0; transform: translate3d(0, 40px, 0); transition: opacity .9s ease, transform 1.1s var(--ease); }
 .js:not(.rm) .craft-grid.seen, .js:not(.rm) .craft-cta.seen { opacity: 1; transform: none; }
@@ -717,7 +786,7 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 .close { position: relative; overflow-x: hidden; overflow-x: clip; padding: 20vh 0 8vh; background: var(--paper); }
 .close-head, .rack-head { padding: 0 6vw; max-width: 64rem; }
 .close-head h2, .rack-head h2 { margin: 0; font-size: clamp(3.6rem, 11vw, 10rem); line-height: .86; letter-spacing: -.01em; }
-.lede { max-width: 26em; margin: 1.4rem 0 0; font: 500 clamp(1.25rem, 1.6vw, 1.62rem)/1.3 var(--serif); letter-spacing: .005em; color: color-mix(in srgb, var(--ink) 78%, transparent); text-wrap: pretty; }
+.lede { max-width: 30em; margin: 1.4rem 0 0; font: 500 clamp(1.04rem, 1.3vw, 1.3rem)/1.55 var(--ui); letter-spacing: .005em; color: color-mix(in srgb, var(--ink) 78%, transparent); text-wrap: pretty; }
 
 .cards { display: grid; row-gap: 18vh; padding: 14vh 6vw 6vh; }
 .card { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 2.2vw; align-items: end; perspective: 1500px; --tilt: 1; }
@@ -779,9 +848,16 @@ html:not(.film-on):not(.tinted) .t, html:not(.film-on):not(.tinted) .t .c, html:
 .ct .c.red { color: #e3203a; }
 .ct.f-badscript, .ct.f-marck { line-height: 1.08; }
 .ct.f-kurale { letter-spacing: .1em; }
+.mosq { display: inline-block; height: 1.25em; width: auto; margin-left: .22em; vertical-align: -.12em; overflow: visible; }
+.mosq-gl { opacity: .6; transform: translate3d(-60px, 0, 0) skewX(-18deg); }
+.js .card .mosq { opacity: 0; transform: translate3d(0, .3em, 0) scale(.9); transform-origin: 50% 100%; transition: opacity .8s ease .9s, transform 1.1s var(--ease) .9s; }
+.js .card.in .mosq { opacity: 1; transform: none; }
+.card.live .mosq-gl { animation: mqglint 3.4s cubic-bezier(.6, 0, .3, 1) 1.8s 4 both; }
+@keyframes mqglint { 0% { transform: translate3d(-60px, 0, 0) skewX(-18deg); } 55%, 100% { transform: translate3d(460px, 0, 0) skewX(-18deg); } }
+.rm .mosq { opacity: 1 !important; transform: none !important; }
 html[data-theme="dark"] .ct { color: var(--hd, var(--ink)); }
 @media (prefers-color-scheme: dark) { html[data-theme="system"] .ct { color: var(--hd, var(--ink)); } }
-.card-copy p { max-width: 22em; margin: 0; font: 500 clamp(1.2rem, 1.5vw, 1.55rem)/1.3 var(--serif); letter-spacing: .005em; color: color-mix(in srgb, var(--ink) 86%, transparent); text-wrap: pretty; }
+.card-copy p { max-width: 24em; margin: 0; font: 500 clamp(1rem, 1.2vw, 1.2rem)/1.55 var(--ui); letter-spacing: .005em; color: color-mix(in srgb, var(--ink) 86%, transparent); text-wrap: pretty; }
 .card-copy em { display: block; margin-top: .9rem; font: 500 .68rem/1.3 var(--mono); font-style: normal; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 
 /* вылет карточки: один раз, когда она входит в экран. Карточка разворачивается из глубины и остаётся под лёгким углом */
@@ -1188,53 +1264,71 @@ html[data-theme="dark"] .ct { color: var(--hd, var(--ink)); }
 /* за экраном палец не работает */
 .colophon.idle .colo-cap, .colophon.idle .colo-a, .colophon.idle .colo-b, .colophon.idle .colo-b::after, .colophon.idle .colo-ring, .colophon.idle .colo-hand { animation-play-state: paused; }
 
-/* ——— «Узнать цену»: фирменная кнопка — красная стеклянная бусина и блик по стеклу ——— */
+/* ——— «Узнать цену»: фирменная кнопка — красное стекло, бусина, золотая кромка бежит по краю, блик по стеклу ——— */
 .price {
   position: relative; isolation: isolate; overflow: hidden;
-  display: inline-flex; align-items: center; gap: .75em;
-  min-height: 48px; margin-top: 1rem; padding: 0 1.35rem 0 .6rem;
+  display: inline-flex; align-items: center; gap: .8em;
+  min-height: 50px; margin-top: 1rem; padding: 0 1.5rem 0 .55rem;
   border: 0; border-radius: 999px; cursor: pointer;
-  color: #fff; font: 700 .76rem/1 var(--ui); letter-spacing: .16em; text-transform: uppercase; white-space: nowrap;
+  color: #fff; font: 500 .98rem/1 var(--cine); letter-spacing: .16em; text-transform: uppercase; white-space: nowrap;
   background: #c8283c;
-  background: radial-gradient(120% 170% at 28% 0%, #ea5568 0%, #c8283c 46%, #8a1324 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .4), inset 0 -2px 0 rgba(0, 0, 0, .2), 0 14px 26px -14px rgba(200, 40, 60, .9), 0 3px 8px -3px rgba(0, 0, 0, .4);
+  background: radial-gradient(120% 170% at 28% 0%, #ee5a6d 0%, #c8283c 44%, #7d0f20 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -2px 0 rgba(0, 0, 0, .22), 0 16px 28px -14px rgba(200, 40, 60, .95), 0 3px 8px -3px rgba(0, 0, 0, .45);
   -webkit-tap-highlight-color: transparent;
-  transition: transform .3s var(--ease), box-shadow .3s ease, filter .3s ease;
+  transition: transform .35s var(--ease), box-shadow .35s ease;
 }
-/* бусина: стеклянный шарик с бликом */
+.pr-t { position: relative; z-index: 1; text-shadow: 0 1px 0 rgba(0, 0, 0, .25); }
+/* бусина: стеклянный шарик, блик на ней медленно обходит круг */
+.pr-b {
+  position: relative; z-index: 1; flex: none; width: 2.5em; height: 2.5em; border-radius: 50%;
+  background: radial-gradient(circle at 50% 60%, #ff9eaa 0%, #d8344a 46%, #640b19 100%);
+  box-shadow: 0 3px 6px -1px rgba(0, 0, 0, .5), inset 0 -3px 4px rgba(0, 0, 0, .32), 0 0 0 2px rgba(255, 255, 255, .18);
+}
+.pr-b::after {
+  content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0; border-radius: 50%;
+  background: radial-gradient(circle at 32% 26%, #fff 0 8%, rgba(255, 255, 255, .6) 15%, rgba(255, 255, 255, 0) 33%);
+  transition: transform .6s var(--ease);
+}
+/* золотая кромка: светлая дуга бежит по краю кнопки */
 .price::before {
-  content: ""; flex: none; width: 2.6em; height: 2.6em; border-radius: 50%;
-  background:
-    radial-gradient(circle at 34% 28%, #fff 0 8%, rgba(255, 255, 255, .6) 15%, rgba(255, 255, 255, 0) 32%),
-    radial-gradient(circle at 50% 58%, #ff9aa6 0%, #d8344a 48%, #6e0d1b 100%);
-  box-shadow: 0 3px 6px -1px rgba(0, 0, 0, .45), inset 0 -3px 4px rgba(0, 0, 0, .3), 0 0 0 2px rgba(255, 255, 255, .16);
-  transition: transform .5s var(--ease);
+  content: ""; position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 2; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: conic-gradient(from var(--pa, 200deg), rgba(255, 226, 176, 0) 0deg, rgba(255, 226, 176, 0) 240deg, rgba(255, 226, 176, .9) 300deg, #fff 322deg, rgba(255, 226, 176, .9) 340deg, rgba(255, 226, 176, 0) 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: .9;
 }
-/* блик бежит по кнопке, как свет по стеклярусу */
+/* блик бежит по стеклу */
 .price::after {
-  content: ""; position: absolute; z-index: -1; top: -30%; bottom: -30%; left: 0; width: 34%; pointer-events: none;
-  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .42) 50%, rgba(255, 255, 255, 0));
+  content: ""; position: absolute; z-index: 0; top: -30%; bottom: -30%; left: 0; width: 34%; pointer-events: none;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .45) 50%, rgba(255, 255, 255, 0));
   transform: translate3d(-140%, 0, 0) skewX(-20deg);
 }
 .price:active { transform: scale(.96); }
 @media (hover: hover) and (pointer: fine) {
-  .price:hover { transform: translate3d(0, -2px, 0); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -2px 0 rgba(0, 0, 0, .2), 0 20px 34px -14px rgba(200, 40, 60, 1), 0 4px 10px -3px rgba(0, 0, 0, .4); }
-  .price:hover::before { transform: rotate(160deg) scale(1.08); }
+  .price:hover { transform: translate3d(0, -3px, 0) scale(1.02); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .5), inset 0 -2px 0 rgba(0, 0, 0, .22), 0 24px 38px -14px rgba(200, 40, 60, 1), 0 0 0 4px rgba(200, 40, 60, .16), 0 4px 10px -3px rgba(0, 0, 0, .45); }
+  .price:hover .pr-b::after { transform: rotate(200deg); }
   .price:hover::after { animation: glint .9s cubic-bezier(.6, 0, .3, 1) both; }
 }
 @keyframes glint { from { transform: translate3d(-140%, 0, 0) skewX(-20deg); } to { transform: translate3d(420%, 0, 0) skewX(-20deg); } }
 @keyframes glintloop { 0%, 64% { transform: translate3d(-140%, 0, 0) skewX(-20deg); } 84%, 100% { transform: translate3d(420%, 0, 0) skewX(-20deg); } }
-/* блик сам пробегает, только у кнопки на экране: первый экран, глава, карточка */
-.intro.live .price::after, .craft.seen .price::after, .film-on .ch.on .price::after, .card.live .price::after { animation: glintloop 4.6s ease-in-out 1.2s infinite; }
-.price-xl { min-height: 60px; padding: 0 1.8rem 0 .7rem; font-size: .84rem; }
-.price-sm { min-height: 44px; margin-top: .8rem; padding-right: 1.1rem; font-size: .68rem; }
-.price-sm::before { width: 2.3em; height: 2.3em; }
+@keyframes pring { to { --pa: 560deg; } }
+@keyframes beadspin { 0%, 70% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes breath { 0%, 100% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -2px 0 rgba(0, 0, 0, .22), 0 16px 28px -14px rgba(200, 40, 60, .95), 0 0 0 0 rgba(200, 40, 60, .35); } 50% { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), inset 0 -2px 0 rgba(0, 0, 0, .22), 0 20px 34px -14px rgba(200, 40, 60, 1), 0 0 0 9px rgba(200, 40, 60, 0); } }
+/* всё живое — только у кнопки на экране: первый экран, глава, карточка, раздел о ручной работе */
+.intro.live .price::after, .craft-cta.seen .price::after, .film-on .ch.on .price::after, .card.live .price::after { animation: glintloop 4.6s ease-in-out 1.2s infinite; }
+.intro.live .pr-b::after, .craft-cta.seen .pr-b::after, .film-on .ch.on .pr-b::after, .card.live .pr-b::after { animation: beadspin 4.6s var(--ease) 1.2s infinite; }
+.has-prop .intro.live .price::before, .has-prop .craft-cta.seen .price::before, .has-prop.film-on .ch.on .price::before, .has-prop .card.live .price::before { animation: pring 4.6s linear infinite; }
+.intro.live .price-xl, .craft-cta.seen .price-xl { animation: breath 2.8s ease-in-out 1.5s infinite; }
+.price-xl { min-height: 62px; padding: 0 2rem 0 .65rem; font-size: 1.12rem; }
+.price-sm { min-height: 46px; margin-top: .8rem; padding-right: 1.2rem; font-size: .88rem; letter-spacing: .14em; }
+.price-sm .pr-b { width: 2.3em; height: 2.3em; }
 /* глава фильма: кнопка живёт в слое текста, у которого клики выключены */
 .film-on .ch .price { pointer-events: auto; }
 .film-on .ch .price-ch { margin-top: 1.3rem; }
 #pros .price { background: #141010; background: radial-gradient(120% 170% at 28% 0%, #3a3434 0%, #141010 60%, #000 100%); }
-.js .card .card-copy .price { opacity: 0; transition: opacity .6s ease 1s, transform .3s var(--ease), box-shadow .3s ease; }
+.js .card .card-copy .price { opacity: 0; transition: opacity .6s ease 1s, transform .35s var(--ease), box-shadow .35s ease; }
 .js .card.in .card-copy .price { opacity: 1; }
+.top .nav-price { font-family: var(--cine); font-weight: 500; font-size: .82rem; letter-spacing: .14em; }
 
 .ask {
   position: fixed; left: 0; right: 0; top: 0; bottom: 0; z-index: 60;
