@@ -45,7 +45,7 @@
      Mi Browser и часть встроенных Android-браузеров отдают <video> собственному плееру: кадр выпадает из рамки,
      теряет наклон и получает чужие кнопки. Там, и везде, где ролик не загрузился, те же кадры рисуются на canvas
      из листов film/s/<ролик>-<n>.webp (сетка 4 в ряд, 12 кадров на лист; делает tools/sheets.py). */
-  const SEQ = {"f-rg":{"n":20,"fps":6,"w":432,"h":540},"f-more":{"n":21,"fps":6,"w":432,"h":540},"f-verh":{"n":26,"fps":6,"w":432,"h":540},"f-pros":{"n":11,"fps":6,"w":432,"h":540},"f-money":{"n":36,"fps":6,"w":432,"h":540},"f-ballet":{"n":8,"fps":6,"w":432,"h":540},"b-lama":{"n":29,"fps":6,"w":480,"h":480},"b-dome":{"n":34,"fps":6,"w":480,"h":480},"b-vedma":{"n":34,"fps":6,"w":480,"h":480},"b-shep":{"n":33,"fps":6,"w":480,"h":480},"b-mama":{"n":34,"fps":6,"w":480,"h":480},"b-tyson":{"n":16,"fps":6,"w":480,"h":480},"c-bogw":{"n":59,"fps":8,"w":400,"h":400},"c-dengi":{"n":28,"fps":8,"w":384,"h":480},"c-box":{"n":37,"fps":8,"w":360,"h":408}};
+  const SEQ = {"f-rg":{"n":20,"fps":6,"w":432,"h":540},"f-more":{"n":21,"fps":6,"w":432,"h":540},"f-verh":{"n":26,"fps":6,"w":432,"h":540},"f-pros":{"n":11,"fps":6,"w":432,"h":540},"f-money":{"n":36,"fps":6,"w":432,"h":540},"f-ballet":{"n":8,"fps":6,"w":432,"h":540},"b-lama":{"n":39,"fps":8,"w":480,"h":480,"loop":1},"b-dome":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-vedma":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-shep":{"n":44,"fps":8,"w":480,"h":480,"loop":1},"b-mama":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-tyson":{"n":21,"fps":8,"w":480,"h":480,"loop":1},"c-bogw":{"n":59,"fps":8,"w":400,"h":400},"c-dengi":{"n":28,"fps":8,"w":384,"h":480},"c-box":{"n":37,"fps":8,"w":360,"h":408}};
   const SEQ_PER = 12, SEQ_COLS = 4;
   const clipKey = (path) => path.slice(path.lastIndexOf("/") + 1).replace(/\.mp4$/, "");
   // ?kino=frames и ?kino=video — принудительный режим для проверки
@@ -84,6 +84,13 @@
       unload() { sheets.length = 0; shown = ""; },
       // pos — номер кадра с дробью. blend: в движении соседние кадры смешиваются, в покое стоит один чёткий
       draw(pos, blend, wrap) {
+        if (m.loop) {
+          // петля «туда-обратно»: в листах только прямой ход
+          const per = 2 * m.n - 2;
+          pos = ((pos % per) + per) % per;
+          if (pos > m.n - 1) pos = per - pos;
+          wrap = false;
+        }
         let i = Math.floor(pos), f = pos - i;
         if (blend) f = Math.round(f * 5) / 5; else f = f >= 0.5 ? 1 : 0;
         if (f >= 1) { i += 1; f = 0; }
@@ -345,6 +352,7 @@
     h.setAttribute("aria-label", h.dataset.label || plain(h));
     const kind = h.dataset.reveal;
     if (kind === "stitch") buildStitch(h);
+    else if (kind === "emblem") { /* рисунок с футболки: анимация целиком в CSS */ }
     else if (kind === "write" || kind === "glass") splitLines(h);
     else splitLetters(h);
     // живые детали материала: блики на стеклярусе, пузырьки в просекко
@@ -456,6 +464,7 @@
           el.muted = true; el.playsInline = true; el.preload = "none";
           el.setAttribute("muted", ""); el.setAttribute("playsinline", ""); el.setAttribute("webkit-playsinline", "");
           el.setAttribute("disablepictureinpicture", ""); el.setAttribute("disableremoteplayback", "");
+          if (sh.loop) { el.loop = true; el.setAttribute("loop", ""); }
         } else if (!sh.v) {
           el.alt = ""; el.decoding = "async";
           if (ci === 0 && k === 0) el.src = sh.img; // первый экран нужен сразу
@@ -557,7 +566,7 @@
         s.el.addEventListener("seeked", wake);
         s.el.addEventListener("error", () => { if (s.loaded && s.el.getAttribute("src")) toFlip(s); });
         // ролик идёт сам, хотя мы его не запускали: проверяем через треть секунды, что это не наш короткий play()→pause()
-        s.el.addEventListener("playing", () => { if (!s.priming) setTimeout(() => { if (s.vid && !s.priming && !s.el.paused) videoTaken(); }, 320); });
+        if (!s.loop) s.el.addEventListener("playing", () => { if (!s.priming) setTimeout(() => { if (s.vid && !s.priming && !s.el.paused) videoTaken(); }, 320); });
       }
       try { s.el.load(); } catch (e) { /* ничего */ }
     }
@@ -566,12 +575,13 @@
       if (!s.loaded || !s.v || s.first) return;
       s.loaded = false; s.primed = false;
       if (!s.vid) { if (s.flip) s.flip.unload(); return; }
+      try { s.el.pause(); } catch (e) { /* ничего */ }
       s.el.removeAttribute("src");
       try { s.el.load(); } catch (e) { /* ничего */ }
     }
     function prime(s) {
       // iOS показывает кадры после первого play(); сразу ставим на паузу
-      if (s.primed || !s.vid) return;
+      if (s.primed || !s.vid || s.loop) return; // петля запускается сама, когда глава на экране
       s.primed = true;
       s.priming = true;
       const done = () => setTimeout(() => { s.priming = false; }, 400);
@@ -579,6 +589,8 @@
       if (pr && pr.then) pr.then(() => { s.el.pause(); done(); }).catch(done); else done();
     }
     onVideoTaken.push(() => shots.forEach((s) => { if (s.vid) { try { s.el.pause(); } catch (e) { /* ничего */ } toFlip(s); } }));
+    const pauseLoops = () => shots.forEach((s) => { if (s.loop && s.vid && !s.el.paused) s.el.pause(); });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) pauseLoops(); else wake(); });
 
     function update(now, dt) {
       if (!active) return false;
@@ -609,7 +621,7 @@
       }
 
       // рамки: видны одна-две, каждая влетает сбоку под углом и уходит вверх
-      let lead = null, leadO = 0, pending = false;
+      let lead = null, leadO = 0, pending = false, looping = false;
       for (let i = 0; i < chapters.length; i++) {
         const ch = chapters[i];
         const x = X * ch.len;
@@ -642,7 +654,7 @@
         // Safari начинает качать ролик только после play(): будим следующий кадр заранее, за полглавы
         if (s.vid && s.loaded && !s.primed && p > s.a - 0.6 && p < s.b) prime(s);
         const ch = chapters[s.ci];
-        if (ch.o <= 0) continue;
+        if (ch.o <= 0) { if (s.loop && s.vid && !s.el.paused) s.el.pause(); continue; }
         const x = 0.1 * ch.len;
         const fin = s.firstInCh ? 1 : smooth(s.a - x, s.a + x, p);
         const fout = s.lastInCh ? 1 : 1 - smooth(s.b - x, s.b + x, p);
@@ -656,11 +668,24 @@
         const z = s.z ? lerp(s.z[0], s.z[1], easeOut(lt)) : 1;
         const tr = `scale(${z.toFixed(3)})`;
         if (tr !== s.tr) { s.el.style.transform = tr; s.tr = tr; }
+        if (s.loop) {
+          // глава-петля: модель двигается сама, скролл её не перематывает
+          const want = !document.hidden && o * ch.o > 0.2;
+          if (s.vid) {
+            if (s.loaded && want && s.el.paused) { const pr = s.el.play(); if (pr && pr.catch) pr.catch(() => {}); }
+            else if (!want && !s.el.paused) s.el.pause();
+          } else if (s.flip && s.loaded && want) {
+            s.t = (s.t || 0) + dt;
+            s.flip.draw(s.t * s.flip.fps, true);
+            looping = true;
+          }
+          continue;
+        }
         // кадры из листов: в движении смешиваются, в покое стоит один чёткий
         if (s.flip && s.loaded) s.flip.draw(lt * (s.flip.n - 1), p !== pT);
       }
       if (lead && lead.vid && lead.loaded) prime(lead); // на iPhone данные не идут, пока не вызван play()
-      if (lead && lead.vid && lead.el.readyState >= 1) {
+      if (lead && lead.vid && !lead.loop && lead.el.readyState >= 1) {
         const d = lead.el.duration && isFinite(lead.el.duration) ? lead.el.duration : lead.d;
         const target = Math.min(d - 0.05, Math.round(lead.lt * (d - 0.05) * FPS) / FPS);
         if (Math.abs(lead.el.currentTime - target) > 0.03) {
@@ -690,7 +715,7 @@
         nav.classList.toggle("over-film", !!inView);
         lastNav = navKey;
       }
-      return p !== pT || pending;
+      return p !== pT || pending || looping;
     }
 
     measure();
@@ -698,7 +723,7 @@
     tasks.add(update);
     new IntersectionObserver(([e]) => {
       active = e.isIntersecting;
-      if (active) wake(); else { nav.style.removeProperty("--nav-ink"); nav.style.removeProperty("--nav-bg"); nav.classList.remove("over-film"); lastNav = -1; }
+      if (active) wake(); else { nav.style.removeProperty("--nav-ink"); nav.style.removeProperty("--nav-bg"); nav.classList.remove("over-film"); lastNav = -1; pauseLoops(); }
     }, { rootMargin: "20% 0px" }).observe(film);
     addEventListener("scroll", wake, { passive: true });
     let lastW = innerWidth, lastH = innerHeight;
@@ -951,10 +976,13 @@
       };
       walk(h);
     });
-    const blocks = $$(".close-head, .rack-head, .end-copy, .end-media");
+    const blocks = $$(".close-head, .rack-head, .end-copy, .end-media, .craft-head, .craft-grid, .craft-cta");
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } }), { threshold: 0.2, rootMargin: "0px 0px -6% 0px" });
     blocks.forEach((b) => io.observe(b));
     // логотипы крутятся только пока видны
+    // первый экран: футболки покачиваются, только пока он виден
+    const intro = $("#intro");
+    if (intro) new IntersectionObserver(([e]) => intro.classList.toggle("live", e.isIntersecting), { rootMargin: "5% 0px" }).observe(intro);
     const ctas = $("#ctas");
     if (ctas) new IntersectionObserver(([e]) => ctas.classList.toggle("live", e.isIntersecting), { rootMargin: "10% 0px" }).observe(ctas);
     // палец на подписи разработчика нажимает только пока подпись видна
@@ -1425,11 +1453,10 @@
     sims.slice(0, 6).forEach((s) => new IntersectionObserver(([e], o) => { if (e.isIntersecting) { loadTex(s); o.disconnect(); } }, { rootMargin: "100% 100%" }).observe(s.shirt));
   });
 
-  /* ——— «хочу такую»: под вещью кнопка, по ней листок с готовым сообщением Ире ——— */
+  /* ——— «Узнать цену»: у каждой вещи и на первом экране. Листок с готовым вопросом и двумя значками: Instagram и ВКонтакте ——— */
   safe(() => {
     const ig = $(".coin.ig"), vk = $(".coin.vk");
     if (!ig || !vk) return;
-    const fontOf = (el) => (el.className.match(/\bf-[a-z]+\b/) || [""])[0];
     let box = null, veil, nameEl, ta, okEl, opener = null, root;
     const copy = () => {
       const text = ta.value;
@@ -1439,7 +1466,7 @@
         if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).catch(legacy); ok = true; }
       } catch (e) { /* закрыто политикой: пробуем по-старому */ }
       if (!ok) ok = legacy();
-      okEl.textContent = ok ? "Текст скопирован. Вставьте его в сообщение." : "Не получилось скопировать: выделите текст и скопируйте сами.";
+      okEl.textContent = ok ? "Вопрос скопирован. Вставьте его в сообщение Ире." : "Не получилось скопировать: выделите текст и скопируйте сами.";
       return ok;
     };
     const close = () => {
@@ -1455,16 +1482,16 @@
       root.innerHTML = `<div class="ask-veil"></div>
 <div class="ask-box" role="dialog" aria-modal="true" aria-labelledby="ask-h" tabindex="-1">
   <button type="button" class="ask-x" aria-label="Закрыть"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></button>
-  <p class="kicker">написать Ире</p>
+  <p class="kicker">узнать цену</p>
   <h3 class="ask-name" id="ask-h"></h3>
-  <label class="ask-l" for="ask-t">сообщение — допишите размер</label>
-  <textarea id="ask-t" rows="4" spellcheck="false"></textarea>
-  <p class="ask-how">Нажмите на значок: текст скопируется и откроется страница Иры. Останется вставить его в сообщение.</p>
+  <p class="ask-how">Цену и размеры Ира пишет лично. Нажмите на значок: вопрос скопируется, откроется её страница — вставьте его в сообщение.</p>
   <div class="ask-go">
-    <a class="ask-btn ig" target="_blank" rel="noopener noreferrer" aria-label="Скопировать текст и открыть Instagram">${logo(ig)}</a>
-    <a class="ask-btn vk" target="_blank" rel="noopener noreferrer" aria-label="Скопировать текст и открыть ВКонтакте">${logo(vk)}</a>
-    <button type="button" class="want ask-copy">только скопировать</button>
+    <a class="ask-btn ig" target="_blank" rel="noopener noreferrer" aria-label="Скопировать вопрос и открыть Instagram">${logo(ig)}<span>Instagram</span></a>
+    <a class="ask-btn vk" target="_blank" rel="noopener noreferrer" aria-label="Скопировать вопрос и открыть ВКонтакте">${logo(vk)}<span>ВКонтакте</span></a>
   </div>
+  <label class="ask-l" for="ask-t">вопрос Ире — можно дописать размер</label>
+  <textarea id="ask-t" rows="3" spellcheck="false"></textarea>
+  <button type="button" class="ask-copy">скопировать вопрос</button>
   <p class="ask-ok" role="status" aria-live="polite"></p>
 </div>`;
       document.body.appendChild(root);
@@ -1487,30 +1514,42 @@
         else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
       });
     };
-    // у вещи без читаемой надписи название описательное: оно идёт без кавычек
+    // name — надпись на вещи; desc — описание вещи без читаемой надписи (идёт без кавычек); без name — общий вопрос
     const open = (name, font, from, desc) => {
       if (!root) build();
       opener = from;
-      nameEl.className = `ask-name ${desc ? "serif" : font}`;
-      nameEl.textContent = desc ? name.charAt(0).toUpperCase() + name.slice(1) : `«${name}»`;
-      ta.value = `Здравствуйте, Ира! Хочу футболку ${desc ? name : `«${name}»`}. Мой размер: `;
+      nameEl.style.fontFamily = font || "";
+      if (!name) {
+        nameEl.className = "ask-name serif";
+        nameEl.textContent = "Сколько стоит футболка?";
+        ta.value = "Здравствуйте, Ира! Подскажите, пожалуйста, цены на футболки. Мой размер: ";
+      } else {
+        nameEl.className = `ask-name${desc ? " serif" : ""}`;
+        nameEl.textContent = desc ? name.charAt(0).toUpperCase() + name.slice(1) : `«${name}»`;
+        ta.value = `Здравствуйте, Ира! Сколько стоит футболка ${desc ? name : `«${name}»`}? Мой размер: `;
+      }
       okEl.textContent = "";
       root.hidden = false;
       void root.offsetWidth; // чтобы переход сработал с начального состояния
       root.classList.add("open");
       box.focus();
     };
-    const add = (host, name, font, desc) => {
+    const fontOf = (el) => (el ? getComputedStyle(el).fontFamily : "");
+    const add = (host, name, fontEl, desc, extra) => {
       if (!host || !name) return;
       const b = document.createElement("button");
-      b.type = "button"; b.className = "want";
-      b.textContent = "хочу такую";
-      b.setAttribute("aria-label", `Хочу такую: ${name}`);
-      b.addEventListener("click", () => open(name, font, b, desc));
+      b.type = "button"; b.className = `price${extra ? " " + extra : ""}`;
+      b.textContent = "Узнать цену";
+      b.setAttribute("aria-label", `Узнать цену: ${name}`);
+      b.addEventListener("click", () => open(name, fontOf(fontEl), b, desc));
       host.appendChild(b);
     };
-    $$(".hang").forEach((li) => { const st = $("figcaption strong", li); if (st) add($("figcaption", li), li.dataset.name || plain(st), fontOf(st), !!li.dataset.name); });
-    $$(".card").forEach((card) => { const ct = $(".ct", card); if (ct) add($(".card-copy", card), card.dataset.name || ct.getAttribute("aria-label") || plain(ct), fontOf(ct), !!card.dataset.name); });
+    // глава фильма: кнопка под описанием
+    $$(".ch").forEach((ch) => { const h = $("h2.t:not(.t-sh)", ch); if (h) add(ch, ch.dataset.name || ch.dataset.item || h.dataset.label || h.getAttribute("aria-label"), h.classList.contains("t-dome") ? null : h, !!ch.dataset.name, "price-ch"); });
+    $$(".card").forEach((card) => { const ct = $(".ct", card); if (ct) add($(".card-copy", card), card.dataset.name || ct.getAttribute("aria-label") || plain(ct), ct, !!card.dataset.name); });
+    $$(".hang").forEach((li) => { const st = $("figcaption strong", li); if (st) add($("figcaption", li), li.dataset.name || plain(st), st, !!li.dataset.name, "price-sm"); });
+    // общие кнопки: первый экран, панель, раздел о ручной работе
+    $$("[data-price]").forEach((b) => b.addEventListener("click", () => open(null, "", b)));
   });
 
   // возврат на страницу (кнопка «назад», вкладка из фона): сцена досчитывает кадр
