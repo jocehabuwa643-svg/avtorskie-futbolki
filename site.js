@@ -45,7 +45,7 @@
      Mi Browser и часть встроенных Android-браузеров отдают <video> собственному плееру: кадр выпадает из рамки,
      теряет наклон и получает чужие кнопки. Там, и везде, где ролик не загрузился, те же кадры рисуются на canvas
      из листов film/s/<ролик>-<n>.webp (сетка 4 в ряд, 12 кадров на лист; делает tools/sheets.py). */
-  const SEQ = {"f-rg":{"n":20,"fps":6,"w":432,"h":540},"f-more":{"n":21,"fps":6,"w":432,"h":540},"f-verh":{"n":26,"fps":6,"w":432,"h":540},"f-pros":{"n":11,"fps":6,"w":432,"h":540},"f-money":{"n":36,"fps":6,"w":432,"h":540},"f-ballet":{"n":8,"fps":6,"w":432,"h":540},"b-lama":{"n":39,"fps":8,"w":480,"h":480,"loop":1},"b-dome":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-vedma":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-shep":{"n":44,"fps":8,"w":480,"h":480,"loop":1},"b-mama":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-tyson":{"n":21,"fps":8,"w":480,"h":480,"loop":1},"c-bogw":{"n":59,"fps":8,"w":400,"h":400},"c-dengi":{"n":28,"fps":8,"w":384,"h":480},"c-box":{"n":37,"fps":8,"w":360,"h":408}};
+  const SEQ = {"f-rg":{"n":20,"fps":6,"w":432,"h":540},"f-more":{"n":21,"fps":6,"w":432,"h":540},"f-verh":{"n":26,"fps":6,"w":432,"h":540},"f-pros":{"n":11,"fps":6,"w":432,"h":540},"f-money":{"n":36,"fps":6,"w":432,"h":540},"f-ballet":{"n":8,"fps":6,"w":432,"h":540},"b-lama":{"n":39,"fps":8,"w":480,"h":480,"loop":1},"b-dome":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-vedma":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-shep":{"n":44,"fps":8,"w":480,"h":480,"loop":1},"b-mama":{"n":45,"fps":8,"w":480,"h":480,"loop":1},"b-tyson":{"n":21,"fps":8,"w":480,"h":480,"loop":1},"c-bogw":{"n":59,"fps":8,"w":400,"h":400},"c-dengi":{"n":59,"fps":8,"w":420,"h":526},"c-box":{"n":94,"fps":8,"w":420,"h":476},"c-such":{"n":10,"fps":8,"w":420,"h":336,"loop":1},"c-zdes":{"n":12,"fps":8,"w":420,"h":420,"loop":1},"c-vokrug":{"n":10,"fps":8,"w":420,"h":420,"loop":1},"c-books":{"n":8,"fps":8,"w":420,"h":348,"loop":1}};
   const SEQ_PER = 12, SEQ_COLS = 4;
   const clipKey = (path) => path.slice(path.lastIndexOf("/") + 1).replace(/\.mp4$/, "");
   // ?kino=frames и ?kino=video — принудительный режим для проверки
@@ -1506,7 +1506,7 @@
     const CARDS = {
       such: [[".c", "mb", "m-pink"]],
       bogw: [[".c", "mb", "m-black"]],
-      dengi: [[".c.l0", "mb", "m-teal"], [".c.l1", "mb", "m-silver"]],
+      dengi: [[".c.l0", "mb", "m-silver"], [".c.l1", "mb", "m-teal"], [".c.l2", "mb", "m-silver"]],
       zdes: [[".c", "mt", "m-rose"]],
       books: [[".c:not(.red)", "mb", "m-silver"], [".c.red", "mb", "m-red"]],
       vokrug: [[".c", "mt", "m-white"]],
@@ -1621,10 +1621,29 @@
     };
     // глава фильма: кнопка под описанием
     $$(".ch").forEach((ch) => { const h = $("h2.t:not(.t-sh)", ch); if (h) add(ch, ch.dataset.name || ch.dataset.item || h.dataset.label || h.getAttribute("aria-label"), h.classList.contains("t-dome") ? null : h, !!ch.dataset.name, "price-ch"); });
-    $$(".card").forEach((card) => { const ct = $(".ct", card); if (ct) add($(".card-copy", card), card.dataset.name || ct.getAttribute("aria-label") || plain(ct), ct, !!card.dataset.name); });
+    $$(".card").forEach((card) => { const ct = $(".ct", card); if (ct) add($(".card-copy", card), card.dataset.name || card.dataset.item || ct.getAttribute("aria-label") || plain(ct), ct, !!card.dataset.name); });
     $$(".hang").forEach((li) => { const st = $("figcaption strong", li); if (st) add($("figcaption", li), li.dataset.name || plain(st), st, !!li.dataset.name, "price-sm"); });
     // общие кнопки: первый экран, панель, раздел о ручной работе
     $$("[data-price]").forEach((b) => b.addEventListener("click", () => open(null, "", b)));
+  });
+
+  // «Посмотреть все»: страница мягко уходит вниз, к первой футболке (RUSSIAN GIRL в начале фильма)
+  safe(() => {
+    const w = $("#watch"), film = $("#film");
+    if (!w || !film) return;
+    w.addEventListener("click", (e) => {
+      e.preventDefault();
+      const to = film.getBoundingClientRect().top + scrollY + 2, from = scrollY;
+      if (RM) { scrollTo({ top: to, behavior: "instant" }); return; }
+      const d = Math.min(1600, 700 + Math.abs(to - from) * 0.5), t0 = performance.now();
+      const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      const step = (now) => {
+        const t = Math.min(1, (now - t0) / d);
+        scrollTo({ top: from + (to - from) * ease(t), behavior: "instant" });
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    });
   });
 
   // возврат на страницу (кнопка «назад», вкладка из фона): сцена досчитывает кадр
