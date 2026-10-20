@@ -24,6 +24,10 @@
   const hex = (h) => { const n = parseInt(h.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
   const mix = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
   const rgb = (c) => `rgb(${c[0] | 0},${c[1] | 0},${c[2] | 0})`;
+  // контраст по WCAG; подпись главы держит свой цвет, пока он не бледнее 4.5:1 к фону, иначе к нему подмешивается цвет текста
+  const lumW = (c) => c.reduce((s, x, i) => { x /= 255; return s + [0.2126, 0.7152, 0.0722][i] * (x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4)); }, 0);
+  const contrast = (a, b) => { const x = lumW(a), y = lumW(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const kickFor = (acc, ink, bg, t0) => { for (let t = t0; t < 1; t += 0.1) { const c = mix(acc, ink, t); if (contrast(c, bg) >= 4.5) return c; } return ink; };
 
   /* ——— единый цикл кадров: подписчики сами говорят, нужен ли им следующий кадр ——— */
   const tasks = new Set();
@@ -525,7 +529,8 @@
         const bg = dark ? c.bgD : c.bgL;
         const lum = (v) => v[0] * 0.299 + v[1] * 0.587 + v[2] * 0.114;
         c.el.classList.toggle("dk", lum(bg) < 110);
-        if (Math.abs(lum(c.acc) - lum(bg)) < 64) c.el.style.setProperty("--kick", rgb(dark ? c.inkD : c.inkL)); else c.el.style.removeProperty("--kick");
+        const ink = dark ? c.inkD : c.inkL;
+        c.el.style.setProperty("--kick", rgb(Math.abs(lum(c.acc) - lum(bg)) < 64 ? ink : kickFor(c.acc, ink, bg, 0.3)));
       });
       lastCi = -1; lastBg = "";
     }
@@ -788,6 +793,7 @@
         ch.style.setProperty("--acc", ch.dataset.acc);
         const bg = hex((dark && ch.dataset.bgD) || ch.dataset.bg);
         ch.classList.toggle("dk", (bg[0] * 0.299 + bg[1] * 0.587 + bg[2] * 0.114) < 110);
+        ch.style.setProperty("--kick", rgb(kickFor(hex(ch.dataset.acc), hex((dark && ch.dataset.inkD) || ch.dataset.ink), bg, 0)));
       });
     };
     doc.classList.add("tinted");
