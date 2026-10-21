@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <!-- Политика безопасности: всё только со своего адреса. Хеш — от скрипта темы ниже; проверяется перед выкладкой (.github/check.mjs) -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-Q76cxhXzjaX4IL7EVI3vxh28QZDhu/JY64JtY/qLwhI='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-hvsJOlk3RrBAcc1N1bdWkWTw+yZ1rD6K8uTB6OLfVX0='; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none';">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Авторские футболки — вышивка и бисер вручную</title>
 <meta name="description" content="Футболки, вышитые вручную: стеклярус, бисер, гладь. RUSSIAN GIRL, МОРЕ, Верховная ведьма, MONEYпуляторша и другие надписи. Короткие серии, ручная работа.">
@@ -26,12 +26,12 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/oswald-v-cyrillic-735e90.woff2">
 <link rel="preload" as="font" type="font/woff2" crossorigin href="fonts/manrope-cyrillic-d8fc94.woff2">
-<link rel="preload" as="script" href="site.js?v=20261021a">
-<link rel="stylesheet" href="styles.css?v=20261021a">
+<link rel="preload" as="script" href="site.js?v=20261021c">
+<link rel="stylesheet" href="styles.css?v=20261021c">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Organization", "name": "Авторские футболки Иры Кияевой", "url": "https://jocehabuwa643-svg.github.io/avtorskie-futbolki/", "description": "Футболки с вышивкой и бисером ручной работы, короткие серии", "image": "https://jocehabuwa643-svg.github.io/avtorskie-futbolki/film/og.jpg", "founder": {"@type": "Person", "name": "Ира Кияева"}, "sameAs": ["https://www.instagram.com/kiyaeva_irina/", "https://vk.ru/i.kiaeva"]}</script>
 <script>
 (function(){var d=document.documentElement;try{var t=localStorage.getItem("kiyaeva-theme");d.setAttribute("data-theme",t==="light"||t==="dark"?t:"system");}catch(e){}
-d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)d.classList.add("rm");
+d.classList.add("js");if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("rm-sys");var m=null;try{m=localStorage.getItem("kiyaeva-motion");}catch(e){}if(m!=="on")d.classList.add("rm");}
 document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)d.classList.remove("js");});})();
 </script>
 </head>
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
 
   <div class="cards" id="cards">
     <article class="card wide" data-from="left" data-fx="such">
-      <div class="card-media r54"><video data-src="film/c-such.mp4" poster="film/c-such.jpg" muted playsinline loop preload="none" aria-label="Серая футболка: по сучьему велению розовым бисером"></video></div>
+      <div class="card-media r54"><video data-src="film/c-such.mp4" data-poster="film/c-such.jpg" muted playsinline loop preload="none" aria-label="Серая футболка: по сучьему велению розовым бисером"></video></div>
       <div class="card-copy">
         <h3 class="ct f-ruslan" style="--h:#a8475b;--hd:#e9bcc2">по сучьему<br>ВЕЛЕНИЮ</h3>
         <p>Розовый бисер на сером: верхняя строка с наклоном, нижняя — прямо и крупно. Сказочная интонация с очень взрослым характером.</p>
@@ -230,7 +230,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
     </article>
 
     <article class="card" data-from="right" data-fx="bogw">
-      <div class="card-media r1"><video data-src="film/c-bogw.mp4" poster="film/c-bogw.jpg" muted playsinline loop preload="none" aria-label="Белая футболка: Богиня крупными буквами из чёрного стекляруса"></video></div>
+      <div class="card-media r1"><video data-src="film/c-bogw.mp4" data-poster="film/c-bogw.jpg" muted playsinline loop preload="none" aria-label="Белая футболка: Богиня крупными буквами из чёрного стекляруса"></video></div>
       <div class="card-copy">
         <h3 class="ct f-yeseva">Богиня</h3>
         <p>Объёмные буквы из чёрного стекляруса на белом, и каждая бусина ловит свет. Добавить тут нечего — всё уже сказано.</p>
@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
     </article>
 
     <article class="card" data-from="left" data-fx="dengi" data-item="Срочно нужны деньги на ветер">
-      <div class="card-media r45"><video data-src="film/c-dengi.mp4" poster="film/c-dengi.jpg" muted playsinline loop preload="none" aria-label="Белая футболка: срочно нужны деньги на ветер серебряным и бирюзовым стеклярусом, с нитями бусин"></video></div>
+      <div class="card-media r45"><video data-src="film/c-dengi.mp4" data-poster="film/c-dengi.jpg" muted playsinline loop preload="none" aria-label="Белая футболка: срочно нужны деньги на ветер серебряным и бирюзовым стеклярусом, с нитями бусин"></video></div>
       <div class="card-copy">
         <h3 class="ct f-kurale ct-dengi" style="--h:#129c95;--hd:#3fc7bf" aria-label="Срочно нужны деньги на ветер">срочно нужны<br>Деньги<br>на ветер</h3>
         <p>Серебро и бирюза стекляруса, а с «денег» свисают нити бусин. Самая честная просьба сезона — и самая блестящая.</p>
@@ -248,7 +248,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
     </article>
 
     <article class="card wide" data-from="right" data-fx="zdes">
-      <div class="card-media r1"><video data-src="film/c-zdes.mp4" poster="film/c-zdes.jpg" muted playsinline loop preload="none" aria-label="Варёная серая футболка: Я здесь только ради денег розовой нитью"></video></div>
+      <div class="card-media r1"><video data-src="film/c-zdes.mp4" data-poster="film/c-zdes.jpg" muted playsinline loop preload="none" aria-label="Варёная серая футболка: Я здесь только ради денег розовой нитью"></video></div>
       <div class="card-copy">
         <h3 class="ct f-marck" style="--h:#d6408a;--hd:#f07ab2">Я здесь только<br>ради денег</h3>
         <p>Розовая нить и рукописный почерк с наклоном на варёной серой ткани. Честность, к которой невозможно придраться.</p>
@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
     </article>
 
     <article class="card" data-from="up" data-fx="books">
-      <div class="card-media r65"><video data-src="film/c-books.mp4" poster="film/c-books.jpg" muted playsinline loop preload="none" aria-label="Варёная футболка БОЛЬШЕ КНИГ серебряным стеклярусом с красными стразами"></video></div>
+      <div class="card-media r65"><video data-src="film/c-books.mp4" data-poster="film/c-books.jpg" muted playsinline loop preload="none" aria-label="Варёная футболка БОЛЬШЕ КНИГ серебряным стеклярусом с красными стразами"></video></div>
       <div class="card-copy">
         <h3 class="ct f-comfortaa">БОЛЬШ<i>Е</i><br>КНИГ</h3>
         <p>Серебряный стеклярус, последняя «Е» красная, вокруг россыпь красных страз. Для тех, кто читает больше, чем листает ленту.</p>
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
     </article>
 
     <article class="card wide" data-from="left" data-fx="vokrug">
-      <div class="card-media r1"><video data-src="film/c-vokrug.mp4" poster="film/c-vokrug.jpg" muted playsinline loop preload="none" aria-label="Тёмная варёная футболка: ВОКРУГ ПИ*ДЕЦ, А Я СИЯЮ белой нитью"></video></div>
+      <div class="card-media r1"><video data-src="film/c-vokrug.mp4" data-poster="film/c-vokrug.jpg" muted playsinline loop preload="none" aria-label="Тёмная варёная футболка: ВОКРУГ ПИ*ДЕЦ, А Я СИЯЮ белой нитью"></video></div>
       <div class="card-copy">
         <h3 class="ct f-philo">ВОКРУГ ПИ*ДЕЦ,<br>А Я СИЯЮ</h3>
         <p>Белая нить на тёмной варёной ткани, слово — ровно как вышито. Спокойное сияние посреди любого хаоса.</p>
@@ -348,7 +348,7 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
 
 
 <footer class="end" id="order">
-  <div class="end-media"><video data-src="film/c-box.mp4" poster="film/c-box.jpg" muted playsinline loop preload="none" aria-label="Худи ВЕРХОВНАЯ ВЕДЬМА заворачивают в бумагу, кладут в коробку и завязывают золотой лентой"></video><p class="end-cap">Так вещь приходит к вам: в бумаге, в коробке, с лентой — как подарок.</p></div>
+  <div class="end-media"><video data-src="film/c-box.mp4" data-poster="film/c-box.jpg" muted playsinline loop preload="none" aria-label="Худи ВЕРХОВНАЯ ВЕДЬМА заворачивают в бумагу, кладут в коробку и завязывают золотой лентой"></video><p class="end-cap">Так вещь приходит к вам: в бумаге, в коробке, с лентой — как подарок.</p></div>
   <div class="end-copy">
     <p class="kicker">про автора</p>
     <h2 class="serif rv">Ира Кияева. <span class="nb">Настоящая авторская работа.</span></h2>
@@ -396,6 +396,6 @@ document.addEventListener("DOMContentLoaded",function(){if(!window.kiyaevaReady)
   </a>
 </p>
 
-<script src="site.js?v=20261021a"></script>
+<script src="site.js?v=20261021c"></script>
 </body>
 </html>

@@ -56,7 +56,10 @@
   const kino = (() => { try { return new URLSearchParams(location.search).get("kino"); } catch (e) { return null; } })();
   // если в прошлый раз браузер сам запустил ролик своим плеером, это запомнено (см. videoTaken)
   const tookBefore = (() => { try { if (kino === "video") localStorage.removeItem("kiyaeva-kino"); return localStorage.getItem("kiyaeva-kino") === "frames"; } catch (e) { return false; } })();
-  const NOVIDEO = kino === "frames" || (kino !== "video" && (tookBefore || /MiuiBrowser|XiaoMi\/|UCBrowser|UBrowser|MQQBrowser|QQBrowser|Quark\/|HuaweiBrowser|HeyTapBrowser|OppoBrowser|VivoBrowser|baidubrowser|baiduboxapp|SogouMobileBrowser|2345Browser|Opera Mini/i.test(navigator.userAgent)));
+  // экономия трафика или совсем медленная сеть (2G): листы кадров вдвое легче роликов, и вместо стоящего постера будет движение
+  // (только на этот заход). «3g» не берём: браузер ставит его и обычной сети с большой задержкой, а видео заметно лучше кадров
+  const SLOWNET = (() => { try { const c = navigator.connection; return !!c && (c.saveData === true || /^(slow-2g|2g)$/.test(c.effectiveType || "")); } catch (e) { return false; } })();
+  const NOVIDEO = kino === "frames" || (kino !== "video" && (tookBefore || SLOWNET || /MiuiBrowser|XiaoMi\/|UCBrowser|UBrowser|MQQBrowser|QQBrowser|Quark\/|HuaweiBrowser|HeyTapBrowser|OppoBrowser|VivoBrowser|baidubrowser|baiduboxapp|SogouMobileBrowser|2345Browser|Opera Mini/i.test(navigator.userAgent)));
   if (NOVIDEO) doc.classList.add("novideo");
   // блик по бусинам (--sx) и золотая кромка кнопки (--pa) двигаются только там, где свойство можно анимировать плавно
   if (window.CSS && CSS.registerProperty) {
@@ -105,17 +108,21 @@
     };
     return {
       n: m.n, fps: m.fps,
+      // листы по очереди: первым нужен лист 0, остальные не делят с ним канал
       load(onready) {
-        for (let s = 0; s * SEQ_PER < m.n; s++) {
-          if (sheets[s]) continue;
+        const next = (s) => {
+          if (s * SEQ_PER >= m.n) return;
+          if (sheets[s]) { if (sheets[s].complete) next(s + 1); return; }
           const im = new Image();
           im.decoding = "async";
-          im.onload = onready;
+          im.onload = () => { onready(); next(s + 1); };
+          im.onerror = () => next(s + 1);
           im.src = `film/s/${key}-${s}.webp`;
           sheets[s] = im;
-        }
+        };
+        next(0);
       },
-      unload() { sheets.length = 0; shown = ""; },
+      unload() { sheets.forEach((im) => { if (im && !im.complete) { im.onload = im.onerror = null; im.removeAttribute("src"); } }); sheets.length = 0; shown = ""; },
       // pos — номер кадра с дробью. blend: в движении соседние кадры смешиваются, в покое стоит один чёткий
       draw(pos, blend, wrap) {
         if (m.loop) {
@@ -157,7 +164,8 @@
     c.className = v.className;
     c.setAttribute("role", "img");
     if (v.getAttribute("aria-label")) c.setAttribute("aria-label", v.getAttribute("aria-label"));
-    if (v.poster) c.style.background = `url("${v.getAttribute("poster")}") center / cover no-repeat`;
+    const poster = v.getAttribute("poster") || v.dataset.poster;
+    if (poster) c.style.background = `url("${poster}") center / cover no-repeat`;
     v.replaceWith(c);
     const st = { on: false, t: 0 };
     const step = (now, dt) => {
@@ -180,7 +188,11 @@
   const loopOf = (el) => loops.get(el) || {
     el,
     get paused() { return el.paused; },
-    play() { if (!el.src && el.dataset.src) el.src = el.dataset.src; const pr = el.play(); pr && pr.catch && pr.catch(() => {}); },
+    play() {
+      if (!el.getAttribute("poster") && el.dataset.poster) el.poster = el.dataset.poster;
+      if (!el.src && el.dataset.src) el.src = el.dataset.src;
+      const pr = el.play(); pr && pr.catch && pr.catch(playFailed);
+    },
     pause() { el.pause(); },
   };
   // ролик не загрузился (кодек, сеть, режим экономии) или его забрал плеер браузера: тихо переходим на кадры
@@ -202,20 +214,24 @@
   // значит, он отдал видео своему плееру. Убираем всё видео со страницы и запоминаем это на будущие заходы.
   const onVideoTaken = [];
   let videoGone = NOVIDEO;
-  function videoTaken() {
+  function videoTaken() { toFrames(true); }
+  // remember — запомнить на будущие заходы (плеер браузера отобрал видео); запрет автозапуска бывает временным
+  function toFrames(remember) {
     if (videoGone) return;
     videoGone = true;
-    try { localStorage.setItem("kiyaeva-kino", "frames"); } catch (e) { /* приватный режим */ }
+    if (remember) { try { localStorage.setItem("kiyaeva-kino", "frames"); } catch (e) { /* приватный режим */ } }
     doc.classList.add("novideo");
     onVideoTaken.forEach((fn) => fn());
     Array.from(loopSwaps.values()).forEach((swap) => swap());
     wake();
   }
+  // автозапуск запрещён (энергосбережение iPhone, экономия данных, запрет в настройках): на этот заход — кадры из листов.
+  // AbortError не считается: его даёт и обычная смена src при выгрузке ролика
+  function playFailed(err) { if (err && err.name === "NotAllowedError") toFrames(false); }
 
   /* ——— тема ——— */
   const themeBtn = $("#theme");
   const themeNames = { system: "Система", light: "Светлая", dark: "Тёмная" };
-  const themeOrder = ["system", "light", "dark"];
   function syncTheme() {
     const t = doc.getAttribute("data-theme") || "system";
     themeBtn.querySelector("span").textContent = themeNames[t];
@@ -226,7 +242,9 @@
   }
   themeBtn.addEventListener("click", () => {
     const cur = doc.getAttribute("data-theme") || "system";
-    const next = themeOrder[(themeOrder.indexOf(cur) + 1) % themeOrder.length];
+    const sys = mqDark.matches ? "dark" : "light", other = sys === "dark" ? "light" : "dark";
+    // первое нажатие всегда меняет вид: система → противоположная → как в системе → снова «система»
+    const next = cur === "system" ? other : cur === other ? sys : "system";
     doc.setAttribute("data-theme", next);
     try { localStorage.setItem("kiyaeva-theme", next); } catch (e) { /* приватный режим */ }
     syncTheme();
@@ -374,6 +392,7 @@
     d.className = `${h.className} t-sh`;
     d.setAttribute("aria-hidden", "true");
     d.innerHTML = h.innerHTML;
+    $$("[id]", d).forEach((e) => e.removeAttribute("id"));
     $$(".sp, .bub", d).forEach((e) => e.remove());
     const src = $(".stitch-svg", h), dst = $(".stitch-svg", d);
     if (src && dst) dst.style.width = src.style.width;
@@ -383,13 +402,14 @@
   // текст надписи для экранного диктора: переносы строк читаются как пробелы
   const plain = (el) => el.innerHTML.replace(/<br\s*\/?>/gi, " ").replace(/<\/(span|small)>/gi, " ").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
   const heads = $$(".t");
-  heads.forEach((h) => {
+  heads.forEach((h) => safe(() => {
     h.setAttribute("aria-label", h.dataset.label || plain(h));
     const kind = h.dataset.reveal;
     if (kind === "stitch") buildStitch(h);
     else if (kind === "emblem") { /* рисунок с футболки: анимация целиком в CSS */ }
     else if (kind === "write" || kind === "glass") splitLines(h);
     else splitLetters(h);
+    Array.from(h.children).forEach((el) => el.setAttribute("aria-hidden", "true"));
     // живые детали материала: блики на стеклярусе, пузырьки в просекко
     const deco = (n, cls) => { for (let k = 0; k < n; k++) { const el = document.createElement("i"); el.className = cls; el.style.setProperty("--k", k); el.setAttribute("aria-hidden", "true"); h.appendChild(el); } };
     deco(+h.dataset.sparks || 0, "sp");
@@ -399,14 +419,29 @@
     const tk = document.createElement("div"); tk.className = "tk";
     h.parentNode.insertBefore(tw, h); tw.appendChild(tk); tk.appendChild(h);
     addFx(h, tk);
-  });
+  }, () => {}));
   // описание под надписью появляется по словам
+  const NB = String.fromCharCode(160);
+  const short = (w) => /^[а-яё]{1,2}$/i.test(w);
   $$(".ch .deck").forEach((d) => {
-    const words = d.textContent.trim().split(/\s+/);
-    d.setAttribute("aria-label", words.join(" "));
+    const raw = d.textContent.trim().split(/\s+/);
+    const words = [];
+    raw.forEach((w) => {
+      const k = words.length - 1;
+      if (k >= 0 && (short(words[k].split(NB).pop()) || w === "—")) words[k] += NB + w; else words.push(w);
+    });
     d.textContent = "";
     words.forEach((w, k) => { const sp = document.createElement("span"); sp.className = "dw"; sp.setAttribute("aria-hidden", "true"); sp.style.setProperty("--i", k); sp.textContent = w; d.appendChild(sp); d.appendChild(document.createTextNode(" ")); });
+    const sr = document.createElement("span"); sr.className = "vh"; sr.textContent = raw.join(" "); d.appendChild(sr);
   });
+  // то же правило в обычных абзацах: меняем только текстовые узлы, разметка внутри остаётся
+  safe(() => {
+    const nb = (t) => t.replace(/(^|\s)([а-яё]{1,2}) +/gi, `$1$2${NB}`).replace(/ +—/g, `${NB}—`);
+    $$(".intro-lede, .lede, .card-copy p, .craft-list span, .end-cap, .end-copy p").forEach((el) => {
+      const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+      for (let n = tw.nextNode(); n; n = tw.nextNode()) n.nodeValue = nb(nb(n.nodeValue));
+    });
+  }, () => {});
 
   /* подгонка кегля: надпись влезает в колонку целиком, без переносов внутри слов */
   function fitHeads() {
@@ -516,7 +551,7 @@
 
     let unit = 0, filmTop = 0, filmH = 0, vh = innerHeight, vw = innerWidth, spineH = 0, small = false;
     let p = 0, pT = 0, active = false, fontsReady = false;
-    let lastBg = "", lastCi = -1, lastDark = null, lastNav = -1, lastBead = -1;
+    let lastBg = "", lastCi = -1, lastDark = null, lastNav = -1, lastBead = -1, lastCue = null;
 
     // цвет текста и акцента у главы свой и постоянный: меняется только фон сцены,
     // поэтому при смыве цвета браузер не пересчитывает стили у сотен букв
@@ -568,6 +603,8 @@
         c.fr.style.left = `${Math.round(left)}px`; c.fr.style.top = `${Math.round(top)}px`;
         c.tr = "";
       });
+      // на телефоне подсказка стоит у нижнего края первой рамки (vh в CSS — высота без адресной строки, не совпадает с окном)
+      if (cue) cue.style.setProperty("--cue-y", small ? `${Math.round(74 + chapters[0].fh - 56)}px` : "");
     }
 
     // ролик не пошёл (кодек, сеть, режим экономии): тот же кадр рисуем из листов
@@ -622,7 +659,7 @@
       s.priming = true;
       const done = () => setTimeout(() => { s.priming = false; }, 400);
       const pr = s.el.play();
-      if (pr && pr.then) pr.then(() => { s.el.pause(); done(); }).catch(done); else done();
+      if (pr && pr.then) pr.then(() => { s.el.pause(); done(); }).catch((e) => { done(); playFailed(e); }); else done();
     }
     onVideoTaken.push(() => shots.forEach((s) => { if (s.vid) { try { s.el.pause(); } catch (e) { /* ничего */ } toFlip(s); } }));
     const pauseLoops = () => shots.forEach((s) => { if (s.loop && s.vid && !s.el.paused) s.el.pause(); });
@@ -708,7 +745,7 @@
           // глава-петля: модель двигается сама, скролл её не перематывает
           const want = !document.hidden && o * ch.o > 0.2;
           if (s.vid) {
-            if (s.loaded && want && s.el.paused) { const pr = s.el.play(); if (pr && pr.catch) pr.catch(() => {}); }
+            if (s.loaded && want && s.el.paused) { const pr = s.el.play(); if (pr && pr.catch) pr.catch(playFailed); }
             else if (!want && !s.el.paused) s.el.pause();
           } else if (s.flip && s.loaded && want) {
             s.t = (s.t || 0) + dt;
@@ -735,12 +772,18 @@
         const ch = chapters[i];
         const u = (p - ch.a) / ch.len;
         const lastCh = i === chapters.length - 1;
-        const on = fontsReady && (i === 0 ? u < 0.86 : u >= 0.1 && (lastCh || u < 0.88));
+        // запас на границах: короткий рывок пальцем назад не запускает вход надписи заново
+        const lo = ch.on ? 0.04 : 0.1, hi = ch.on ? 0.94 : 0.88;
+        const on = fontsReady && (i === 0 ? u < (ch.on ? 0.93 : 0.86) : u >= lo && (lastCh || u < hi));
+        const past = u > 0.5;
+        if (past !== ch.past) { ch.el.classList.toggle("past", past); ch.past = past; }
         const live = u > -0.6 && u < 1.6;
         if (live !== ch.live) { ch.el.classList.toggle("live", live); ch.live = live; }
         if (on !== ch.on) { ch.el.classList.toggle("on", on); ch.on = on; }
       }
 
+      const cueOff = p > 0.12;
+      if (cueOff !== lastCue) { stage.classList.toggle("cue-off", cueOff); lastCue = cueOff; }
       const by = Math.round((p / total) * spineH);
       if (by !== lastBead && beadEl) { beadEl.style.transform = `translate3d(0,${by}px,0)`; lastBead = by; }
       const inView = scrollY < filmTop + filmH - vh * 0.5 ? 1 : 0;
@@ -775,15 +818,7 @@
     };
   }, () => doc.classList.remove("film-on"));
 
-  // подсказка «листай» видна только в самом начале
-  safe(() => {
-    let was = null;
-    const sync = () => { const s = scrollY > 24; if (s !== was) { doc.classList.toggle("scrolled", s); was = s; } };
-    addEventListener("scroll", sync, { passive: true });
-    sync();
-  });
-
-  if (!Film) {
+  if (!Film) safe(() => {
     // меньше движения или нет сцены: главы по очереди, каждая на своём цвете
     const tint = () => {
       const dark = isDark();
@@ -813,9 +848,32 @@
       vid.setAttribute("aria-label", "Короткий фрагмент, нажмите для просмотра");
       vid.style.cssText = "width:100%;height:auto;border-radius:28px;cursor:pointer";
       vid.addEventListener("click", () => { if (!vid.src) vid.src = `${v.v}.mp4`; vid.paused ? vid.play().catch(() => {}) : vid.pause(); });
-      fig.replaceChildren(vid);
+      fig.textContent = ""; fig.appendChild(vid);
     });
-  }
+  }, () => {});
+
+  // постеры роликов ниже первого экрана: ставим, когда до ролика остался экран
+  safe(() => {
+    const io = new IntersectionObserver((es) => es.forEach((e) => {
+      if (!e.isIntersecting) return;
+      const v = e.target;
+      if (!v.getAttribute("poster")) v.poster = v.dataset.poster;
+      io.unobserve(v);
+    }), { rootMargin: "100% 0px" });
+    $$("video[data-poster]").forEach((v) => io.observe(v));
+  }, () => {});
+
+  // в настройках телефона выключена анимация: сайт по умолчанию статичный, но её можно включить для этого сайта
+  safe(() => {
+    if (!doc.classList.contains("rm-sys")) return;
+    const host = $(".intro-cta");
+    if (!host) return;
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "motion-toggle";
+    b.textContent = RM ? "Анимация выключена в настройках телефона — включить" : "Выключить анимацию";
+    b.addEventListener("click", () => { try { localStorage.setItem("kiyaeva-motion", RM ? "on" : "off"); } catch (e) { /* приватный режим */ } location.reload(); });
+    host.appendChild(b);
+  }, () => {});
 
   /* ——— Крупно: название крупно, вылет по теме вещи, рядом кружат её предметы ——— */
   const Cards = safe(() => {
@@ -891,6 +949,7 @@
       }
       const all = $$(".c", ct);
       all.forEach((c, k) => c.style.setProperty("--ci", Math.abs(k - (all.length - 1) / 2).toFixed(1)));
+      $$(".w", ct).forEach((w) => w.setAttribute("aria-hidden", "true"));
 
       // обёртка: держит наклон, размер и всё, что кружит вокруг названия
       const cw = mk("div", "cw"); cw.removeAttribute("aria-hidden");
@@ -1014,6 +1073,8 @@
         }
       };
       walk(h);
+      // длинный заголовок собирается за ~0,5 с: шаг между буквами короче, короткие остаются с 34 мс
+      h.style.setProperty("--st", `${Math.min(34, 520 / Math.max(1, i - 1)).toFixed(1)}ms`);
     });
     const blocks = $$(".close-head, .rack-head, .end-copy, .end-media, .craft-head, .craft-grid, .craft-cta");
     const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("seen"); io.unobserve(e.target); } }), { threshold: 0.2, rootMargin: "0px 0px -6% 0px" });
@@ -1022,6 +1083,8 @@
     // первый экран: футболки покачиваются, только пока он виден
     const intro = $("#intro");
     if (intro) new IntersectionObserver(([e]) => intro.classList.toggle("live", e.isIntersecting), { rootMargin: "5% 0px" }).observe(intro);
+    const cta = $(".craft-cta");
+    if (cta) new IntersectionObserver(([e]) => cta.classList.toggle("live", e.isIntersecting), { rootMargin: "5% 0px" }).observe(cta);
     const ctas = $("#ctas");
     if (ctas) new IntersectionObserver(([e]) => ctas.classList.toggle("live", e.isIntersecting), { rootMargin: "10% 0px" }).observe(ctas);
     // палец на подписи разработчика нажимает только пока подпись видна
@@ -1374,7 +1437,10 @@
         s.ready = true;
         wake();
       };
-      if (im.decode) im.decode().then(done, () => { im.onload = done; }); else im.onload = done;
+      // текстура не расшифровалась (мало памяти, сбой сети): показываем обычную картинку, а не пустую вешалку
+      const giveUp = () => { s.img.style.opacity = "1"; };
+      const retry = () => { if (im.complete && im.naturalWidth) done(); else { im.onload = done; im.onerror = giveUp; } };
+      if (im.decode) im.decode().then(done, retry); else { im.onload = done; im.onerror = giveUp; }
     }
 
     const data = new Float32Array(NX * NY * 5);
@@ -1535,24 +1601,29 @@
   safe(() => {
     const ig = $(".coin.ig"), vk = $(".coin.vk");
     if (!ig || !vk) return;
-    let box = null, veil, nameEl, ta, okEl, opener = null, root;
+    let box = null, veil, nameEl, ta, okEl, opener = null, root, hideT = 0, viaHist = false;
+    // «скопировано» — только когда буфер действительно принял текст
+    const say = (ok) => { okEl.textContent = ok ? "Вопрос скопирован. Вставьте его в сообщение Ире." : "Не получилось скопировать: выделите текст и скопируйте сами."; };
+    const legacy = () => { try { ta.select(); return document.execCommand("copy"); } catch (e) { return false; } };
     const copy = () => {
-      const text = ta.value;
-      const legacy = () => { ta.focus(); ta.select(); try { return document.execCommand("copy"); } catch (e) { return false; } };
-      let ok = false;
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).catch(legacy); ok = true; }
+        if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(ta.value).then(() => say(true), () => say(legacy())); return; }
       } catch (e) { /* закрыто политикой: пробуем по-старому */ }
-      if (!ok) ok = legacy();
-      okEl.textContent = ok ? "Вопрос скопирован. Вставьте его в сообщение Ире." : "Не получилось скопировать: выделите текст и скопируйте сами.";
-      return ok;
+      say(legacy());
     };
-    const close = () => {
-      if (!root || root.hidden) return;
+    // пока листок открыт, страница под ним недоступна ни пальцу, ни диктору
+    const bgInert = (on) => Array.from(document.body.children).forEach((el) => { if (el !== root && el.tagName !== "SCRIPT") el.inert = on; });
+    const close = (fromPop) => {
+      if (!root || root.hidden || !root.classList.contains("open")) return;
       root.classList.remove("open");
-      setTimeout(() => { root.hidden = true; }, RM ? 0 : 320);
-      if (opener && opener.focus) opener.focus();
+      bgInert(false);
+      clearTimeout(hideT); hideT = setTimeout(() => { root.hidden = true; }, RM ? 0 : 320);
+      if (opener && opener.focus) opener.focus({ preventScroll: true });
+      // листок открывался с записью в истории: закрыли крестиком — убираем запись, чтобы «назад» не открыл пустое
+      if (viaHist && fromPop !== true) { viaHist = false; history.back(); }
     };
+    // «назад» на Android и жест на iPhone закрывают листок, а не уводят с сайта
+    addEventListener("popstate", () => { if (viaHist) { viaHist = false; close(true); } });
     const build = () => {
       root = document.createElement("div");
       root.className = "ask"; root.hidden = true;
@@ -1579,10 +1650,14 @@
       $(".ask-x", root).addEventListener("click", close);
       $(".ask-copy", root).addEventListener("click", copy);
       $$(".ask-btn", root).forEach((a) => a.addEventListener("click", copy));
-      // страница под листком не едет
-      const stop = (e) => e.preventDefault();
-      veil.addEventListener("wheel", stop, { passive: false });
-      veil.addEventListener("touchmove", stop, { passive: false });
+      // страница под листком не едет: листается только сам листок (если он выше экрана) и поле вопроса
+      const stop = (e) => {
+        if (e.target === ta) return;
+        if (box.contains(e.target) && box.scrollHeight > box.clientHeight + 1) return;
+        e.preventDefault();
+      };
+      root.addEventListener("wheel", stop, { passive: false });
+      root.addEventListener("touchmove", stop, { passive: false });
       root.addEventListener("keydown", (e) => {
         if (e.key === "Escape") { close(); return; }
         if (e.key !== "Tab") return;
@@ -1610,9 +1685,12 @@
         ta.value = `Здравствуйте, Ира! Сколько стоит футболка ${desc ? name : `«${name}»`}? Мой размер: `;
       }
       okEl.textContent = "";
+      clearTimeout(hideT);
       root.hidden = false;
       void root.offsetWidth; // чтобы переход сработал с начального состояния
       root.classList.add("open");
+      bgInert(true);
+      if (!viaHist) { try { history.pushState({ ask: 1 }, ""); viaHist = true; } catch (e) { /* без истории: закроется крестиком */ } }
       box.focus();
     };
     const fontOf = (el) => (el ? getComputedStyle(el).fontFamily : "");
@@ -1637,6 +1715,10 @@
   safe(() => {
     const w = $("#watch"), film = $("#film");
     if (!w || !film) return;
+    let anim = 0;
+    const stopAnim = () => { if (anim) { cancelAnimationFrame(anim); anim = 0; } };
+    // посетитель взялся листать сам: спуск не спорит с пальцем
+    ["touchstart", "wheel", "keydown"].forEach((t) => addEventListener(t, stopAnim, { passive: true }));
     w.addEventListener("click", (e) => {
       e.preventDefault();
       const to = film.getBoundingClientRect().top + scrollY + 2, from = scrollY;
@@ -1646,9 +1728,9 @@
       const step = (now) => {
         const t = Math.min(1, (now - t0) / d);
         scrollTo({ top: from + (to - from) * ease(t), behavior: "instant" });
-        if (t < 1) requestAnimationFrame(step);
+        anim = t < 1 ? requestAnimationFrame(step) : 0;
       };
-      requestAnimationFrame(step);
+      stopAnim(); anim = requestAnimationFrame(step);
     });
   });
 
@@ -1657,8 +1739,14 @@
   document.addEventListener("visibilitychange", () => { if (!document.hidden) wake(); });
 
   /* ——— шрифты готовы: подгоняем кегли и запускаем интро ——— */
-  const ready = () => { Film && Film.measure(); fitHeads(); Cards && Cards.fit(); Film && Film.fontsReady(); wake(); };
-  fitHeads();
+  // главы открываются первыми: сбой подгонки кегля не прячет надписи
+  const ready = () => {
+    if (Film) Film.fontsReady();
+    safe(() => { if (Film) Film.measure(); fitHeads(); }, () => {});
+    safe(() => { if (Cards) Cards.fit(); }, () => {});
+    wake();
+  };
+  safe(fitHeads, () => {});
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(ready);
     setTimeout(ready, 2500);

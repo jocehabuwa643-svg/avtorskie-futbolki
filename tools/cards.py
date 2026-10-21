@@ -19,6 +19,7 @@ CLIPS = {
 }
 SHEET_FPS, PER, COLS = 8, 12, 4
 
+# -r 24 и -level:v 4.0 у кодировщика: без них склейка «туда-обратно» объявляет уровень 6.2 (8K), и часть телефонов ролик не берёт
 def run(*a): subprocess.run([FF, "-hide_banner", "-loglevel", "error", "-y", *a], check=True)
 
 def build(key):
@@ -31,7 +32,7 @@ def build(key):
         fc = (f"[0:v]trim=start={t0}:duration={dur},setpts=PTS-STARTPTS,{base},split[a][b];"
               f"[b]reverse,trim=start_frame=1,setpts=PTS-STARTPTS[r];[a][r]concat=n=2:v=1:a=0,trim=end_frame={2 * n - 2},setpts=PTS-STARTPTS[v]")
         run("-i", src, "-filter_complex", fc, "-map", "[v]", "-an", "-c:v", "libx264", "-profile:v", "high", "-preset", "slow",
-            "-crf", "24", "-g", "48", "-movflags", "+faststart", out)
+            "-crf", "24", "-g", "48", "-r", "24", "-level:v", "4.0", "-movflags", "+faststart", out)
     else:
         # наплыв: сначала ровный отрезок 24 к/с во временный файл (xfade нужна постоянная частота кадров), потом склейка хвоста с головой
         x = 0.6
@@ -40,7 +41,7 @@ def build(key):
         fc = (f"[0:v]trim=start={x},setpts=PTS-STARTPTS,fps=24[body];[1:v]trim=duration={x},setpts=PTS-STARTPTS,fps=24[head];"
               f"[body][head]xfade=transition=fade:duration={x}:offset={dur - 2 * x:.3f},format=yuv420p[v]")
         run("-i", mid, "-i", mid, "-filter_complex", fc, "-map", "[v]", "-an", "-c:v", "libx264", "-profile:v", "high", "-preset", "slow",
-            "-crf", "24", "-g", "48", "-movflags", "+faststart", out)
+            "-crf", "24", "-g", "48", "-r", "24", "-level:v", "4.0", "-movflags", "+faststart", out)
         os.remove(mid)
     run("-i", out, "-frames:v", "1", "-q:v", "3", os.path.join(FILM, key + ".jpg"))
     # листы для браузеров без видео: у «туда-обратно» только прямой ход (обратный строит скрипт), у «наплыва» — весь цикл

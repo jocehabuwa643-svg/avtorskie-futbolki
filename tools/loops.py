@@ -34,7 +34,7 @@ def build(key):
     fc = (f"[0:v]trim=start={t0}:duration={dur},setpts=PTS-STARTPTS,fps=24,{scale},format=yuv420p,split[a][b];"
           f"[b]reverse,trim=start_frame=1,setpts=PTS-STARTPTS[r];[a][r]concat=n=2:v=1:a=0,trim=end_frame={int(dur*24)*2-2},setpts=PTS-STARTPTS[v]")
     run("-i", src, "-filter_complex", fc, "-map", "[v]", "-an", "-c:v", "libx264", "-profile:v", "high", "-preset", "slow",
-        "-crf", "25", "-g", "48", "-movflags", "+faststart", out)
+        "-crf", "25", "-g", "48", "-r", "24", "-level:v", "4.0", "-movflags", "+faststart", out)
     # кадры для браузеров без видео: только прямой ход, обратный строит скрипт
     tmp = tempfile.mkdtemp(prefix="loop_")
     try:
