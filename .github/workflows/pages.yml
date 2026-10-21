@@ -31,7 +31,7 @@ jobs:
       - name: Собрать статику
         run: |
           mkdir -p _site
-          cp -a index.html 404.html styles.css site.js manifest.webmanifest .nojekyll film fonts _site/
+          cp -a index.html 404.html styles.css site.js diag.js manifest.webmanifest .nojekyll film fonts _site/
       - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
         with:
           path: _site

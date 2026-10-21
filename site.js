@@ -3,11 +3,20 @@
   "use strict";
 
   const doc = document.documentElement;
+  doc.classList.add("js");
   // совсем старый браузер: оставляем статичную страницу (без класса js всё видно сразу)
   if (!("IntersectionObserver" in window) || !window.requestAnimationFrame || !window.Set || !window.Map) { doc.classList.remove("js"); return; }
   const RM = doc.classList.contains("rm");
   // раздел, упавший в незнакомом браузере, не тянет за собой остальные: его содержимое показывается статично
-  const safe = (fn, onfail) => { try { return fn(); } catch (err) { console.warn(err); if (onfail) onfail(); else doc.classList.remove("js"); return null; } };
+  const diag = (m) => { if (window.kiyaevaLog) window.kiyaevaLog.push(m); };
+  const safe = (fn, onfail) => {
+    try { return fn(); } catch (err) {
+      console.warn(err);
+      diag(`сбой раздела: ${err && err.message} @ ${String(err && err.stack || "").split("\n")[1] || ""}`.slice(0, 220));
+      if (onfail) { try { onfail(); } catch (e) { /* ничего */ } } else doc.classList.remove("js");
+      return null;
+    }
+  };
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
   const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
@@ -423,7 +432,7 @@
   // описание под надписью появляется по словам
   const NB = String.fromCharCode(160);
   const short = (w) => /^[а-яё]{1,2}$/i.test(w);
-  $$(".ch .deck").forEach((d) => {
+  $$(".ch .deck").forEach((d) => safe(() => {
     const raw = d.textContent.trim().split(/\s+/);
     const words = [];
     raw.forEach((w) => {
@@ -433,7 +442,7 @@
     d.textContent = "";
     words.forEach((w, k) => { const sp = document.createElement("span"); sp.className = "dw"; sp.setAttribute("aria-hidden", "true"); sp.style.setProperty("--i", k); sp.textContent = w; d.appendChild(sp); d.appendChild(document.createTextNode(" ")); });
     const sr = document.createElement("span"); sr.className = "vh"; sr.textContent = raw.join(" "); d.appendChild(sr);
-  });
+  }, () => {}));
   // то же правило в обычных абзацах: меняем только текстовые узлы, разметка внутри остаётся
   safe(() => {
     const nb = (t) => t.replace(/(^|\s)([а-яё]{1,2}) +/gi, `$1$2${NB}`).replace(/ +—/g, `${NB}—`);
@@ -1050,7 +1059,7 @@
     let lw = innerWidth;
     addEventListener("resize", () => { if (innerWidth !== lw) { lw = innerWidth; fit(); } });
     return { fit };
-  });
+  }, () => $$(".card").forEach((c) => c.classList.add("in", "live")));
 
   /* ——— заголовки разделов и подвал: буквы поднимаются, когда блок входит в экран ——— */
   safe(() => {
@@ -1090,7 +1099,7 @@
     // палец на подписи разработчика нажимает только пока подпись видна
     const colo = $(".colophon");
     if (colo) new IntersectionObserver(([e]) => colo.classList.toggle("idle", !e.isIntersecting), { rootMargin: "10% 0px" }).observe(colo);
-  });
+  }, () => $$(".close-head, .rack-head, .end-copy, .end-media, .craft-head, .craft-grid, .craft-cta").forEach((b) => b.classList.add("seen")));
 
   /* ——— финал: ролик с лентой ——— */
   safe(() => {
@@ -1104,7 +1113,7 @@
     const v = guardLoop(v0, (c) => { io.observe(c); if (RM) tapPlay(c); });
     io.observe(v);
     if (RM) tapPlay(v);
-  });
+  }, () => {});
 
   /* ——— Гардероб ——— */
   safe(() => {
@@ -1556,7 +1565,7 @@
     tasks.add(update);
     // соседние текстуры подгружаем заранее
     sims.slice(0, 6).forEach((s) => new IntersectionObserver(([e], o) => { if (e.isIntersecting) { loadTex(s); o.disconnect(); } }, { rootMargin: "100% 100%" }).observe(s.shirt));
-  });
+  }, () => { const r = $("#rack"); if (r) r.classList.add("in"); });
 
   /* ——— материалы надписей: каждая выложена тем же, чем на футболке (стили .mb/.mt и цвета .m-* в styles.css) ——— */
   safe(() => {
@@ -1595,7 +1604,7 @@
     // заголовок раздела о ручной работе — как RUSSIAN GIRL; слово «вручную» на первом экране — тоже стеклярус
     put($(".craft-head"), "h2 .c", "mb", "m-red");
     const acc = $(".ih-acc"); if (acc) acc.classList.add("mb", "m-red");
-  });
+  }, () => {});
 
   /* ——— «Узнать цену»: у каждой вещи и на первом экране. Листок с готовым вопросом и двумя значками: Instagram и ВКонтакте ——— */
   safe(() => {
@@ -1709,7 +1718,7 @@
     $$(".hang").forEach((li) => { const st = $("figcaption strong", li); if (st) add($("figcaption", li), li.dataset.name || plain(st), st, !!li.dataset.name, "price-sm"); });
     // общие кнопки: первый экран, панель, раздел о ручной работе
     $$("[data-price]").forEach((b) => b.addEventListener("click", () => open(null, "", b)));
-  });
+  }, () => {});
 
   // «Посмотреть все»: страница мягко уходит вниз, к первой футболке (RUSSIAN GIRL в начале фильма)
   safe(() => {
@@ -1732,7 +1741,7 @@
       };
       stopAnim(); anim = requestAnimationFrame(step);
     });
-  });
+  }, () => {});
 
   // возврат на страницу (кнопка «назад», вкладка из фона): сцена досчитывает кадр
   addEventListener("pageshow", (e) => { if (e.persisted) wake(); });
@@ -1754,5 +1763,6 @@
     addEventListener("load", ready);
   }
   wake();
+  diag(`скрипт дошёл до конца: фильм ${Film ? "да" : "нет"}, кадры вместо видео ${NOVIDEO ? "да" : "нет"}, меньше движения ${RM ? "да" : "нет"}`);
   window.kiyaevaReady = true; // сторож в <head> видит, что скрипт дошёл до конца
 })();
