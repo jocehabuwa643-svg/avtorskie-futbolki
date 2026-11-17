@@ -1,0 +1,57 @@
+<!-- data-gl-banner -->
+<aside class="glb" data-gl-banner aria-label="Реклама: Green Life — озеленение">
+<style>
+.glb{position:relative;overflow:hidden;margin:0;padding:150px 20px 34px;color:#eaf6ea;font-family:Manrope,system-ui,sans-serif;background:linear-gradient(180deg,rgba(10,42,30,0) 0,rgba(10,42,30,.55) 90px,#0a2a1e 170px,#0d3a29 100%);isolation:isolate}
+.glb *{box-sizing:border-box}
+.glb-glow{position:absolute;inset:auto;width:460px;height:460px;border-radius:50%;filter:blur(70px);opacity:.5;z-index:-1;animation:glb-float 14s ease-in-out infinite alternate}
+.glb-g1{left:-120px;bottom:-200px;background:#2fa866}
+.glb-g2{right:-100px;top:60px;background:#b6e35a;opacity:.28;animation-duration:19s}
+@keyframes glb-float{to{transform:translate(70px,-50px) scale(1.18)}}
+.glb-leaf{position:absolute;bottom:-40px;width:44px;height:44px;color:#7fd18b;opacity:0;z-index:-1;animation:glb-rise 12s linear infinite}
+.glb-leaf:nth-of-type(1){left:8%;animation-delay:0s}
+.glb-leaf:nth-of-type(2){left:27%;animation-delay:3.5s;width:30px;height:30px}
+.glb-leaf:nth-of-type(3){left:61%;animation-delay:6s;width:38px;height:38px;color:#c8f26b}
+.glb-leaf:nth-of-type(4){left:83%;animation-delay:9s;width:28px;height:28px}
+@keyframes glb-rise{0%{opacity:0;transform:translateY(0) rotate(0)}15%{opacity:.7}85%{opacity:.5}100%{opacity:0;transform:translateY(-230px) rotate(140deg) translateX(26px)}}
+.glb-marq{position:absolute;left:0;right:0;top:112px;white-space:nowrap;font:700 74px/1 Oswald,Impact,sans-serif;text-transform:uppercase;color:transparent;-webkit-text-stroke:1px rgba(160,230,170,.18);z-index:-1;animation:glb-slide 38s linear infinite;pointer-events:none}
+@keyframes glb-slide{to{transform:translateX(-50%)}}
+.glb-in{position:relative;max-width:980px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+.glb-t{flex:1 1 360px;min-width:0}
+.glb-k{margin:0 0 8px;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#8fdc9c}
+.glb-h{margin:0;font:600 clamp(24px,4.2vw,38px)/1.12 Oswald,Impact,sans-serif;text-transform:uppercase;letter-spacing:.01em}
+.glb-h span{display:inline-block;opacity:0;transform:translateY(14px);animation:glb-in 1s cubic-bezier(.2,.7,.2,1) forwards;animation-play-state:paused}
+.glb-h span:nth-child(2){animation-delay:.18s}.glb-h span:nth-child(3){animation-delay:.36s}
+.glb-h em{font-style:normal;color:#c8f26b}
+@keyframes glb-in{to{opacity:1;transform:none}}
+.glb:hover .glb-h span,.glb:focus-within .glb-h span{animation-play-state:running}
+.glb-p{margin:10px 0 0;max-width:520px;font-size:14px;line-height:1.5;color:#bfe0c6}
+.glb-w{display:inline-block;min-width:11ch;color:#fff;font-weight:700}
+.glb-w::after{content:"озеленение";animation:glb-words 9s steps(1) infinite}
+@keyframes glb-words{0%{content:"озеленение"}33%{content:"благоустройство"}66%{content:"питомник растений"}}
+.glb-btn{position:relative;display:inline-flex;align-items:center;gap:12px;padding:15px 26px;border-radius:999px;background:linear-gradient(135deg,#c8f26b,#5fcf80);color:#07261a;font:700 15px/1 Manrope,system-ui,sans-serif;text-decoration:none;box-shadow:0 8px 28px rgba(95,207,128,.35);transition:transform .35s,box-shadow .35s;animation:glb-pulse 2.8s ease-out infinite}
+.glb-btn:hover,.glb-btn:focus-visible{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 38px rgba(200,242,107,.5);outline:0}
+.glb-btn svg{width:22px;height:22px;transition:transform .35s;animation:glb-nudge 1.8s ease-in-out infinite}
+.glb-btn:hover svg{transform:translateX(7px);animation:none}
+@keyframes glb-nudge{50%{transform:translateX(5px)}}
+@keyframes glb-pulse{0%{box-shadow:0 8px 28px rgba(95,207,128,.35),0 0 0 0 rgba(200,242,107,.55)}70%,100%{box-shadow:0 8px 28px rgba(95,207,128,.35),0 0 0 22px rgba(200,242,107,0)}}
+.glb-note{max-width:980px;margin:18px auto 0;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:rgba(190,224,198,.45)}
+@media(max-width:620px){.glb{padding-top:120px}.glb-marq{font-size:52px;top:90px}.glb-btn{width:100%;justify-content:center}}
+@media(prefers-reduced-motion:reduce){.glb *{animation:none!important}.glb-h span{opacity:1;transform:none}.glb-w::after{content:"озеленение"}}
+html.rm .glb *{animation:none!important}html.rm .glb-h span{opacity:1;transform:none}
+</style>
+<div class="glb-glow glb-g1" aria-hidden="true"></div><div class="glb-glow glb-g2" aria-hidden="true"></div>
+<div class="glb-marq" aria-hidden="true">Озеленение · Благоустройство · Питомник растений · Озеленение · Благоустройство · Питомник растений · </div>
+<svg class="glb-leaf" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 3C9 3 4 9 4 15c0 2 .6 3.6 1.5 5C7 14 11 11 15 9.5 11.500 12 8.500 15.500 7.500 20.500 8.800 21 10 21 11 21c6 0 9-6 9-18z"/></svg>
+<svg class="glb-leaf" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 3C9 3 4 9 4 15c0 2 .6 3.6 1.5 5C7 14 11 11 15 9.5 11.500 12 8.500 15.500 7.500 20.500 8.800 21 10 21 11 21c6 0 9-6 9-18z"/></svg>
+<svg class="glb-leaf" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 3C9 3 4 9 4 15c0 2 .6 3.6 1.5 5C7 14 11 11 15 9.5 11.500 12 8.500 15.500 7.500 20.500 8.800 21 10 21 11 21c6 0 9-6 9-18z"/></svg>
+<svg class="glb-leaf" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20 3C9 3 4 9 4 15c0 2 .6 3.6 1.5 5C7 14 11 11 15 9.5 11.500 12 8.500 15.500 7.500 20.500 8.800 21 10 21 11 21c6 0 9-6 9-18z"/></svg>
+<div class="glb-in">
+<div class="glb-t">
+<p class="glb-k">Green Life · Новосибирск</p>
+<h2 class="glb-h"><span>Футболку</span> <span>вышивают</span> <span>нитью. <em>Сад — тоже.</em></span></h2>
+<p class="glb-p">Мы делаем <b class="glb-w"></b> — аккуратно, по-настоящему и надолго.</p>
+</div>
+<a class="glb-btn" href="https://jocehabuwa643-svg.github.io/green-life/" target="_blank" rel="noopener">Мне тоже надо зелени <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+</div>
+<p class="glb-note">Реклама · озеленение и благоустройство</p>
+</aside>
